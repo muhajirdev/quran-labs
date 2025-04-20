@@ -16,13 +16,13 @@
     "links": [
       {
         "label": "GitHub",
-        "href": "https://github.com/yourusername/quran-knowledge-graph"
+        "href": "https://github.com/muhajirdev/quran-labs"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Get Started",
-      "href": "https://github.com/yourusername/quran-knowledge-graph"
+      "href": "https://github.com/muhajirdev/quran-labs"
     }
   },
   "navigation": {
