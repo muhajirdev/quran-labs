@@ -1,0 +1,162 @@
+---
+title: 'Quran AI'
+description: 'AI-powered Quran exploration and reflection tool'
+---
+
+# 🌙 **Product Overview – "Quran AI"**
+
+## 🗌 **Product Purpose**
+
+**Quran AI** helps Muslims explore, reflect on, and act upon the Quran **through the lens of their life context**—whether as a parent, student, professional, or seeker. Using AI, vector search, and rich semantic graphs, it connects personal queries to authentic verses, tafsir, and reflection pathways.
+
+## 🎯 **Core Value Propositions**
+
+| Value Proposition | Description |
+| --- | --- |
+| 🔍 **AI-powered Quran search** | Users can ask any question or describe a life situation and get relevant Quranic verses with tafsir, hadith, and commentary |
+| 🧠 **Deep verse understanding** | Dive into the root meanings, other uses of the word, historical context, and scholarly interpretations |
+| 🗜️ **Contextualized journey** | Experience Quran not just linearly (Al-Fatiha → An-Nas), but based on your life stage, profession, struggles, goals or emotion |
+| 🤖 **Smart assistant for reflection** | Interact with verses through a conversational AI trained on authentic tafsir, curated lectures, and Islamic literature |
+
+## 👤 **Personas and Use Cases**
+
+| Persona | Use Case |
+| --- | --- |
+| **Everyday Muslim** | "I'm grieving. What does the Quran say about loss?" |
+| **Spouse/Parent** | "How can I raise righteous kids?" |
+| **Professional** | "I run a business. What does Islam say about ethics in contracts?" |
+| **Student/Seeker** | "I want to understand Surah Yusuf deeply." |
+| **New Convert** | "I'm new to Islam. What are the core beliefs outlined in the Quran?" |
+| **Imam/Religious Leader** | "I'm preparing a khutbah (sermon) on social justice. What verses offer guidance on this topic, and what are the different interpretations?" |
+| **Activist** | "How does the Quran speak to the issue of environmental protection?" |
+| **Therapist/Counselor** | "I have a Muslim client struggling with anxiety. Can Quran AI help me find verses or interpretations that offer comfort and guidance?" |
+| **Researcher/Academic** | "I'm writing a paper on the historical context of a particular verse. Can Quran AI provide access to relevant historical sources and scholarly analyses?" |
+| **Community Organizer** | "I'm trying to build bridges between different faith communities. Are there Quranic verses that emphasize common values and mutual respect?" |
+| **Someone facing a Dilemma** | "I am facing a tough decision at work that will impact my income. What is the Islamic perspective on prioritizing rizq versus being honest, even if it means less income?" |
+| **Someone Struggling with Faith** | "I am doubting my faith, what are some verses I can read that help me get closer to Allah?" |
+| **Someone in Debt** | "I am struggling with paying back debt, is there anything the Quran mentions regarding debt and how to handle it?" |
+| **Muslim In a Pluralistic society** | "How can I practice my religion while respecting the laws and values of a secular society?" |
+
+## 🛠️ **Core Features**
+
+### 1. 🔍 **AI-Powered Search**
+
+- Natural language question answering:
+    - "What does the Quran say about dealing with anger?"
+    - "What should a woman do if her menstruation lasts longer than usual?"
+- Behind-the-scenes:
+    - Vector embeddings of Quran, tafsir, hadith, scholarly fatwas
+    - Graph relationships between related verses
+    - Semantic similarity search + relevance scoring
+- Output:
+    - Answer summary
+    - List of verses with context
+    - Sources (Tafsir Ibn Kathir, Al-Jalalayn, etc.)
+    - Option to dig deeper or ask follow-up
+- Additional Capabilities:
+    - Get a summary + related verses
+    - Topic or Q&A search
+        - Find topical verses or sections (via vector graph)
+        - Analyze all relevant verses to share a conclusion with references
+        - Find across translations and commentary about a specific verse:
+            - Ask about references
+            - Discover unconventional opinions
+            - Understand how a verse applies today and the lessons we can draw from it
+
+### 2. 📖 **Verse Deep Dive Explorer**
+
+- Verse breakdown screen includes:
+    - Word-by-word translation and root analysis
+    - Tafsir comparison (across classical and modern). So user knows many kind of interpretations of the verse
+    - Hadith & Asbab al-Nuzul linking
+    - Visual exploration: root usage across the Quran
+    - Cross-references: verses using similar words, concepts, or tone
+- AI enhancements:
+    - "Reflect on this verse" generator
+    - "Connect this verse to your life" prompts
+    - Tafsir simplifier for beginners
+- Additional Capabilities:
+    - Word deep-dive:
+        - Get all the words and verses using the same root word
+        - AI-assisted thematic analysis of root word usage across verses
+    - AI search with context across all related materials
+    - Consistency validator to check alignment of personal interpretation with the Quran as a whole
+    - Should also provide related youtube / podcast that is related to this verse
+
+### 3. 🔝 **Personalized Reading Experience**
+
+- Entry points by **life context**:
+    - Roles (parent, spouse, student)
+    - Emotional state (anxiety, doubt, gratitude)
+    - Goals (leadership, spiritual growth, decision-making)
+- Replaces "Start with Al-Fatiha" with:
+    - "Start with stories of the Prophets"
+    - "Start with patience in trials"
+    - "Start with guidance for entrepreneurs"
+- Feeds powered by:
+    - User questionnaire
+    - Behavioral data (topics explored, saved verses)
+    - AI clustering of similar user journeys
+
+### 4. 📊 **Semantic Graph & Data Infrastructure**
+
+#### 🔗 Graph-based Quran Schema
+
+- Nodes:
+    - Surah
+        - Revelation location
+        - Revelation Date
+    - Verse
+        - Surah Number, Verse Number, Revelation Date, Asbabun nuzul
+    - Section
+        - Surah Number, Number of verses, Topic, Commentary
+    - Word
+        - word_length
+        - encyclopedic explanation
+        - value
+    - Root Word
+        - encyclopedic explanation
+        - keywords of meanings
+        - translations
+    - Tafsir
+    - Translation
+        - Language
+        - Author
+    - Concept (E.g, Afterlife, Death, Quran, Pen, Boat)
+    - Entity (E.g Musa, Muhammad, Angel)
+- Relationships:
+    - Word ↔ Root
+    - Verse ↔ Tafsir/Topic/Word
+    - Verse ↔ Verse (via similarity or flow)
+    - Verse ↔ Section
+- Each node has:
+    - Metadata (word count, value, chronology)
+    - Vector embeddings
+    - External media references
+
+#### 🧠 Vector Search Backend
+
+- Content embedded:
+    - Quran (Arabic and translations)
+    - Tafsir collections
+    - Sahih Hadith corpuses
+    - Fiqh guides & fatwa databases
+    - Video/audio metadata
+
+## Development Roadmap
+
+### Initial Release
+- AI-powered search
+- Deep dive verse viewer
+- Contextualized reading starter (role/life-based)
+- Word/root explorer
+- Graph-lite: show related verses + tafsir
+
+### Future Enhancements
+- Graph Navigation
+    - Users explore Quran thematically via a relationship graph
+- Learning Boards
+    - Study board interface for structured self-learning
+- Community tools, whiteboard, etc.
+
+QuranAI → QuranOS?

@@ -39,6 +39,7 @@
         "group": "Products and Use Cases",
         "pages": [
           "products/README",
+          "products/quran-ai",
           "products/exploration_tools",
           "products/study_learning",
           "products/research_analysis",
