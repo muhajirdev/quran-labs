@@ -1,0 +1,375 @@
+# Rhetorical and Linguistic Analysis Queries
+
+This document provides query examples focused on analyzing the rhetorical and linguistic features of the Quranic text, inspired by the analytical approach of scholars like Nouman Ali Khan.
+
+## 1. Word Repetition Patterns
+
+### Description
+Identifies meaningful word repetition patterns within verses or across adjacent verses, which often serve rhetorical purposes such as emphasis, contrast, or thematic development.
+
+### Query
+```cypher
+// Find significant word repetition patterns within verses
+MATCH (v:Verse)-[:CONTAINS_WORD]->(w1:Word)-[:HAS_ROOT]->(r:Root)
+MATCH (v)-[:CONTAINS_WORD]->(w2:Word)-[:HAS_ROOT]->(r)
+WHERE w1.position < w2.position
+  AND abs(w1.position - w2.position) <= $max_distance
+WITH v, r.text_clean AS root, collect(DISTINCT {word: w1.text_uthmani, position: w1.position}) AS occurrences
+WHERE size(occurrences) >= $min_repetitions
+RETURN v.verse_key, v.text_uthmani, root, occurrences
+ORDER BY size(occurrences) DESC
+LIMIT $limit
+```
+
+### Parameters
+- `max_distance`: Maximum distance between repeated words (e.g., 10)
+- `min_repetitions`: Minimum number of repetitions to consider significant (e.g., 2)
+- `limit`: Maximum number of results to return (e.g., 20)
+
+### Expected Results
+A table showing verses with significant word repetition patterns:
+| verse_key | text_uthmani | root | occurrences |
+|-----------|--------------|------|-------------|
+| 55:13 | فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ | ءالاء | [{word: "آلَاءِ", position: 3}, {word: "آلَاءِ", position: 13}] |
+| 2:185 | شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ هُدًى لِّلنَّاسِ... | هدي | [{word: "هُدًى", position: 8}, {word: "الْهُدَىٰ", position: 12}] |
+| ... | ... | ... | ... |
+
+### Variations
+- Find repetition across adjacent verses: `MATCH (c:Chapter)-[:CONTAINS]->(v1:Verse) MATCH (c)-[:CONTAINS]->(v2:Verse) WHERE v2.verse_number = v1.verse_number + 1 MATCH (v1)-[:CONTAINS_WORD]->(w1:Word)-[:HAS_ROOT]->(r:Root) MATCH (v2)-[:CONTAINS_WORD]->(w2:Word)-[:HAS_ROOT]->(r)`
+- Analyze repetition by chapter: `WITH c.name_english AS chapter, count(DISTINCT v) AS verses_with_repetition RETURN chapter, verses_with_repetition ORDER BY verses_with_repetition DESC`
+- Focus on specific roots: `WHERE r.text_clean IN $significant_roots`
+
+---
+
+## 2. Rhetorical Question Analysis
+
+### Description
+Identifies and analyzes rhetorical questions in the Quran, which are often used to provoke reflection, emphasize points, or engage the reader.
+
+### Query
+```cypher
+// Find verses containing rhetorical question markers
+MATCH (v:Verse)-[:CONTAINS_WORD]->(w:Word)
+WHERE w.text_uthmani IN $question_markers
+  AND w.position <= 3  // Question markers often appear early in the verse
+WITH v, collect(w.text_uthmani) AS markers
+MATCH (v)-[:ADDRESSES_TOPIC]->(t:Topic)
+WITH v, markers, collect(DISTINCT t.name) AS topics
+RETURN v.verse_key, v.text_uthmani, markers, topics
+ORDER BY v.verse_key
+LIMIT $limit
+```
+
+### Parameters
+- `question_markers`: List of words that typically indicate rhetorical questions (e.g., ["أَلَمْ", "أَفَلَا", "أَلَا", "هَلْ"])
+- `limit`: Maximum number of results to return (e.g., 30)
+
+### Expected Results
+A table of verses containing rhetorical questions:
+| verse_key | text_uthmani | markers | topics |
+|-----------|--------------|---------|--------|
+| 2:44 | أَتَأْمُرُونَ النَّاسَ بِالْبِرِّ وَتَنسَوْنَ أَنفُسَكُمْ... | ["أَتَأْمُرُونَ"] | ["Ethics", "Hypocrisy"] |
+| 6:50 | قُل لَّا أَقُولُ لَكُمْ عِندِي خَزَائِنُ اللَّهِ وَلَا أَعْلَمُ الْغَيْبَ... | ["هَلْ"] | ["Prophethood", "Divine Knowledge"] |
+| ... | ... | ... | ... |
+
+### Variations
+- Group by rhetorical purpose: `MATCH (v)-[:ADDRESSES_TOPIC]->(t:Topic) WHERE t.name IN ["Reflection", "Admonition", "Reminder"] WITH v, markers, t.name AS rhetorical_purpose RETURN rhetorical_purpose, count(v) AS question_count`
+- Analyze by revelation period: `MATCH (v)<-[:CONTAINS]-(c:Chapter) RETURN c.revelation_place, count(v) AS question_count`
+- Find patterns in question placement: `WITH v.verse_number AS position, count(*) AS frequency RETURN position, frequency ORDER BY position`
+
+---
+
+## 3. Parallelism and Contrast Structures
+
+### Description
+Identifies verses that employ parallelism or contrast as rhetorical devices, which are often used to emphasize comparisons or highlight differences.
+
+### Query
+```cypher
+// Find verses with parallel or contrasting structures
+MATCH (v:Verse)-[:CONTAINS_WORD]->(w1:Word)
+MATCH (v)-[:CONTAINS_WORD]->(w2:Word)
+WHERE abs(w1.position - w2.position) <= 5
+  AND (
+    // Parallel structures often use the same root in different forms
+    (w1)-[:HAS_ROOT]->(:Root)<-[:HAS_ROOT]-(w2) AND w1.text_uthmani <> w2.text_uthmani
+    OR
+    // Contrasting pairs
+    w1.text_uthmani IN $contrast_words AND w2.text_uthmani IN $contrast_pairs[w1.text_uthmani]
+  )
+WITH v, collect(DISTINCT {word1: w1.text_uthmani, word2: w2.text_uthmani, positions: [w1.position, w2.position]}) AS structures
+WHERE size(structures) >= $min_structures
+RETURN v.verse_key, v.text_uthmani, structures
+ORDER BY size(structures) DESC
+LIMIT $limit
+```
+
+### Parameters
+- `contrast_words`: List of words commonly used in contrasting pairs (e.g., ["الدُّنْيَا", "السَّمَاوَاتِ", "الْخَيْرِ"])
+- `contrast_pairs`: Map of contrasting word pairs (e.g., {"الدُّنْيَا": ["الْآخِرَةِ"], "السَّمَاوَاتِ": ["الْأَرْضِ"], "الْخَيْرِ": ["الشَّرِّ"]})
+- `min_structures`: Minimum number of parallel/contrast structures to consider significant (e.g., 2)
+- `limit`: Maximum number of results to return (e.g., 20)
+
+### Expected Results
+A table showing verses with parallel or contrasting structures:
+| verse_key | text_uthmani | structures |
+|-----------|--------------|------------|
+| 2:216 | وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ ۖ وَعَسَىٰ أَن تُحِبُّوا شَيْئًا وَهُوَ شَرٌّ لَّكُمْ | [{word1: "تَكْرَهُوا", word2: "تُحِبُّوا", positions: [4, 14]}, {word1: "خَيْرٌ", word2: "شَرٌّ", positions: [7, 17]}] |
+| 57:3 | هُوَ الْأَوَّلُ وَالْآخِرُ وَالظَّاهِرُ وَالْبَاطِنُ ۖ وَهُوَ بِكُلِّ شَيْءٍ عَلِيمٌ | [{word1: "الْأَوَّلُ", word2: "الْآخِرُ", positions: [2, 4]}, {word1: "الظَّاهِرُ", word2: "الْبَاطِنُ", positions: [6, 8]}] |
+| ... | ... | ... |
+
+### Variations
+- Focus on specific rhetorical structures: `WHERE w1.text_uthmani = "مَن" AND w2.text_uthmani = "فَ" AND w2.position = w1.position + 5`
+- Analyze by chapter type: `MATCH (v)<-[:CONTAINS]-(c:Chapter) WITH c.revelation_place AS place, count(DISTINCT v) AS verse_count RETURN place, verse_count`
+- Find common parallel patterns: `WITH {word1: w1.text_uthmani, word2: w2.text_uthmani} AS pattern, count(DISTINCT v) AS frequency RETURN pattern.word1, pattern.word2, frequency ORDER BY frequency DESC LIMIT 10`
+
+---
+
+## 4. Word Position and Emphasis Analysis
+
+### Description
+Analyzes the strategic positioning of words within verses, which often serves to emphasize key concepts or create rhetorical impact.
+
+### Query
+```cypher
+// Analyze the position of significant words within verses
+MATCH (v:Verse)-[:CONTAINS_WORD]->(w:Word)-[:HAS_ROOT]->(r:Root)
+WHERE r.text_clean IN $significant_roots
+MATCH (v)-[:CONTAINS_WORD]->(all_words:Word)
+WITH v, w, r, count(all_words) AS verse_length
+WITH r.text_clean AS root, 
+     w.position * 1.0 / verse_length AS relative_position,
+     count(*) AS frequency
+WHERE frequency >= $min_frequency
+RETURN root, 
+       CASE 
+         WHEN relative_position <= 0.33 THEN "Beginning" 
+         WHEN relative_position <= 0.66 THEN "Middle" 
+         ELSE "End" 
+       END AS position_in_verse,
+       frequency
+ORDER BY root, position_in_verse
+```
+
+### Parameters
+- `significant_roots`: List of roots with rhetorical significance (e.g., ["ألله", "رحم", "علم", "قول"])
+- `min_frequency`: Minimum frequency threshold (e.g., 10)
+
+### Expected Results
+A table showing the distribution of significant words by position:
+| root | position_in_verse | frequency |
+|------|-------------------|-----------|
+| ألله | Beginning | 342 |
+| ألله | Middle | 567 |
+| ألله | End | 289 |
+| رحم | Beginning | 45 |
+| رحم | Middle | 78 |
+| رحم | End | 156 |
+| ... | ... | ... |
+
+### Variations
+- Analyze by chapter type: `MATCH (v)<-[:CONTAINS]-(c:Chapter) WITH c.revelation_place AS place, root, position_in_verse, count(*) AS frequency RETURN place, root, position_in_verse, frequency`
+- Focus on specific verse types: `MATCH (v)-[:ADDRESSES_TOPIC]->(t:Topic {name: $topic_name})`
+- Compare with word emphasis: `MATCH (v)-[:CONTAINS_WORD]->(w) WHERE w.text_uthmani ENDS WITH "ًا" OR w.text_uthmani ENDS WITH "ٌ" WITH w.text_uthmani AS emphasized_word, w.position * 1.0 / verse_length AS relative_position`
+
+---
+
+## 5. Conditional Statement Analysis
+
+### Description
+Identifies and analyzes conditional statements in the Quran, which often establish cause-effect relationships or present hypothetical scenarios for rhetorical effect.
+
+### Query
+```cypher
+// Find verses containing conditional statements
+MATCH (v:Verse)-[:CONTAINS_WORD]->(condition:Word)
+WHERE condition.text_uthmani IN $conditional_markers
+MATCH (v)-[:CONTAINS_WORD]->(result:Word)
+WHERE result.text_uthmani IN $result_markers
+  AND result.position > condition.position
+WITH v, condition, result
+MATCH (v)-[:ADDRESSES_TOPIC]->(t:Topic)
+WITH v, condition.text_uthmani AS condition_marker, 
+     result.text_uthmani AS result_marker,
+     condition.position AS condition_pos,
+     result.position AS result_pos,
+     collect(DISTINCT t.name) AS topics
+RETURN v.verse_key, v.text_uthmani, 
+       condition_marker, condition_pos,
+       result_marker, result_pos,
+       topics
+ORDER BY v.verse_key
+LIMIT $limit
+```
+
+### Parameters
+- `conditional_markers`: Words that typically mark conditions (e.g., ["إِن", "إِذَا", "لَوْ", "مَن"])
+- `result_markers`: Words that typically mark results or consequences (e.g., ["فَ", "لَ", "إِنَّ"])
+- `limit`: Maximum number of results to return (e.g., 25)
+
+### Expected Results
+A table showing verses with conditional statements:
+| verse_key | text_uthmani | condition_marker | condition_pos | result_marker | result_pos | topics |
+|-----------|--------------|------------------|---------------|---------------|------------|--------|
+| 2:38 | فَإِمَّا يَأْتِيَنَّكُم مِّنِّي هُدًى فَمَن تَبِعَ هُدَايَ فَلَا خَوْفٌ عَلَيْهِمْ... | مَن | 7 | فَ | 10 | ["Guidance", "Faith", "Salvation"] |
+| 3:31 | قُلْ إِن كُنتُمْ تُحِبُّونَ اللَّهَ فَاتَّبِعُونِي يُحْبِبْكُمُ اللَّهُ... | إِن | 2 | فَ | 6 | ["Love of God", "Following the Prophet"] |
+| ... | ... | ... | ... | ... | ... | ... |
+
+### Variations
+- Analyze by condition type: `WITH condition_marker, count(*) AS frequency RETURN condition_marker, frequency ORDER BY frequency DESC`
+- Group by thematic context: `WITH topics, count(*) AS conditional_statements UNWIND topics AS topic RETURN topic, sum(conditional_statements) AS frequency ORDER BY frequency DESC LIMIT 10`
+- Analyze structure complexity: `WITH v, abs(result_pos - condition_pos) AS structure_length ORDER BY structure_length DESC`
+
+---
+
+## 6. Oath and Emphasis Patterns
+
+### Description
+Identifies verses containing oaths and emphatic expressions, which are powerful rhetorical devices used to draw attention to important statements.
+
+### Query
+```cypher
+// Find verses beginning with oaths
+MATCH (v:Verse)-[:CONTAINS_WORD]->(w:Word)
+WHERE w.position = 1 AND w.text_uthmani IN $oath_markers
+WITH v, w.text_uthmani AS oath_marker
+
+// Find what the oath is emphasizing
+OPTIONAL MATCH (v)-[:CONTAINS_WORD]->(emphasis:Word)
+WHERE emphasis.position > 1 AND emphasis.text_uthmani IN $emphasis_markers
+WITH v, oath_marker, emphasis
+
+// Get the topics addressed
+MATCH (v)-[:ADDRESSES_TOPIC]->(t:Topic)
+WITH v, oath_marker, 
+     CASE WHEN emphasis IS NULL THEN "N/A" ELSE emphasis.text_uthmani END AS emphasis_marker,
+     collect(DISTINCT t.name) AS topics
+RETURN v.verse_key, v.text_uthmani, oath_marker, emphasis_marker, topics
+ORDER BY v.verse_key
+LIMIT $limit
+```
+
+### Parameters
+- `oath_markers`: Words that typically begin oaths (e.g., ["وَ", "فَوَ", "تَ"])
+- `emphasis_markers`: Words that typically mark the emphasized statement (e.g., ["إِنَّ", "لَ", "قَدْ"])
+- `limit`: Maximum number of results to return (e.g., 30)
+
+### Expected Results
+A table showing verses with oaths and emphatic expressions:
+| verse_key | text_uthmani | oath_marker | emphasis_marker | topics |
+|-----------|--------------|-------------|-----------------|--------|
+| 91:1 | وَالشَّمْسِ وَضُحَاهَا | وَ | N/A | ["Natural Phenomena", "Divine Signs"] |
+| 92:1 | وَاللَّيْلِ إِذَا يَغْشَىٰ | وَ | إِذَا | ["Natural Phenomena", "Time"] |
+| ... | ... | ... | ... | ... |
+
+### Variations
+- Group by oath subject: `MATCH (v)-[:CONTAINS_WORD]->(subject:Word) WHERE subject.position = 2 WITH subject.text_uthmani AS oath_subject, count(*) AS frequency RETURN oath_subject, frequency ORDER BY frequency DESC`
+- Analyze by chapter: `MATCH (v)<-[:CONTAINS]-(c:Chapter) WITH c.name_english AS chapter, count(v) AS oath_count RETURN chapter, oath_count ORDER BY oath_count DESC`
+- Find patterns in what is being emphasized: `MATCH (v)-[:ADDRESSES_TOPIC]->(t:Topic) WITH t.name AS topic, count(*) AS frequency RETURN topic, frequency ORDER BY frequency DESC LIMIT 10`
+
+---
+
+## 7. Phonetic and Rhythmic Pattern Analysis
+
+### Description
+Analyzes phonetic and rhythmic patterns in the Quranic text, which contribute to its musical quality and rhetorical impact.
+
+### Query
+```cypher
+// Analyze verse endings for rhyme patterns
+MATCH (c:Chapter {chapter_number: $chapter_number})-[:CONTAINS]->(v:Verse)
+WITH c, v
+ORDER BY v.verse_number
+MATCH (v)-[:CONTAINS_WORD]->(last_word:Word)
+WHERE last_word.position = (
+  MATCH (v)-[:CONTAINS_WORD]->(w:Word)
+  RETURN max(w.position)
+)
+WITH c, v.verse_number AS verse_number, last_word.text_uthmani AS last_word,
+     right(last_word.text_uthmani, 2) AS ending
+WITH c, collect({verse: verse_number, word: last_word, ending: ending}) AS verse_endings
+
+// Identify rhyme patterns
+UNWIND range(0, size(verse_endings)-2) AS i
+WITH c, verse_endings,
+     verse_endings[i].ending AS ending1,
+     verse_endings[i+1].ending AS ending2,
+     verse_endings[i].verse AS verse1,
+     verse_endings[i+1].verse AS verse2
+WHERE ending1 = ending2
+WITH c, collect({start: verse1, end: verse2, pattern: ending1}) AS rhyme_sections
+UNWIND rhyme_sections AS section
+RETURN c.name_english AS chapter,
+       section.start AS start_verse,
+       section.end AS end_verse,
+       section.pattern AS rhyme_pattern
+ORDER BY chapter, start_verse
+LIMIT $limit
+```
+
+### Parameters
+- `chapter_number`: Chapter to analyze for rhyme patterns (e.g., 55)
+- `limit`: Maximum number of rhyme sections to return (e.g., 20)
+
+### Expected Results
+A table showing rhyme patterns within the chapter:
+| chapter | start_verse | end_verse | rhyme_pattern |
+|---------|-------------|-----------|---------------|
+| The Beneficent | 1 | 2 | ان |
+| The Beneficent | 3 | 4 | ان |
+| The Beneficent | 7 | 8 | ان |
+| ... | ... | ... | ... |
+
+### Variations
+- Analyze sound repetition: `MATCH (v:Verse)-[:CONTAINS_WORD]->(w:Word) WITH v, substring(w.text_uthmani, 0, 1) AS initial_sound, count(*) AS frequency WHERE frequency >= 3 RETURN v.verse_key, initial_sound, frequency ORDER BY frequency DESC`
+- Identify assonance patterns: `MATCH (v:Verse)-[:CONTAINS_WORD]->(w:Word) WITH v, apoc.text.clean(w.text_uthmani) AS cleaned_word, count(*) AS word_count WITH v, collect(cleaned_word) AS words, word_count RETURN v.verse_key, words, word_count ORDER BY v.verse_key`
+- Compare rhythmic patterns across chapters: `WITH c.name_english AS chapter, count(DISTINCT section.pattern) AS pattern_diversity RETURN chapter, pattern_diversity ORDER BY pattern_diversity DESC`
+
+---
+
+## 8. Structural Symmetry Analysis
+
+### Description
+Identifies symmetrical structures within chapters or passages, which often serve to emphasize central themes or create aesthetic balance.
+
+### Query
+```cypher
+// Analyze potential ring structures in a chapter
+MATCH (c:Chapter {chapter_number: $chapter_number})-[:CONTAINS]->(v:Verse)
+WITH c, v
+ORDER BY v.verse_number
+WITH c, collect({key: v.verse_key, number: v.verse_number, embedding: v.embedding}) AS verses
+WITH c, verses, size(verses) AS chapter_size
+
+// Compare verses symmetrically positioned from start and end
+UNWIND range(0, floor(chapter_size/2)-1) AS i
+WITH c, verses, i,
+     verses[i].key AS verse1,
+     verses[chapter_size-i-1].key AS verse2,
+     vector_similarity(verses[i].embedding, verses[chapter_size-i-1].embedding) AS similarity
+WHERE similarity > $similarity_threshold
+RETURN c.name_english AS chapter,
+       verse1, verse2,
+       similarity
+ORDER BY similarity DESC
+LIMIT $limit
+```
+
+### Parameters
+- `chapter_number`: Chapter to analyze for symmetrical structures (e.g., 36)
+- `similarity_threshold`: Minimum similarity threshold for potential symmetry (e.g., 0.6)
+- `limit`: Maximum number of symmetrical pairs to return (e.g., 15)
+
+### Expected Results
+A table showing potentially symmetrical verse pairs:
+| chapter | verse1 | verse2 | similarity |
+|---------|--------|--------|------------|
+| Ya-Sin | 36:1 | 36:83 | 0.78 |
+| Ya-Sin | 36:2 | 36:82 | 0.72 |
+| Ya-Sin | 36:3 | 36:81 | 0.65 |
+| ... | ... | ... | ... |
+
+### Variations
+- Analyze thematic symmetry: `MATCH (v1:Verse {verse_key: verse1})-[:ADDRESSES_TOPIC]->(t1:Topic) WITH verse1, verse2, similarity, collect(DISTINCT t1.name) AS topics1 MATCH (v2:Verse {verse_key: verse2})-[:ADDRESSES_TOPIC]->(t2:Topic) WITH verse1, verse2, similarity, topics1, collect(DISTINCT t2.name) AS topics2 RETURN verse1, verse2, similarity, [t IN topics1 WHERE t IN topics2] AS shared_topics`
+- Identify central verses: `WITH c, verses, floor(chapter_size/2) AS midpoint RETURN c.name_english AS chapter, verses[midpoint-1].key AS central_verse`
+- Compare with linguistic markers: `MATCH (v1:Verse {verse_key: verse1})-[:CONTAINS_WORD]->(w1:Word) WHERE w1.position = 1 WITH verse1, verse2, similarity, w1.text_uthmani AS first_word1 MATCH (v2:Verse {verse_key: verse2})-[:CONTAINS_WORD]->(w2:Word) WHERE w2.position = 1 RETURN verse1, verse2, similarity, first_word1, w2.text_uthmani AS first_word2`
