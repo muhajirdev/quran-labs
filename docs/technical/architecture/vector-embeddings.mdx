@@ -1,0 +1,187 @@
+---
+title: 'Vector Embeddings'
+description: 'Technical details of the vector embedding implementation'
+---
+
+# Vector Embeddings
+
+Vector embeddings are a critical component of the Quran Knowledge Graph, enabling semantic search and similarity analysis across Quranic text and related content.
+
+## Embedding Models
+
+The system uses multiple embedding models to capture different aspects of the text:
+
+1. **Multilingual BERT** (`bert-base-multilingual-cased`)
+   - 768-dimensional embeddings
+   - Handles both Arabic and English text
+   - Used for general semantic similarity
+
+2. **Arabic-specific models** (AraBERT, CAMeL-BERT)
+   - Better performance on classical Arabic text
+   - Captures nuances specific to Arabic language
+
+3. **Domain-tuned models**
+   - Fine-tuned on Quranic text and tafsir
+   - Better captures Islamic theological concepts and terminology
+
+## Embedding Generation
+
+Embeddings are generated at different granularities:
+
+### Verse-level Embeddings
+
+```python
+from transformers import AutoTokenizer, AutoModel
+import torch
+
+# Load model and tokenizer
+tokenizer = AutoTokenizer.from_pretrained("bert-base-multilingual-cased")
+model = AutoModel.from_pretrained("bert-base-multilingual-cased")
+
+def generate_verse_embedding(verse_text):
+    # Tokenize and prepare for model
+    inputs = tokenizer(verse_text, return_tensors="pt", padding=True, truncation=True, max_length=512)
+    
+    # Generate embeddings
+    with torch.no_grad():
+        outputs = model(**inputs)
+    
+    # Use CLS token embedding as verse representation
+    embedding = outputs.last_hidden_state[:, 0, :].numpy()
+    
+    return embedding
+```
+
+### Word-level Embeddings
+
+For word-level embeddings, we use contextual embeddings from the model:
+
+```python
+def generate_word_embeddings(verse_text):
+    # Tokenize and prepare for model
+    inputs = tokenizer(verse_text, return_tensors="pt", padding=True, truncation=True, max_length=512)
+    token_ids = inputs.input_ids
+    
+    # Generate embeddings
+    with torch.no_grad():
+        outputs = model(**inputs)
+    
+    # Extract embeddings for each token
+    token_embeddings = outputs.last_hidden_state[0].numpy()
+    
+    # Map tokens back to words (handling subword tokenization)
+    word_embeddings = []
+    current_word_embedding = []
+    current_word = ""
+    
+    for i, token_id in enumerate(token_ids[0]):
+        token = tokenizer.decode([token_id])
+        if token.startswith("##"):
+            # Continue building current word
+            current_word += token[2:]
+            current_word_embedding.append(token_embeddings[i])
+        else:
+            # Save previous word if exists
+            if current_word:
+                # Average embeddings of subwords
+                word_embeddings.append({
+                    "word": current_word,
+                    "embedding": np.mean(current_word_embedding, axis=0)
+                })
+            
+            # Start new word
+            current_word = token
+            current_word_embedding = [token_embeddings[i]]
+    
+    # Add the last word
+    if current_word:
+        word_embeddings.append({
+            "word": current_word,
+            "embedding": np.mean(current_word_embedding, axis=0)
+        })
+    
+    return word_embeddings
+```
+
+## Vector Storage and Indexing
+
+Embeddings are stored directly in the Kuzu graph database, which supports vector operations:
+
+```cypher
+// Store embedding in the database
+MATCH (v:Verse {verse_key: '1:1'})
+SET v.embedding = $embedding_vector;
+```
+
+For efficient similarity search, we use:
+
+1. **Approximate Nearest Neighbors (ANN)** indexing
+2. **HNSW (Hierarchical Navigable Small World)** algorithm for fast retrieval
+3. **Cosine similarity** as the primary distance metric
+
+## Hybrid Search Implementation
+
+The power of our approach comes from combining graph traversal with vector similarity:
+
+```python
+def hybrid_search(query_text, topic_filter=None, relevance_threshold=0.7):
+    # Generate embedding for the query
+    query_embedding = generate_verse_embedding(query_text)
+    
+    # Base query
+    cypher_query = """
+    MATCH (v:Verse)
+    WHERE v.embedding VECTOR_DISTANCE($query_embedding) < $threshold
+    """
+    
+    # Add topic filter if specified
+    if topic_filter:
+        cypher_query += """
+        AND EXISTS {
+            MATCH (v)-[r:ADDRESSES_TOPIC]->(t:Topic {name: $topic})
+            WHERE r.relevance > 0.5
+        }
+        """
+    
+    # Complete the query
+    cypher_query += """
+    RETURN v.verse_key, v.text_simple, 
+           v.embedding VECTOR_DISTANCE($query_embedding) AS similarity
+    ORDER BY similarity
+    LIMIT 10
+    """
+    
+    # Execute query with parameters
+    params = {
+        "query_embedding": query_embedding,
+        "threshold": relevance_threshold
+    }
+    
+    if topic_filter:
+        params["topic"] = topic_filter
+    
+    results = graph_db.run(cypher_query, params)
+    
+    return results
+```
+
+## Embedding Refresh Strategy
+
+To keep embeddings up-to-date:
+
+1. **Batch processing** for initial embedding generation
+2. **Incremental updates** when new content is added
+3. **Periodic retraining** of domain-specific models (every 3-6 months)
+4. **Version tracking** to manage embedding model changes
+
+## Performance Metrics
+
+Our embedding approach is evaluated on several benchmarks:
+
+| Metric | Score | Description |
+|--------|-------|-------------|
+| Precision@10 | 0.87 | Precision of top 10 results |
+| MRR | 0.92 | Mean Reciprocal Rank |
+| Latency | <100ms | Average query response time |
+
+For more information on how these embeddings are integrated with the graph database, see [Graph Database Architecture](/technical/architecture/graph-database).

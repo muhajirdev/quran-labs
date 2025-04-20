@@ -1,0 +1,67 @@
+---
+title: 'Architecture Overview'
+description: 'Technical overview of the Quran Knowledge Graph architecture'
+---
+
+# Architecture Overview
+
+The Quran Knowledge Graph is built on a hybrid architecture that combines graph database technology with vector embeddings to enable both structured relationship queries and semantic similarity search.
+
+## System Architecture
+
+The system architecture consists of several key components:
+
+<img
+  className="block dark:hidden"
+  src="/images/architecture-light.png"
+  alt="Architecture diagram"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/architecture-dark.png"
+  alt="Architecture diagram"
+/>
+
+### Core Components
+
+1. **Graph Database (Kuzu)** - Stores the structured relationships between Quranic entities
+2. **Vector Database** - Stores embeddings for semantic search capabilities
+3. **API Layer** - Provides unified access to both graph and vector capabilities
+4. **Application Layer** - User-facing interfaces and applications
+
+## Data Flow
+
+1. **Data Ingestion**
+   - Quranic text and metadata from various sources
+   - Tafsir and scholarly commentary
+   - Pre-computed relationships and annotations
+
+2. **Processing Pipeline**
+   - Text normalization and cleaning
+   - Entity extraction and relationship mapping
+   - Vector embedding generation
+   - Graph construction
+
+3. **Query Processing**
+   - Natural language query parsing
+   - Hybrid search (combining graph traversal and vector similarity)
+   - Result ranking and aggregation
+
+## Technology Stack
+
+- **Graph Database**: Kuzu (OpenCypher compatible)
+- **Vector Storage**: Integrated with Kuzu
+- **Backend**: Python with FastAPI
+- **Frontend**: React/Next.js
+- **ML/AI**: Transformer-based models for embeddings and semantic analysis
+
+## Key Design Principles
+
+1. **Accuracy and Authenticity** - Prioritize scholarly accuracy in all data and relationships
+2. **Performance** - Optimize for fast query response, even with complex graph traversals
+3. **Scalability** - Design to handle growing data and user base
+4. **Flexibility** - Support multiple query paradigms (graph, vector, hybrid)
+
+For more detailed information about specific components, see:
+- [Graph Database Architecture](/technical/architecture/graph-database)
+- [Vector Embeddings](/technical/architecture/vector-embeddings)

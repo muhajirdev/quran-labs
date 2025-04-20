@@ -28,15 +28,14 @@
   "navigation": {
     "groups": [
       {
-        "group": "Getting Started",
+        "group": "Introduction",
         "pages": [
           "introduction",
-          "quickstart",
-          "development"
+          "quickstart"
         ]
       },
       {
-        "group": "Products and Use Cases",
+        "group": "Product Vision",
         "pages": [
           "products/README",
           "products/quran-ai",
@@ -48,42 +47,56 @@
         ]
       },
       {
-        "group": "Example Queries",
-        "pages": [
-          "queries/README",
-          "queries/basic_queries",
-          "queries/thematic_queries",
-          "queries/linguistic_queries",
-          "queries/rhetorical_linguistic_queries",
-          "queries/semantic_queries",
-          "queries/advanced_queries"
-        ]
-      },
-      {
         "group": "Scholarly Approaches",
         "pages": [
           "scholarly_approaches"
         ]
       },
       {
-        "group": "API Reference",
+        "group": "Technical Documentation",
         "pages": [
-          "api-reference/introduction",
+          "development",
           {
-            "group": "Graph API",
+            "group": "Architecture",
             "pages": [
-              "api-reference/graph/overview",
-              "api-reference/graph/nodes",
-              "api-reference/graph/relationships",
-              "api-reference/graph/queries"
+              "technical/architecture/overview",
+              "technical/architecture/graph-database",
+              "technical/architecture/vector-embeddings"
             ]
           },
           {
-            "group": "Embedding API",
+            "group": "Example Queries",
             "pages": [
-              "api-reference/embedding/overview",
-              "api-reference/embedding/generate",
-              "api-reference/embedding/search"
+              "queries/README",
+              "queries/basic_queries",
+              "queries/thematic_queries",
+              "queries/linguistic_queries",
+              "queries/rhetorical_linguistic_queries",
+              "queries/semantic_queries",
+              "queries/advanced_queries"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "pages": [
+              "api-reference/introduction",
+              {
+                "group": "Graph API",
+                "pages": [
+                  "api-reference/graph/overview",
+                  "api-reference/graph/nodes",
+                  "api-reference/graph/relationships",
+                  "api-reference/graph/queries"
+                ]
+              },
+              {
+                "group": "Embedding API",
+                "pages": [
+                  "api-reference/embedding/overview",
+                  "api-reference/embedding/generate",
+                  "api-reference/embedding/search"
+                ]
+              }
             ]
           }
         ]

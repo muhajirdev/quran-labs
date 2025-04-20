@@ -1,0 +1,164 @@
+---
+title: 'Graph Database Architecture'
+description: 'Technical details of the graph database implementation'
+---
+
+# Graph Database Architecture
+
+The Quran Knowledge Graph uses [Kuzu](https://kuzudb.com/), a high-performance graph database with OpenCypher support, to store and query the complex relationships between Quranic entities.
+
+## Graph Schema
+
+The graph schema is designed to represent the rich structure of the Quran and related scholarly works:
+
+```cypher
+// Node types
+CREATE NODE TABLE Surah (
+  surah_number INTEGER PRIMARY KEY,
+  name_arabic TEXT,
+  name_english TEXT,
+  revelation_place TEXT,
+  revelation_order INTEGER,
+  verse_count INTEGER
+);
+
+CREATE NODE TABLE Verse (
+  verse_key TEXT PRIMARY KEY,
+  surah_number INTEGER,
+  verse_number INTEGER,
+  text_uthmani TEXT,
+  text_simple TEXT,
+  juz INTEGER,
+  hizb INTEGER,
+  ruku INTEGER,
+  sajdah BOOLEAN,
+  FOREIGN KEY (surah_number) REFERENCES Surah(surah_number)
+);
+
+CREATE NODE TABLE Word (
+  word_id INTEGER PRIMARY KEY,
+  verse_key TEXT,
+  position INTEGER,
+  text_uthmani TEXT,
+  text_simple TEXT,
+  FOREIGN KEY (verse_key) REFERENCES Verse(verse_key)
+);
+
+CREATE NODE TABLE RootWord (
+  root_id INTEGER PRIMARY KEY,
+  text_arabic TEXT,
+  meaning_english TEXT
+);
+
+CREATE NODE TABLE Topic (
+  topic_id INTEGER PRIMARY KEY,
+  name TEXT,
+  description TEXT
+);
+
+CREATE NODE TABLE Tafsir (
+  tafsir_id INTEGER PRIMARY KEY,
+  verse_key TEXT,
+  author TEXT,
+  text TEXT,
+  FOREIGN KEY (verse_key) REFERENCES Verse(verse_key)
+);
+
+// Relationship types
+CREATE REL TABLE CONTAINS (
+  FROM Surah TO Verse,
+  order_index INTEGER
+);
+
+CREATE REL TABLE HAS_WORD (
+  FROM Verse TO Word,
+  position INTEGER
+);
+
+CREATE REL TABLE HAS_ROOT (
+  FROM Word TO RootWord
+);
+
+CREATE REL TABLE ADDRESSES_TOPIC (
+  FROM Verse TO Topic,
+  relevance FLOAT
+);
+
+CREATE REL TABLE HAS_TAFSIR (
+  FROM Verse TO Tafsir,
+  source TEXT
+);
+
+CREATE REL TABLE SIMILAR_TO (
+  FROM Verse TO Verse,
+  similarity_score FLOAT
+);
+```
+
+## Vector Integration
+
+Each node in the graph can have associated vector embeddings:
+
+```cypher
+// Add vector embeddings to nodes
+ALTER NODE TABLE Verse ADD COLUMN embedding VECTOR<FLOAT, 768>;
+ALTER NODE TABLE Word ADD COLUMN embedding VECTOR<FLOAT, 768>;
+ALTER NODE TABLE Topic ADD COLUMN embedding VECTOR<FLOAT, 768>;
+```
+
+## Query Examples
+
+### Finding verses by topic
+
+```cypher
+MATCH (t:Topic {name: 'Patience'})<-[r:ADDRESSES_TOPIC]-(v:Verse)
+RETURN v.verse_key, v.text_simple, r.relevance
+ORDER BY r.relevance DESC
+LIMIT 10;
+```
+
+### Finding verses with similar words
+
+```cypher
+MATCH (v:Verse)-[:HAS_WORD]->(w:Word)-[:HAS_ROOT]->(r:RootWord),
+      (w2:Word)-[:HAS_ROOT]->(r)
+WHERE v.verse_key = '2:255'
+RETURN DISTINCT w2.verse_key, COUNT(w2) AS common_roots
+ORDER BY common_roots DESC
+LIMIT 10;
+```
+
+### Vector similarity search
+
+```cypher
+MATCH (v:Verse)
+WHERE v.embedding VECTOR_DISTANCE($query_embedding) < 0.2
+RETURN v.verse_key, v.text_simple
+ORDER BY v.embedding VECTOR_DISTANCE($query_embedding)
+LIMIT 5;
+```
+
+## Performance Considerations
+
+1. **Indexing Strategy**
+   - Create indexes on frequently queried properties
+   - Use composite indexes for multi-property queries
+
+2. **Query Optimization**
+   - Limit traversal depth for complex queries
+   - Use parameterized queries
+   - Implement caching for common query patterns
+
+3. **Data Partitioning**
+   - Partition large node collections (e.g., words) by surah or juz
+
+## Data Loading Process
+
+The graph database is populated through a multi-stage ETL process:
+
+1. Extract data from primary sources (Quran text, tafsir collections)
+2. Transform and normalize the data
+3. Generate relationships based on linguistic and semantic analysis
+4. Load data into the graph database using bulk import tools
+
+For more information on how vector embeddings are integrated with the graph database, see [Vector Embeddings](/technical/architecture/vector-embeddings).
