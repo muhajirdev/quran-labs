@@ -22,7 +22,7 @@
     "primary": {
       "type": "button",
       "label": "Get Started",
-      "href": "/introduction"
+      "href": "introduction"
     }
   },
   "navigation": {
