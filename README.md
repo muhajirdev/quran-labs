@@ -42,7 +42,7 @@ The Quran Knowledge Graph project aims to:
 
 1. Clone the repository
    ```
-   git clone https://github.com/yourusername/quran-knowledge-graph.git
+   git clone https://github.com/muhajirdev/quran-labs.git
    cd quran-knowledge-graph
    ```
 
