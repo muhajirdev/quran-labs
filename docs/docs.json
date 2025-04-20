@@ -1,125 +1,97 @@
 {
-  "$schema": "https://mintlify.com/schema.json",
+  "$schema": "https://mintlify.com/docs.json",
   "name": "Quran Knowledge Graph",
   "theme": "mint",
   "logo": {
-    "dark": "/logo/logo-dark.svg",
-    "light": "/logo/logo-light.svg"
+    "light": "/logo/logo-light.svg",
+    "dark": "/logo/logo-dark.svg"
   },
   "favicon": "/favicon.png",
   "colors": {
     "primary": "#0D9373",
     "light": "#07C983",
-    "dark": "#0D9373",
-    "anchors": {
-      "from": "#0D9373",
-      "to": "#07C983"
+    "dark": "#0D9373"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/yourusername/quran-knowledge-graph"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "/introduction"
     }
   },
-  "topbarLinks": [
-    {
-      "name": "GitHub",
-      "url": "https://github.com/yourusername/quran-knowledge-graph"
-    }
-  ],
-  "topbarCtaButton": {
-    "name": "Get Started",
-    "url": "/introduction"
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "quickstart",
+          "development"
+        ]
+      },
+      {
+        "group": "Products and Use Cases",
+        "pages": [
+          "products/README",
+          "products/exploration_tools",
+          "products/study_learning",
+          "products/research_analysis",
+          "products/translation_interpretation",
+          "products/practical_application"
+        ]
+      },
+      {
+        "group": "Example Queries",
+        "pages": [
+          "queries/README",
+          "queries/basic_queries",
+          "queries/thematic_queries",
+          "queries/linguistic_queries",
+          "queries/rhetorical_linguistic_queries",
+          "queries/semantic_queries",
+          "queries/advanced_queries"
+        ]
+      },
+      {
+        "group": "Scholarly Approaches",
+        "pages": [
+          "scholarly_approaches"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api-reference/introduction",
+          {
+            "group": "Graph API",
+            "pages": [
+              "api-reference/graph/overview",
+              "api-reference/graph/nodes",
+              "api-reference/graph/relationships",
+              "api-reference/graph/queries"
+            ]
+          },
+          {
+            "group": "Embedding API",
+            "pages": [
+              "api-reference/embedding/overview",
+              "api-reference/embedding/generate",
+              "api-reference/embedding/search"
+            ]
+          }
+        ]
+      }
+    ]
   },
-  "tabs": [
-    {
-      "name": "Products",
-      "url": "products"
-    },
-    {
-      "name": "Queries",
-      "url": "queries"
-    },
-    {
-      "name": "Scholarly Approaches",
-      "url": "scholarly-approaches"
+  "footer": {
+    "socials": {
+      "github": "https://github.com/yourusername/quran-knowledge-graph"
     }
-  ],
-  "anchors": [
-    {
-      "name": "Documentation",
-      "icon": "book-open-cover",
-      "url": "introduction"
-    },
-    {
-      "name": "API Reference",
-      "icon": "code",
-      "url": "api-reference"
-    },
-    {
-      "name": "GitHub",
-      "icon": "github",
-      "url": "https://github.com/yourusername/quran-knowledge-graph"
-    }
-  ],
-  "navigation": [
-    {
-      "group": "Getting Started",
-      "pages": [
-        "introduction",
-        "quickstart",
-        "development"
-      ]
-    },
-    {
-      "group": "Products and Use Cases",
-      "pages": [
-        "products/README",
-        "products/exploration_tools",
-        "products/study_learning",
-        "products/research_analysis",
-        "products/translation_interpretation",
-        "products/practical_application"
-      ]
-    },
-    {
-      "group": "Example Queries",
-      "pages": [
-        "queries/README",
-        "queries/basic_queries",
-        "queries/thematic_queries",
-        "queries/linguistic_queries",
-        "queries/rhetorical_linguistic_queries",
-        "queries/semantic_queries",
-        "queries/advanced_queries"
-      ]
-    },
-    {
-      "group": "Scholarly Approaches",
-      "pages": [
-        "scholarly_approaches"
-      ]
-    },
-    {
-      "group": "API Reference",
-      "pages": [
-        "api-reference/introduction",
-        {
-          "group": "Graph API",
-          "pages": [
-            "api-reference/graph/overview",
-            "api-reference/graph/nodes",
-            "api-reference/graph/relationships",
-            "api-reference/graph/queries"
-          ]
-        },
-        {
-          "group": "Embedding API",
-          "pages": [
-            "api-reference/embedding/overview",
-            "api-reference/embedding/generate",
-            "api-reference/embedding/search"
-          ]
-        }
-      ]
-    }
-  ],
-  "footerSocials": {
-    "github": "https://github.com/yourusername/quran-knowledge-graph"
   }
 }
