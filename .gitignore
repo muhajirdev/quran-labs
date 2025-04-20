@@ -58,7 +58,7 @@ temp/
 
 # Data files
 *.csv
-*.json
+# *.json
 *.pkl
 *.h5
 *.npy

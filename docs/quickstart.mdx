@@ -1,0 +1,108 @@
+---
+title: 'Quickstart'
+description: 'Get up and running with the Quran Knowledge Graph in minutes'
+---
+
+# Quickstart Guide
+
+This guide will help you get started with the Quran Knowledge Graph quickly. You'll learn how to install the necessary dependencies, set up the database, and run your first queries.
+
+## Prerequisites
+
+Before you begin, make sure you have the following installed:
+
+- Python 3.8 or higher
+- pip (Python package installer)
+- Git
+
+## Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/quran-knowledge-graph.git
+cd quran-knowledge-graph
+```
+
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+This will install all the necessary packages, including:
+- Kuzu (graph database)
+- Pandas and NumPy (data processing)
+- Transformers and PyTorch (for embeddings)
+- Other utilities and visualization libraries
+
+## Setting Up the Database
+
+### 1. Initialize the Database
+
+```bash
+python -m quran_graph.scripts.init_db
+```
+
+This script will:
+- Create the database directory
+- Define the schema (nodes and relationships)
+- Set up indices for efficient queries
+
+### 2. Import Data
+
+```bash
+python -m quran_graph.scripts.import_data
+```
+
+This script will:
+- Download data from qul.tarteel.ai (if not already present)
+- Process and transform the data
+- Import it into the Kuzu graph database
+- Generate embeddings for verses, words, and topics
+
+<Note>
+  The data import process may take some time, especially the embedding generation step.
+</Note>
+
+## Running Your First Queries
+
+Now that you have the database set up, you can start running queries. Here's a simple example to get you started:
+
+```python
+from quran_graph.scripts.query_utils import QuranGraphQuery
+
+# Initialize the query utility
+query = QuranGraphQuery()
+
+# Get information about the first chapter (Al-Fatiha)
+chapters = query.get_chapters(limit=1)
+print(chapters)
+
+# Get verses from the first chapter
+verses = query.get_verses_by_chapter(1)
+print(verses)
+
+# Perform a semantic search
+results = query.semantic_search("mercy and forgiveness")
+print(results)
+```
+
+## Next Steps
+
+Now that you have the Quran Knowledge Graph up and running, you can:
+
+<CardGroup cols={2}>
+  <Card title="Explore Example Queries" icon="code" href="/queries/README">
+    Discover more sophisticated query examples
+  </Card>
+  <Card title="Learn About Products" icon="lightbulb" href="/products/README">
+    Explore potential applications and use cases
+  </Card>
+  <Card title="Study Scholarly Approaches" icon="book" href="/scholarly_approaches">
+    Learn about different analytical methodologies
+  </Card>
+  <Card title="Contribute to Development" icon="code-branch" href="/development">
+    Set up your development environment to contribute
+  </Card>
+</CardGroup>
