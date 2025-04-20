@@ -1,0 +1,285 @@
+---
+title: 'Knowledge Graph Schema'
+description: 'Understanding the structure of the Quran Knowledge Graph'
+---
+
+# Quran Knowledge Graph Schema
+
+The schema of the Quran Knowledge Graph defines how different types of information are structured and connected. This page explains the schema in both non-technical and technical terms.
+
+## Schema Overview
+
+<img
+  className="block"
+  src="/images/schema-overview.png"
+  alt="Schema overview diagram"
+/>
+
+The Quran Knowledge Graph contains several types of nodes (entities) and relationships that connect them. This structure allows for rich, interconnected representation of the Quranic text and related knowledge.
+
+## Node Types (Entities)
+
+### Surah (Chapter)
+
+Surahs are the 114 chapters of the Quran.
+
+**Properties include:**
+- Surah number (1-114)
+- Name in Arabic and English
+- Revelation place (Mecca or Medina)
+- Revelation order
+- Number of verses
+- Brief description
+
+### Verse
+
+Verses (ayat) are the individual units of revelation within each surah.
+
+**Properties include:**
+- Verse key (e.g., "2:255" for Surah 2, Verse 255)
+- Arabic text (Uthmani script)
+- Position information (juz, hizb, ruku)
+- Revelation context
+- Sajdah indication (whether prostration is recommended)
+- Vector embedding (for semantic search)
+
+### Word
+
+Words are the individual Arabic words within each verse.
+
+**Properties include:**
+- Arabic text
+- Position in verse
+- Grammatical information (part of speech, gender, number)
+- Vector embedding
+
+### Root Word
+
+Root words are the linguistic roots from which Arabic words are derived.
+
+**Properties include:**
+- Arabic text (typically three consonants)
+- Basic meaning
+- Derived forms
+
+### Topic
+
+Topics represent thematic elements addressed in the Quran.
+
+**Properties include:**
+- Name
+- Description
+- Related concepts
+- Vector embedding
+
+### Tafsir
+
+Tafsir entries are scholarly interpretations of verses.
+
+**Properties include:**
+- Author/source
+- Text
+- Time period
+- Methodology (e.g., linguistic, legal, spiritual)
+
+### Translation
+
+Translations are verse renderings in different languages.
+
+**Properties include:**
+- Language
+- Translator
+- Text
+- Year
+- Approach (literal vs. interpretive)
+
+## Relationship Types
+
+### CONTAINS
+
+Connects a container to what it contains:
+- Surah CONTAINS Verse
+- Verse CONTAINS Word
+
+### HAS_ROOT
+
+Connects a word to its linguistic root:
+- Word HAS_ROOT RootWord
+
+### ADDRESSES_TOPIC
+
+Connects a verse to topics it addresses:
+- Verse ADDRESSES_TOPIC Topic
+- With properties like relevance score
+
+### HAS_TAFSIR
+
+Connects a verse to its interpretations:
+- Verse HAS_TAFSIR Tafsir
+
+### HAS_TRANSLATION
+
+Connects a verse to its translations:
+- Verse HAS_TRANSLATION Translation
+
+### SIMILAR_TO
+
+Connects semantically similar verses:
+- Verse SIMILAR_TO Verse
+- With properties like similarity score and similarity type
+
+### REFERENCES
+
+Connects verses that reference each other:
+- Verse REFERENCES Verse
+- With properties like reference type
+
+## Schema Visualization
+
+<img
+  className="block"
+  src="/images/schema-detailed.png"
+  alt="Detailed schema diagram"
+/>
+
+## Non-Technical Explanation
+
+Think of the schema as a blueprint for how information is organized:
+
+- **Surahs** are like books containing **verses**
+- **Verses** contain **words**, which come from **root words**
+- **Verses** address various **topics**
+- **Scholars** provide **interpretations** (tafsir) of verses
+- **Translators** create **translations** of verses in different languages
+- Some verses are **similar to** or **reference** other verses
+
+This organization allows you to navigate the Quran in many ways:
+- Follow the traditional chapter and verse structure
+- Explore by topic or theme
+- Trace linguistic connections through root words
+- Compare different interpretations and translations
+- Discover verses with similar meanings
+
+## Technical Details
+
+For developers and technical users, here's the graph schema definition in Cypher:
+
+```cypher
+// Node definitions
+CREATE NODE TABLE Surah (
+  surah_number INTEGER PRIMARY KEY,
+  name_arabic TEXT,
+  name_english TEXT,
+  revelation_place TEXT,
+  revelation_order INTEGER,
+  verse_count INTEGER,
+  description TEXT
+);
+
+CREATE NODE TABLE Verse (
+  verse_key TEXT PRIMARY KEY,
+  surah_number INTEGER,
+  verse_number INTEGER,
+  text_uthmani TEXT,
+  text_simple TEXT,
+  juz INTEGER,
+  hizb INTEGER,
+  ruku INTEGER,
+  sajdah BOOLEAN,
+  embedding VECTOR<FLOAT, 768>,
+  FOREIGN KEY (surah_number) REFERENCES Surah(surah_number)
+);
+
+CREATE NODE TABLE Word (
+  word_id INTEGER PRIMARY KEY,
+  verse_key TEXT,
+  position INTEGER,
+  text_uthmani TEXT,
+  text_simple TEXT,
+  part_of_speech TEXT,
+  embedding VECTOR<FLOAT, 768>,
+  FOREIGN KEY (verse_key) REFERENCES Verse(verse_key)
+);
+
+CREATE NODE TABLE RootWord (
+  root_id INTEGER PRIMARY KEY,
+  text_arabic TEXT,
+  meaning_english TEXT
+);
+
+CREATE NODE TABLE Topic (
+  topic_id INTEGER PRIMARY KEY,
+  name TEXT,
+  description TEXT,
+  embedding VECTOR<FLOAT, 768>
+);
+
+CREATE NODE TABLE Tafsir (
+  tafsir_id INTEGER PRIMARY KEY,
+  verse_key TEXT,
+  author TEXT,
+  text TEXT,
+  FOREIGN KEY (verse_key) REFERENCES Verse(verse_key)
+);
+
+CREATE NODE TABLE Translation (
+  translation_id INTEGER PRIMARY KEY,
+  verse_key TEXT,
+  language TEXT,
+  translator TEXT,
+  text TEXT,
+  FOREIGN KEY (verse_key) REFERENCES Verse(verse_key)
+);
+
+// Relationship definitions
+CREATE REL TABLE CONTAINS (
+  FROM Surah TO Verse,
+  order_index INTEGER
+);
+
+CREATE REL TABLE HAS_WORD (
+  FROM Verse TO Word,
+  position INTEGER
+);
+
+CREATE REL TABLE HAS_ROOT (
+  FROM Word TO RootWord
+);
+
+CREATE REL TABLE ADDRESSES_TOPIC (
+  FROM Verse TO Topic,
+  relevance FLOAT
+);
+
+CREATE REL TABLE HAS_TAFSIR (
+  FROM Verse TO Tafsir,
+  source TEXT
+);
+
+CREATE REL TABLE HAS_TRANSLATION (
+  FROM Verse TO Translation,
+  type TEXT
+);
+
+CREATE REL TABLE SIMILAR_TO (
+  FROM Verse TO Verse,
+  similarity_score FLOAT,
+  similarity_type TEXT
+);
+
+CREATE REL TABLE REFERENCES (
+  FROM Verse TO Verse,
+  reference_type TEXT
+);
+```
+
+## Schema Evolution
+
+The schema evolves over time as we add new data sources and capabilities. Recent and planned additions include:
+
+- Hadith connections to verses
+- Historical context nodes
+- Linguistic feature nodes (rhetorical devices, grammar patterns)
+- User annotation capabilities
+
+For more technical details about working with the schema, see the [Graph Database Implementation](/technical/graph-database) page.
