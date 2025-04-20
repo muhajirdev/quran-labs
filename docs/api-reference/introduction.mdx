@@ -1,0 +1,94 @@
+---
+title: 'API Reference'
+description: 'Overview of the Quran Knowledge Graph API'
+---
+
+# API Reference
+
+The Quran Knowledge Graph provides a comprehensive API for interacting with the graph database, performing queries, and leveraging the semantic capabilities of the system. This reference documentation will help you understand and use the API effectively.
+
+## API Overview
+
+The API is organized into several main components:
+
+<CardGroup cols={2}>
+  <Card title="Graph API" icon="diagram-project" href="/api-reference/graph/overview">
+    Access and query the graph structure, including nodes and relationships
+  </Card>
+  <Card title="Embedding API" icon="vector-square" href="/api-reference/embedding/overview">
+    Generate and search vector embeddings for semantic analysis
+  </Card>
+</CardGroup>
+
+## Getting Started with the API
+
+### Installation
+
+To use the API in your Python project:
+
+```bash
+pip install quran-knowledge-graph
+```
+
+### Basic Usage
+
+Here's a simple example of using the API:
+
+```python
+from quran_graph.api import QuranGraphAPI
+
+# Initialize the API
+api = QuranGraphAPI()
+
+# Get a verse by key
+verse = api.get_verse("1:1")
+print(verse)
+
+# Perform a semantic search
+results = api.semantic_search("guidance for humanity")
+for result in results:
+    print(f"{result.verse_key}: {result.text} (Similarity: {result.similarity:.2f})")
+```
+
+## Authentication
+
+Currently, the API is designed for local use and does not require authentication. If you're integrating with a hosted version of the API, authentication details will be provided separately.
+
+## Rate Limits
+
+When using the API locally, there are no rate limits. However, be mindful of resource usage, especially for computationally intensive operations like semantic search or large graph traversals.
+
+## Error Handling
+
+The API uses standard HTTP status codes and returns detailed error messages. Common errors include:
+
+- `400 Bad Request`: Invalid parameters or request format
+- `404 Not Found`: Requested resource not found
+- `500 Internal Server Error`: Server-side error
+
+Example error response:
+
+```json
+{
+  "error": "Resource not found",
+  "message": "Verse with key '1:8' does not exist",
+  "code": "verse_not_found"
+}
+```
+
+## API Versioning
+
+The API follows semantic versioning. The current version is v1.0.0. Breaking changes will be introduced with a new major version number.
+
+## Next Steps
+
+Explore the specific API sections for detailed documentation:
+
+<CardGroup cols={2}>
+  <Card title="Graph API" icon="diagram-project" href="/api-reference/graph/overview">
+    Learn how to query and traverse the graph structure
+  </Card>
+  <Card title="Embedding API" icon="vector-square" href="/api-reference/embedding/overview">
+    Discover how to leverage semantic embeddings
+  </Card>
+</CardGroup>

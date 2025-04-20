@@ -1,0 +1,130 @@
+---
+title: 'Graph API Overview'
+description: 'Introduction to the Quran Knowledge Graph API for graph operations'
+---
+
+# Graph API Overview
+
+The Graph API provides access to the core functionality of the Quran Knowledge Graph, allowing you to query nodes, traverse relationships, and explore the interconnected structure of the Quranic text.
+
+## Key Concepts
+
+Before diving into the API details, it's important to understand a few key concepts:
+
+### Nodes
+
+Nodes represent entities in the graph, such as:
+
+- **Chapter**: Surahs of the Quran
+- **Verse**: Individual verses (ayahs)
+- **Word**: Words within verses
+- **Root**: Linguistic roots of words
+- **Topic**: Thematic elements
+- **Translation**: Translations in different languages
+- **Tafsir**: Exegetical commentaries
+
+### Relationships
+
+Relationships connect nodes and represent meaningful associations, such as:
+
+- **CONTAINS**: Connects chapters to verses, verses to words
+- **HAS_ROOT**: Connects words to their linguistic roots
+- **ADDRESSES_TOPIC**: Connects verses to the topics they address
+- **SIMILAR_TO**: Connects semantically similar verses
+- **HAS_TRANSLATION**: Connects verses to their translations
+
+### Properties
+
+Both nodes and relationships can have properties that provide additional information:
+
+- Chapter properties include name, revelation place, verse count
+- Verse properties include text, verse number, embedding vector
+- Relationship properties include relevance scores, positions
+
+## API Structure
+
+The Graph API is organized into several components:
+
+### Node Operations
+
+- Retrieve nodes by ID or properties
+- Get node properties
+- Find nodes by type and criteria
+
+### Relationship Operations
+
+- Traverse relationships between nodes
+- Get relationship properties
+- Find connected nodes
+
+### Query Operations
+
+- Execute Cypher queries
+- Perform graph traversals
+- Apply filters and aggregations
+
+## Basic Usage
+
+Here are some examples of using the Graph API:
+
+### Get a Chapter
+
+```python
+from quran_graph.api import QuranGraphAPI
+
+api = QuranGraphAPI()
+
+# Get chapter by number
+chapter = api.get_chapter(1)
+print(f"Chapter: {chapter.name_english} ({chapter.name_arabic})")
+print(f"Verses: {chapter.verses_count}")
+```
+
+### Get Verses in a Chapter
+
+```python
+# Get verses in a chapter
+verses = api.get_verses_by_chapter(1)
+for verse in verses:
+    print(f"{verse.verse_key}: {verse.text_uthmani}")
+```
+
+### Find Topics Addressed in a Verse
+
+```python
+# Get topics addressed in a verse
+topics = api.get_verse_topics("2:255")
+for topic in topics:
+    print(f"Topic: {topic.name}")
+```
+
+### Execute a Custom Cypher Query
+
+```python
+# Execute a custom Cypher query
+query = """
+MATCH (c:Chapter {chapter_number: $chapter_number})-[:CONTAINS]->(v:Verse)
+WHERE v.verse_number <= 5
+RETURN v.verse_key, v.text_uthmani
+ORDER BY v.verse_number
+"""
+results = api.execute_query(query, {"chapter_number": 1})
+for row in results:
+    print(f"{row['v.verse_key']}: {row['v.text_uthmani']}")
+```
+
+## Next Steps
+
+Explore the detailed documentation for specific API endpoints:
+
+<CardGroup cols={2}>
+  <Card title="Nodes" icon="circle-nodes" href="/api-reference/graph/nodes">
+    Learn about node operations and properties
+  </Card>
+  <Card title="Relationships" icon="link" href="/api-reference/graph/relationships">
+    Discover how to work with relationships
+  </Card>
+  <Card title="Queries" icon="magnifying-glass" href="/api-reference/graph/queries">
+    Master advanced query capabilities
+  </Card>
+</CardGroup>

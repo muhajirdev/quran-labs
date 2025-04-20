@@ -1,0 +1,121 @@
+---
+title: 'Embedding API Overview'
+description: 'Introduction to the Quran Knowledge Graph API for vector embeddings and semantic search'
+---
+
+# Embedding API Overview
+
+The Embedding API provides access to the vector embedding capabilities of the Quran Knowledge Graph, enabling semantic search, similarity analysis, and thematic discovery based on meaning rather than just keywords.
+
+## Key Concepts
+
+### Vector Embeddings
+
+Vector embeddings are numerical representations of text in a high-dimensional space, where:
+
+- Semantically similar texts are positioned close to each other
+- The distance between vectors represents semantic dissimilarity
+- The relationships between vectors can reveal conceptual connections
+
+In the Quran Knowledge Graph, we generate embeddings for:
+
+- **Verses**: Capturing the semantic meaning of complete verses
+- **Words**: Representing individual words in context
+- **Topics**: Aggregating verse embeddings to represent thematic concepts
+
+### Embedding Model
+
+The Quran Knowledge Graph uses a multilingual BERT model (`bert-base-multilingual-cased`) to generate 768-dimensional embeddings. This model is capable of understanding both Arabic and English text, making it suitable for cross-lingual semantic analysis.
+
+### Similarity Measures
+
+The API supports different similarity measures:
+
+- **Cosine Similarity**: Measures the cosine of the angle between vectors (range: -1 to 1)
+- **Euclidean Distance**: Measures the straight-line distance between vectors
+- **Dot Product**: Measures the product of the vectors' magnitudes and the cosine of the angle between them
+
+## API Structure
+
+The Embedding API is organized into several components:
+
+### Embedding Generation
+
+- Generate embeddings for text
+- Retrieve pre-computed embeddings for verses, words, and topics
+- Batch processing for multiple texts
+
+### Semantic Search
+
+- Search for verses semantically similar to a query
+- Find verses similar to a specific verse
+- Perform hybrid keyword and semantic search
+
+### Thematic Analysis
+
+- Discover thematic relationships based on embedding similarity
+- Cluster verses by semantic similarity
+- Map verses to topics based on embedding proximity
+
+## Basic Usage
+
+Here are some examples of using the Embedding API:
+
+### Generate an Embedding
+
+```python
+from quran_graph.api import QuranGraphAPI
+
+api = QuranGraphAPI()
+
+# Generate embedding for text
+text = "guidance for humanity"
+embedding = api.generate_embedding(text)
+print(f"Embedding shape: {embedding.shape}")
+```
+
+### Semantic Search
+
+```python
+# Perform semantic search
+results = api.semantic_search("mercy and forgiveness", threshold=0.7, limit=5)
+for result in results:
+    print(f"{result.verse_key}: {result.text} (Similarity: {result.similarity:.2f})")
+```
+
+### Find Similar Verses
+
+```python
+# Find verses similar to a specific verse
+similar_verses = api.find_similar_verses("1:1", threshold=0.75, limit=5)
+for verse in similar_verses:
+    print(f"{verse.verse_key}: {verse.text} (Similarity: {verse.similarity:.2f})")
+```
+
+### Hybrid Search
+
+```python
+# Perform hybrid keyword and semantic search
+results = api.hybrid_search(
+    keyword="mercy",
+    semantic_query="divine compassion",
+    keyword_weight=0.3,
+    semantic_weight=0.7,
+    limit=5
+)
+for result in results:
+    print(f"{result.verse_key}: {result.text} (Score: {result.combined_score:.2f})")
+```
+
+## Next Steps
+
+Explore the detailed documentation for specific API endpoints:
+
+<CardGroup cols={2}>
+  <Card title="Generate Embeddings" icon="microchip" href="/api-reference/embedding/generate">
+    Learn how to generate and work with embeddings
+  </Card>
+  <Card title="Semantic Search" icon="magnifying-glass" href="/api-reference/embedding/search">
+    Discover advanced semantic search capabilities
+  </Card>
+</CardGroup>

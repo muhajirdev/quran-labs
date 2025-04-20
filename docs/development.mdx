@@ -1,0 +1,184 @@
+---
+title: 'Development'
+description: 'Set up your development environment for contributing to the Quran Knowledge Graph'
+---
+
+# Development Guide
+
+This guide will help you set up your development environment for contributing to the Quran Knowledge Graph project. Whether you're interested in improving the core functionality, adding new features, or fixing bugs, this guide will get you started.
+
+## Development Environment Setup
+
+### 1. Fork and Clone the Repository
+
+First, fork the repository on GitHub, then clone your fork:
+
+```bash
+git clone https://github.com/yourusername/quran-knowledge-graph.git
+cd quran-knowledge-graph
+```
+
+### 2. Set Up a Virtual Environment
+
+It's recommended to use a virtual environment for development:
+
+```bash
+# Create a virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+# On Windows
+venv\Scripts\activate
+# On macOS/Linux
+source venv/bin/activate
+```
+
+### 3. Install Development Dependencies
+
+Install all dependencies, including development tools:
+
+```bash
+pip install -r requirements.txt
+pip install -r requirements-dev.txt  # If available
+```
+
+### 4. Set Up Pre-commit Hooks
+
+We use pre-commit hooks to ensure code quality:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+## Project Structure
+
+Understanding the project structure will help you navigate and contribute effectively:
+
+```
+quran-knowledge-graph/
+├── docs/                  # Documentation
+├── quran_graph/           # Main package
+│   ├── scripts/           # Utility scripts
+│   ├── models/            # Data models
+│   └── db/                # Database utilities
+├── data/                  # Data files
+├── tests/                 # Test suite
+├── .gitignore             # Git ignore file
+├── requirements.txt       # Dependencies
+└── README.md              # Project overview
+```
+
+## Development Workflow
+
+### 1. Create a New Branch
+
+Always create a new branch for your changes:
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+### 2. Make Your Changes
+
+Implement your changes, following these guidelines:
+
+- Follow the existing code style
+- Write tests for new functionality
+- Update documentation as needed
+- Keep commits focused and atomic
+
+### 3. Run Tests
+
+Make sure all tests pass before submitting your changes:
+
+```bash
+pytest
+```
+
+### 4. Submit a Pull Request
+
+Once your changes are ready:
+
+1. Push your branch to your fork
+2. Create a pull request from your fork to the main repository
+3. Describe your changes in detail
+4. Reference any related issues
+
+## Development Guidelines
+
+### Code Style
+
+We follow PEP 8 for Python code style. Use tools like `black` and `flake8` to ensure your code meets these standards:
+
+```bash
+# Format code
+black quran_graph/
+
+# Check for style issues
+flake8 quran_graph/
+```
+
+### Documentation
+
+All new features should be documented:
+
+- Add docstrings to functions and classes
+- Update the relevant documentation files in the `docs/` directory
+- Include examples where appropriate
+
+### Testing
+
+We use pytest for testing:
+
+- Write unit tests for new functionality
+- Ensure all tests pass before submitting a pull request
+- Aim for good test coverage
+
+## Working with the Database
+
+### Local Development Database
+
+For development, you can create a smaller test database:
+
+```bash
+python -m quran_graph.scripts.init_test_db
+```
+
+This creates a smaller database with a subset of the data, which is faster to set up and work with during development.
+
+### Schema Changes
+
+If you need to make changes to the database schema:
+
+1. Update the schema definition in `quran_graph/db/schema.py`
+2. Create a migration script in `quran_graph/scripts/migrations/`
+3. Test the migration thoroughly
+4. Document the changes
+
+## Documentation Development
+
+We use Mintlify for our documentation. To preview documentation changes locally:
+
+1. Install the Mintlify CLI:
+   ```bash
+   npm i -g mintlify
+   ```
+
+2. Run the documentation locally:
+   ```bash
+   mintlify dev
+   ```
+
+3. View the documentation at `http://localhost:3000`
+
+## Getting Help
+
+If you need help with development:
+
+- Check the existing documentation
+- Look at the issue tracker for similar issues
+- Join our community discussions
+- Reach out to the maintainers
+
+We appreciate your contributions to the Quran Knowledge Graph project!
