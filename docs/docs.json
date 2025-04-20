@@ -92,7 +92,7 @@
             ]
           },
           {
-            "group": "Technical Details",
+            "group": "Technical Architecture",
             "pages": [
               "technical/architecture/overview",
               "technical/architecture/graph-database",
