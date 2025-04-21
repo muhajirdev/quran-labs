@@ -136,3 +136,12 @@ $RECYCLE.BIN/
 
 data/
 cookie-info
+playground/quran_graph_db/.lock
+playground/quran_graph_db/.shadow
+playground/quran_graph_db/.wal
+playground/quran_graph_db/catalog.kz
+playground/quran_graph_db/data.kz
+playground/quran_graph_db/metadata.kz
+playground/quran_graph_db/n-0.hindex
+playground/quran_graph_db/n-0.hindex.ovf
+playground/quran_graph_db/n-1.hindex

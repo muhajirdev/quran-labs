@@ -1,0 +1,6 @@
+ATTACH 'raw_data/ayah.sqlite' AS ayah (dbtype sqlite);
+LOAD sqlite;
+ATTACH 'raw_data/ayah.sqlite' AS ayah (dbtype sqlite);
+LOAD from ayah.person return *;
+LOAD from ayah.verses
+ return *;
