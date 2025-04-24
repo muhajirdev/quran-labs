@@ -140,3 +140,5 @@ playground/raw_data
 playground/quran_graph_db
 playground/db
 playground/quran_graph_db/*
+
+node_modules
