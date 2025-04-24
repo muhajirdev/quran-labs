@@ -30,8 +30,8 @@ LIMIT $limit
 A table showing verses with significant word repetition patterns:
 | verse_key | text_uthmani | root | occurrences |
 |-----------|--------------|------|-------------|
-| 55:13 | فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ | ءالاء | [{word: "آلَاءِ", position: 3}, {word: "آلَاءِ", position: 13}] |
-| 2:185 | شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ هُدًى لِّلنَّاسِ... | هدي | [{word: "هُدًى", position: 8}, {word: "الْهُدَىٰ", position: 12}] |
+| 55:13 | فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ | ءالاء | `[{word: "آلَاءِ", position: 3}, {word: "آلَاءِ", position: 13}]` |
+| 2:185 | شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ هُدًى لِّلنَّاسِ... | هدي | `[{word: "هُدًى", position: 8}, {word: "الْهُدَىٰ", position: 12}]` |
 | ... | ... | ... | ... |
 
 ### Variations
@@ -137,15 +137,15 @@ MATCH (v:Verse)-[:CONTAINS_WORD]->(w:Word)-[:HAS_ROOT]->(r:Root)
 WHERE r.text_clean IN $significant_roots
 MATCH (v)-[:CONTAINS_WORD]->(all_words:Word)
 WITH v, w, r, count(all_words) AS verse_length
-WITH r.text_clean AS root, 
+WITH r.text_clean AS root,
      w.position * 1.0 / verse_length AS relative_position,
      count(*) AS frequency
 WHERE frequency >= $min_frequency
-RETURN root, 
-       CASE 
-         WHEN relative_position <= 0.33 THEN "Beginning" 
-         WHEN relative_position <= 0.66 THEN "Middle" 
-         ELSE "End" 
+RETURN root,
+       CASE
+         WHEN relative_position <= 0.33 THEN "Beginning"
+         WHEN relative_position <= 0.66 THEN "Middle"
+         ELSE "End"
        END AS position_in_verse,
        frequency
 ORDER BY root, position_in_verse
@@ -189,12 +189,12 @@ WHERE result.text_uthmani IN $result_markers
   AND result.position > condition.position
 WITH v, condition, result
 MATCH (v)-[:ADDRESSES_TOPIC]->(t:Topic)
-WITH v, condition.text_uthmani AS condition_marker, 
+WITH v, condition.text_uthmani AS condition_marker,
      result.text_uthmani AS result_marker,
      condition.position AS condition_pos,
      result.position AS result_pos,
      collect(DISTINCT t.name) AS topics
-RETURN v.verse_key, v.text_uthmani, 
+RETURN v.verse_key, v.text_uthmani,
        condition_marker, condition_pos,
        result_marker, result_pos,
        topics
@@ -241,7 +241,7 @@ WITH v, oath_marker, emphasis
 
 // Get the topics addressed
 MATCH (v)-[:ADDRESSES_TOPIC]->(t:Topic)
-WITH v, oath_marker, 
+WITH v, oath_marker,
      CASE WHEN emphasis IS NULL THEN "N/A" ELSE emphasis.text_uthmani END AS emphasis_marker,
      collect(DISTINCT t.name) AS topics
 RETURN v.verse_key, v.text_uthmani, oath_marker, emphasis_marker, topics

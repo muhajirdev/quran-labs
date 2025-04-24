@@ -20,7 +20,7 @@ WHERE size(themes) >= $min_themes
 MATCH (c:Chapter)-[:CONTAINS]->(v)
 
 // Return results with theme combinations
-RETURN v.verse_key, v.text_uthmani, 
+RETURN v.verse_key, v.text_uthmani,
        c.name_english AS chapter_name,
        c.revelation_place AS revelation_place,
        themes
@@ -61,7 +61,7 @@ WHERE c.revelation_order IS NOT NULL
 
 // Group by revelation period
 WITH c.revelation_order AS rev_order,
-     CASE 
+     CASE
        WHEN c.revelation_order <= 30 THEN "Early Meccan"
        WHEN c.revelation_order <= 85 THEN "Late Meccan"
        ELSE "Medinan"
@@ -119,7 +119,7 @@ MATCH (c:Chapter)-[:CONTAINS]->(v:Verse)-[:CONTAINS_WORD]->(w:Word)
 WITH c, v, count(w) AS word_count
 
 // Calculate chapter statistics
-WITH c, avg(word_count) AS avg_length, 
+WITH c, avg(word_count) AS avg_length,
      min(word_count) AS min_length,
      max(word_count) AS max_length,
      stDev(word_count) AS std_dev,
@@ -226,7 +226,7 @@ WHERE t <> t2
 WITH t, t2, count(v) AS shared_verses, verse_count
 
 // Calculate relationship strength
-WITH t.name AS topic1, t2.name AS topic2, 
+WITH t.name AS topic1, t2.name AS topic2,
      shared_verses, verse_count,
      shared_verses * 1.0 / verse_count AS relationship_strength
 WHERE relationship_strength > $strength_threshold
@@ -251,8 +251,8 @@ LIMIT $limit
 A table showing network analysis of thematic relationships:
 | topic | connection_count | strongest_connections |
 |-------|------------------|------------------------|
-| Faith | 18 | [{topic: "Belief in Allah", strength: 0.85}, {topic: "Guidance", strength: 0.72}, ...] |
-| Justice | 15 | [{topic: "Rights", strength: 0.78}, {topic: "Accountability", strength: 0.65}, ...] |
+| Faith | 18 | `[{topic: "Belief in Allah", strength: 0.85}, {topic: "Guidance", strength: 0.72}, ...]` |
+| Justice | 15 | `[{topic: "Rights", strength: 0.78}, {topic: "Accountability", strength: 0.65}, ...]` |
 | ... | ... | ... |
 
 ### Variations
