@@ -78,7 +78,7 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
           </svg>
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 max-h-[80vh] overflow-y-auto p-4" align="center">
+      <PopoverContent className="w-[400px] max-h-[80vh] overflow-y-auto p-4" align="center">
         <h3 className="font-semibold text-gray-900 mb-4">Graph Settings</h3>
 
         {/* Custom Tabs */}

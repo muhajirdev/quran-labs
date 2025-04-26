@@ -169,7 +169,8 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
             source: verseId,
             target: topicId,
             type: rel._label || 'HAS_TOPIC',
-            value: 1
+            value: 1,
+            properties: { ...rel }
           });
         }
       }
@@ -256,11 +257,22 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
 
           // If we found both source and target, add a link
           if (source && target && source !== target) {
+            // Find the relationship object in the row
+            let relObject = null;
+            Object.keys(row).forEach(key => {
+              const value = row[key];
+              if (value && typeof value === 'object' &&
+                value._src !== undefined && value._dst !== undefined) {
+                relObject = value;
+              }
+            });
+
             graphData.links.push({
               source,
               target,
               type: relType || 'RELATED_TO',
-              value: 1
+              value: 1,
+              properties: relObject ? { ...relObject as object } : {}
             });
           }
         });
@@ -557,6 +569,12 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
       if (data.data && data.data.length > 0) {
         const newGraphData = convertToGraphData(data);
         console.log('Converted graph data:', newGraphData);
+
+        // Debug: Log relationship properties
+        newGraphData.links.forEach(link => {
+          console.log(`Relationship ${link.type} properties:`, link.properties);
+        });
+
         setGraphData(newGraphData);
 
         // Show graph if there are nodes
@@ -716,7 +734,10 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                                 // Get custom property if configured
                                 const customProperty = graphSettings.relationshipLabelProperty[link.type];
                                 if (customProperty && customProperty !== 'default' && link.properties && link.properties[customProperty] !== undefined) {
-                                  return `${link.type}: ${link.properties[customProperty]}`;
+                                  // Convert to string in case it's a number or other type
+                                  const propValue = String(link.properties[customProperty]);
+                                  console.log(`Tooltip - Using custom property ${customProperty} for relationship ${link.type}: ${propValue}`);
+                                  return `${link.type}: ${propValue}`;
                                 }
                                 // Default label
                                 return link.type;
@@ -748,7 +769,9 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                                 // Check if a custom property is configured for this relationship type
                                 const customProperty = graphSettings.relationshipLabelProperty[link.type];
                                 if (customProperty && customProperty !== 'default' && link.properties && link.properties[customProperty] !== undefined) {
-                                  labelText = link.properties[customProperty];
+                                  // Convert to string in case it's a number or other type
+                                  labelText = String(link.properties[customProperty]);
+                                  console.log(`Using custom property ${customProperty} for relationship ${link.type}: ${labelText}`);
                                 }
 
                                 // Draw the relationship label
