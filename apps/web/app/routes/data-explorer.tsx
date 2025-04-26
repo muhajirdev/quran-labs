@@ -40,6 +40,8 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
   const [showGraph, setShowGraph] = useState(false);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
@@ -242,6 +244,95 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
     return colors[label] || '#4B5563'; // darker gray for better contrast
   };
 
+  // Function to expand a node (fetch related nodes)
+  const expandNode = async (nodeId: string) => {
+    // Don't expand if already expanded
+    if (expandedNodes.has(nodeId)) return;
+
+    // Get the node from the graph data
+    const node = graphData.nodes.find(n => n.id === nodeId);
+    if (!node) return;
+
+    // Create a query based on the node type
+    let expansionQuery = '';
+
+    if (node.label === 'Verse') {
+      // For verses, find all topics
+      expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
+                        WHERE v.verse_key = "${node.properties?.verse_key || ''}"
+                        RETURN v, h, t`;
+    } else if (node.label === 'Topic') {
+      // For topics, find all verses
+      expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
+                        WHERE t.topic_id = ${node.properties?.topic_id || 0}
+                        RETURN v, h, t`;
+    } else {
+      // Generic query for other node types
+      expansionQuery = `MATCH (n)-[r]-(m)
+                        WHERE n._id.offset = ${node.properties?._id?.offset || 0}
+                        RETURN n, r, m LIMIT 20`;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch('https://kuzu-api.fly.dev/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: expansionQuery }),
+      });
+
+      const data = await response.json() as any;
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Failed to execute expansion query');
+      }
+
+      // Convert results to graph data
+      const newGraphData = convertToGraphData(data);
+
+      // Merge with existing graph data
+      const mergedNodes = [...graphData.nodes];
+      const mergedLinks = [...graphData.links];
+
+      // Add new nodes if they don't exist
+      newGraphData.nodes.forEach(newNode => {
+        if (!mergedNodes.some(n => n.id === newNode.id)) {
+          mergedNodes.push(newNode);
+        }
+      });
+
+      // Add new links if they don't exist
+      newGraphData.links.forEach(newLink => {
+        if (!mergedLinks.some(l =>
+          l.source === newLink.source &&
+          l.target === newLink.target &&
+          l.type === newLink.type
+        )) {
+          mergedLinks.push(newLink);
+        }
+      });
+
+      // Update graph data
+      setGraphData({
+        nodes: mergedNodes,
+        links: mergedLinks
+      });
+
+      // Mark node as expanded
+      setExpandedNodes(prev => new Set([...prev, nodeId]));
+
+    } catch (err) {
+      console.error('Error expanding node:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
   // Execute initial query when component loads
   useEffect(() => {
     // Execute a simple query to test the API
@@ -440,6 +531,14 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                             const fontSize = 12 / globalScale;
                             const nodeR = Math.sqrt((node.val || 1) * 25 / Math.PI);
 
+                            // Draw a slightly larger circle for expanded nodes
+                            if (expandedNodes.has(node.id)) {
+                              ctx.beginPath();
+                              ctx.arc(node.x || 0, node.y || 0, nodeR + 2, 0, 2 * Math.PI);
+                              ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                              ctx.fill();
+                            }
+
                             ctx.beginPath();
                             ctx.arc(node.x || 0, node.y || 0, nodeR, 0, 2 * Math.PI);
                             ctx.fillStyle = node.color || '#4B5563';
@@ -453,21 +552,33 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
 
                             // Add a white background to the text for better readability
                             const textWidth = ctx.measureText(label).width;
-                            const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.4);
+                            const backgroundDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.4);
 
                             ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
                             ctx.fillRect(
-                              (node.x || 0) - bckgDimensions[0] / 2,
-                              (node.y || 0) + nodeR + fontSize / 2 - bckgDimensions[1] / 2,
-                              bckgDimensions[0],
-                              bckgDimensions[1]
+                              (node.x || 0) - backgroundDimensions[0] / 2,
+                              (node.y || 0) + nodeR + fontSize / 2 - backgroundDimensions[1] / 2,
+                              backgroundDimensions[0],
+                              backgroundDimensions[1]
                             );
 
                             ctx.fillStyle = '#111827';
                             ctx.fillText(label, node.x || 0, (node.y || 0) + nodeR + fontSize / 2);
                           }}
                           onNodeClick={(node: any) => {
-                            setSelectedNode(node);
+                            // Check if it's a double click
+                            const now = new Date().getTime();
+                            const lastClick = (node as any)._lastClickTime || 0;
+                            (node as any)._lastClickTime = now;
+
+                            if (now - lastClick < 300) {
+                              // Double click - expand node
+                              expandNode(node.id);
+                            } else {
+                              // Single click - show node details in sidebar
+                              setSelectedNode(node);
+                              setSidebarOpen(true);
+                            }
                           }}
                         />
                       </Suspense>
@@ -599,14 +710,17 @@ RETURN v, h, t LIMIT 30`}</pre>
         </div>
       </div>
 
-      {/* Node Details Modal */}
-      {selectedNode && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden border border-gray-400">
+      {/* Node Details Sidebar */}
+      <div className={`fixed top-0 right-0 h-full bg-white shadow-xl w-80 transform transition-transform duration-300 ease-in-out z-40 border-l border-gray-300 ${selectedNode ? 'translate-x-0' : 'translate-x-full'}`}>
+        {selectedNode && (
+          <>
             <div className="bg-gradient-to-r from-blue-800 to-indigo-800 text-white px-4 py-3 flex justify-between items-center">
-              <h3 className="font-bold text-lg">{selectedNode.name}</h3>
+              <h3 className="font-bold text-lg truncate">{selectedNode.name}</h3>
               <button
-                onClick={() => setSelectedNode(null)}
+                onClick={() => {
+                  setSelectedNode(null);
+                  setSidebarOpen(false);
+                }}
                 className="text-white hover:text-blue-100"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -614,7 +728,7 @@ RETURN v, h, t LIMIT 30`}</pre>
                 </svg>
               </button>
             </div>
-            <div className="p-4">
+            <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 56px)' }}>
               <div className="flex items-center mb-4">
                 <div
                   className="w-6 h-6 rounded-full mr-2 border border-gray-400"
@@ -627,27 +741,49 @@ RETURN v, h, t LIMIT 30`}</pre>
                 <div className="mt-2">
                   <h4 className="font-semibold text-sm text-gray-900 mb-2">Properties:</h4>
                   <div className="bg-gray-100 rounded p-3 border border-gray-300">
-                    {Object.entries(selectedNode.properties).map(([key, value]) => (
-                      <div key={key} className="grid grid-cols-3 gap-2 mb-1 text-sm">
-                        <span className="text-gray-900 font-medium">{key}:</span>
-                        <span className="col-span-2 text-gray-900">{String(value)}</span>
-                      </div>
-                    ))}
+                    {Object.entries(selectedNode.properties)
+                      .filter(([key]) => !key.startsWith('_'))
+                      .map(([key, value]) => (
+                        <div key={key} className="grid grid-cols-3 gap-2 mb-1 text-sm">
+                          <span className="text-gray-900 font-medium">{key}:</span>
+                          <span className="col-span-2 text-gray-900 break-words">{String(value)}</span>
+                        </div>
+                      ))}
                   </div>
                 </div>
               )}
 
-              <div className="mt-4 pt-4 border-t border-gray-300">
+              <div className="mt-4 pt-4 border-t border-gray-300 flex justify-between">
                 <button
-                  onClick={() => setSelectedNode(null)}
-                  className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  onClick={() => {
+                    setSelectedNode(null);
+                    setSidebarOpen(false);
+                  }}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-medium"
                 >
                   Close
                 </button>
+                <button
+                  onClick={() => expandNode(selectedNode.id)}
+                  className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-medium"
+                >
+                  Expand Node
+                </button>
               </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
+      </div>
+
+      {/* Overlay when sidebar is open */}
+      {selectedNode && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-20 z-30 md:hidden"
+          onClick={() => {
+            setSelectedNode(null);
+            setSidebarOpen(false);
+          }}
+        ></div>
       )}
     </div>
   );
