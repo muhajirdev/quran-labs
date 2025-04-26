@@ -1,11 +1,12 @@
 import React from 'react';
 import type { GraphNode } from './types';
+import { ExpandNodeDropdown } from './ExpandNodeDropdown';
 
 interface DataExplorerSidebarProps {
   selectedNode: GraphNode | null;
   setSelectedNode: (node: GraphNode | null) => void;
   setSidebarOpen: (open: boolean) => void;
-  expandNode: (nodeId: string) => void;
+  expandNode: (nodeId: string, expansionType?: string) => void;
 }
 
 export function DataExplorerSidebar({
@@ -69,12 +70,10 @@ export function DataExplorerSidebar({
             >
               Close
             </button>
-            <button
-              onClick={() => expandNode(selectedNode.id)}
-              className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-medium"
-            >
-              Expand Node
-            </button>
+            <ExpandNodeDropdown
+              selectedNode={selectedNode}
+              expandNode={expandNode}
+            />
           </div>
         </div>
       </div>

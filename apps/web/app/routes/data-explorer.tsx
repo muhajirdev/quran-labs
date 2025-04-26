@@ -283,133 +283,178 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   };
 
   // Function to expand a node (fetch related nodes)
-  const expandNode = async (nodeId: string) => {
-    // Don't expand if already expanded
-    if (expandedNodes.has(nodeId)) return;
+  const expandNode = async (nodeId: string, expansionType?: string) => {
+    // Only check for already expanded if no specific expansion type is provided
+    if (!expansionType && expandedNodes.has(nodeId)) {
+      console.log(`Node ${nodeId} is already expanded`);
+      return;
+    }
 
     // Get the node from the graph data
     const node = graphData.nodes.find(n => n.id === nodeId);
     if (!node) return;
 
-    // Create a query based on the node type
+    // Create a query based on the node type and expansion type
     let expansionQuery = '';
 
-    if (node.label === 'Verse') {
-      // For verses, find all topics
-      expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
-                        WHERE v.verse_key = "${node.properties?.verse_key || ''}"
-                        RETURN v, h, t`;
-    } else if (node.label === 'Topic') {
-      // For topics, find all verses
-      expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
-                        WHERE t.topic_id = ${node.properties?.topic_id || 0}
-                        RETURN v, h, t`;
-    } else if (schema) {
-      // Check if this node type exists in our schema
-      const nodeTable = schema.nodeTables.find(t => t.name === node.label);
-      if (nodeTable) {
-        // Find relationships that connect to this node type
-        const relTables = schema.relTables.filter(r =>
-          r.connectivity.some(c => c.src === node.label || c.dst === node.label)
-        );
-
-        if (relTables.length > 0) {
-          // Use the first relationship we find
-          const relTable = relTables[0];
-          const conn = relTable.connectivity.find(c => c.src === node.label || c.dst === node.label);
-
-          if (conn) {
-            if (conn.src === node.label) {
-              // This node is the source
-              expansionQuery = `MATCH (n:${node.label})-[r:${relTable.name}]->(m:${conn.dst})
-                              WHERE n._id.offset = ${node.properties?._id?.offset || 0}
-                              RETURN n, r, m LIMIT 20`;
-            } else {
-              // This node is the destination
-              expansionQuery = `MATCH (n:${conn.src})-[r:${relTable.name}]->(m:${node.label})
-                              WHERE m._id.offset = ${node.properties?._id?.offset || 0}
-                              RETURN n, r, m LIMIT 20`;
-            }
-          } else {
-            // Fallback to generic query
-            expansionQuery = `MATCH (n)-[r]-(m)
-                            WHERE n._id.offset = ${node.properties?._id?.offset || 0}
-                            RETURN n, r, m LIMIT 20`;
+    // If an expansion type is specified, create a specific query
+    if (expansionType && expansionType !== 'all') {
+      if (node.label === 'Verse') {
+        if (expansionType === 'tafsir') {
+          expansionQuery = `MATCH (v:Verse)-[r:HAS_TAFSIR]->(t:Tafsir)
+                          WHERE v.verse_key = "${node.properties?.verse_key || ''}"
+                          RETURN v, r, t`;
+        } else if (expansionType === 'translation') {
+          expansionQuery = `MATCH (v:Verse)-[r:HAS_TRANSLATION]->(t:Translation)
+                          WHERE v.verse_key = "${node.properties?.verse_key || ''}"
+                          RETURN v, r, t`;
+        } else if (expansionType === 'verse') {
+          // For verse expansion, find adjacent verses
+          const verseKey = node.properties?.verse_key || '';
+          const parts = verseKey.split(':');
+          if (parts.length === 2) {
+            const surah = parts[0];
+            const ayah = parseInt(parts[1]);
+            expansionQuery = `MATCH (v:Verse)
+                            WHERE v.surah_number = ${surah} AND
+                                  (v.ayah_number = ${ayah - 1} OR v.ayah_number = ${ayah + 1})
+                            RETURN v`;
           }
-        } else {
-          // No relationships found, use generic query
-          expansionQuery = `MATCH (n)-[r]-(m)
-                          WHERE n._id.offset = ${node.properties?._id?.offset || 0}
-                          RETURN n, r, m LIMIT 20`;
         }
-      } else {
-        // Node type not found in schema, use generic query
-        expansionQuery = `MATCH (n)-[r]-(m)
-                        WHERE n._id.offset = ${node.properties?._id?.offset || 0}
-                        RETURN n, r, m LIMIT 20`;
+      } else if (node.label === 'Topic') {
+        if (expansionType === 'verse') {
+          expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
+                          WHERE t.topic_id = ${node.properties?.topic_id || 0}
+                          RETURN v, h, t`;
+        }
       }
-    } else {
-      // Schema not available, use generic query
-      expansionQuery = `MATCH (n)-[r]-(m)
-                      WHERE n._id.offset = ${node.properties?._id?.offset || 0}
-                      RETURN n, r, m LIMIT 20`;
+
+      // If we couldn't create a specific query, fall back to the default
+      if (!expansionQuery) {
+        console.log(`No specific expansion query for ${node.label} with type ${expansionType}, using default`);
+      }
     }
 
-    try {
-      setLoading(true);
+    // If no specific query was created, use the default expansion logic
+    if (!expansionQuery) {
 
-      const response = await fetch('https://kuzu-api.fly.dev/query', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: expansionQuery }),
-      });
+      if (node.label === 'Verse') {
+        // For verses, find all topics
+        expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
+                        WHERE v.verse_key = "${node.properties?.verse_key || ''}"
+                        RETURN v, h, t`;
+      } else if (node.label === 'Topic') {
+        // For topics, find all verses
+        expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
+                        WHERE t.topic_id = ${node.properties?.topic_id || 0}
+                        RETURN v, h, t`;
+      } else if (schema) {
+        // Check if this node type exists in our schema
+        const nodeTable = schema.nodeTables.find(t => t.name === node.label);
+        if (nodeTable) {
+          // Find relationships that connect to this node type
+          const relTables = schema.relTables.filter(r =>
+            r.connectivity.some(c => c.src === node.label || c.dst === node.label)
+          );
 
-      const data = await response.json() as any;
+          if (relTables.length > 0) {
+            // Use the first relationship we find
+            const relTable = relTables[0];
+            const conn = relTable.connectivity.find(c => c.src === node.label || c.dst === node.label);
 
-      if (!response.ok) {
-        throw new Error(data.detail || 'Failed to execute expansion query');
+            if (conn) {
+              if (conn.src === node.label) {
+                // This node is the source
+                expansionQuery = `MATCH (n:${node.label})-[r:${relTable.name}]->(m:${conn.dst})
+                              WHERE n._id.offset = ${node.properties?._id?.offset || 0}
+                              RETURN n, r, m LIMIT 20`;
+              } else {
+                // This node is the destination
+                expansionQuery = `MATCH (n:${conn.src})-[r:${relTable.name}]->(m:${node.label})
+                              WHERE m._id.offset = ${node.properties?._id?.offset || 0}
+                              RETURN n, r, m LIMIT 20`;
+              }
+            } else {
+              // Fallback to generic query
+              expansionQuery = `MATCH (n)-[r]-(m)
+                            WHERE n._id.offset = ${node.properties?._id?.offset || 0}
+                            RETURN n, r, m LIMIT 20`;
+            }
+          } else {
+            // No relationships found, use generic query
+            expansionQuery = `MATCH (n)-[r]-(m)
+                          WHERE n._id.offset = ${node.properties?._id?.offset || 0}
+                          RETURN n, r, m LIMIT 20`;
+          }
+        } else {
+          // Node type not found in schema, use generic query
+          expansionQuery = `MATCH (n)-[r]-(m)
+                        WHERE n._id.offset = ${node.properties?._id?.offset || 0}
+                        RETURN n, r, m LIMIT 20`;
+        }
+      } else {
+        // Schema not available, use generic query
+        expansionQuery = `MATCH (n)-[r]-(m)
+                      WHERE n._id.offset = ${node.properties?._id?.offset || 0}
+                      RETURN n, r, m LIMIT 20`;
       }
 
-      // Convert results to graph data
-      const newGraphData = convertToGraphData(data);
+      try {
+        setLoading(true);
 
-      // Merge with existing graph data
-      const mergedNodes = [...graphData.nodes];
-      const mergedLinks = [...graphData.links];
+        const response = await fetch('https://kuzu-api.fly.dev/query', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query: expansionQuery }),
+        });
 
-      // Add new nodes if they don't exist
-      newGraphData.nodes.forEach(newNode => {
-        if (!mergedNodes.some(n => n.id === newNode.id)) {
-          mergedNodes.push(newNode);
+        const data = await response.json() as any;
+
+        if (!response.ok) {
+          throw new Error(data.detail || 'Failed to execute expansion query');
         }
-      });
 
-      // Add new links if they don't exist
-      newGraphData.links.forEach(newLink => {
-        if (!mergedLinks.some(l =>
-          l.source === newLink.source &&
-          l.target === newLink.target &&
-          l.type === newLink.type
-        )) {
-          mergedLinks.push(newLink);
-        }
-      });
+        // Convert results to graph data
+        const newGraphData = convertToGraphData(data);
 
-      // Update graph data
-      setGraphData({
-        nodes: mergedNodes,
-        links: mergedLinks
-      });
+        // Merge with existing graph data
+        const mergedNodes = [...graphData.nodes];
+        const mergedLinks = [...graphData.links];
 
-      // Mark node as expanded
-      setExpandedNodes(prev => new Set([...prev, nodeId]));
+        // Add new nodes if they don't exist
+        newGraphData.nodes.forEach(newNode => {
+          if (!mergedNodes.some(n => n.id === newNode.id)) {
+            mergedNodes.push(newNode);
+          }
+        });
 
-    } catch (err) {
-      console.error('Error expanding node:', err);
-    } finally {
-      setLoading(false);
+        // Add new links if they don't exist
+        newGraphData.links.forEach(newLink => {
+          if (!mergedLinks.some(l =>
+            l.source === newLink.source &&
+            l.target === newLink.target &&
+            l.type === newLink.type
+          )) {
+            mergedLinks.push(newLink);
+          }
+        });
+
+        // Update graph data
+        setGraphData({
+          nodes: mergedNodes,
+          links: mergedLinks
+        });
+
+        // Mark node as expanded
+        setExpandedNodes(prev => new Set([...prev, nodeId]));
+
+      } catch (err) {
+        console.error('Error expanding node:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
