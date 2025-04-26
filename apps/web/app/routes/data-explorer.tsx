@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { DataExplorerSidebar } from '~/components/data-explorer/Sidebar';
 import { ExampleQueries } from '~/components/data-explorer/ExampleQueries';
 import { SchemaViewer } from '~/components/data-explorer/SchemaViewer';
-import { GraphSettings } from '~/components/data-explorer/GraphSettings';
+import { GraphSettingsPopover } from '~/components/data-explorer/GraphSettingsPopover';
 import { renderCellValue, getNodeColor } from '~/components/data-explorer/utils';
 import type { GraphData, GraphNode, SchemaData, NodeTable, RelationshipTable } from '~/components/data-explorer/types';
 
@@ -29,7 +29,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [schema, setSchema] = useState<SchemaData | null>(null);
   const [schemaLoading, setSchemaLoading] = useState(false);
-  const [graphSettingsOpen, setGraphSettingsOpen] = useState(false);
+  // We don't need graphSettingsOpen state anymore with the Popover component
   const [graphSettings, setGraphSettings] = useState({
     showRelationshipLabels: true,
     showNodeLabels: true,
@@ -665,15 +665,11 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                         <div className="flex justify-between items-center mb-3">
                           <h3 className="text-lg font-semibold text-gray-900">Graph Visualization</h3>
                           <div className="flex items-center space-x-4">
-                            <button
-                              onClick={() => setGraphSettingsOpen(!graphSettingsOpen)}
-                              className="text-gray-700 hover:text-blue-600 flex items-center"
-                              title="Graph Settings"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-                              </svg>
-                            </button>
+                            <GraphSettingsPopover
+                              settings={graphSettings}
+                              schema={schema}
+                              onSettingsChange={setGraphSettings}
+                            />
                             <div className="text-sm text-gray-800 font-medium flex items-center">
                               <svg className="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -691,14 +687,6 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                           </div>
                         </div>
                         <div ref={containerRef} className="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-md relative">
-                          {/* Graph Settings Panel */}
-                          <GraphSettings
-                            settings={graphSettings}
-                            schema={schema}
-                            onSettingsChange={setGraphSettings}
-                            isOpen={graphSettingsOpen}
-                            onClose={() => setGraphSettingsOpen(false)}
-                          />
 
                           <Suspense fallback={
                             <div className="flex items-center justify-center h-[500px] bg-white">

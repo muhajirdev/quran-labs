@@ -1,0 +1,274 @@
+import { useState } from 'react';
+import type { SchemaData } from '~/components/data-explorer/types';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+
+export interface NodeLabelConfig {
+  [nodeType: string]: string; // Maps node type to property name to display
+}
+
+export interface RelationshipLabelConfig {
+  [relType: string]: string; // Maps relationship type to property name to display
+}
+
+export interface GraphSettingsProps {
+  settings: {
+    showRelationshipLabels: boolean;
+    showNodeLabels: boolean;
+    use3D: boolean;
+    darkMode: boolean;
+    nodeSize: number;
+    linkWidth: number;
+    nodeLabelProperty: NodeLabelConfig;
+    relationshipLabelProperty: RelationshipLabelConfig;
+  };
+  schema: SchemaData | null;
+  onSettingsChange: (settings: any) => void;
+}
+
+export function GraphSettingsPopover({ settings, schema, onSettingsChange }: GraphSettingsProps) {
+  const [localSettings, setLocalSettings] = useState(settings);
+
+  const handleChange = (key: string, value: any) => {
+    const newSettings = { ...localSettings, [key]: value };
+    setLocalSettings(newSettings);
+    onSettingsChange(newSettings);
+  };
+
+  const handleNodeLabelChange = (nodeType: string, propertyName: string) => {
+    const newNodeLabelProperty = {
+      ...localSettings.nodeLabelProperty,
+      [nodeType]: propertyName
+    };
+
+    const newSettings = {
+      ...localSettings,
+      nodeLabelProperty: newNodeLabelProperty
+    };
+
+    setLocalSettings(newSettings);
+    onSettingsChange(newSettings);
+  };
+
+  const handleRelationshipLabelChange = (relType: string, propertyName: string) => {
+    const newRelationshipLabelProperty = {
+      ...localSettings.relationshipLabelProperty,
+      [relType]: propertyName
+    };
+
+    const newSettings = {
+      ...localSettings,
+      relationshipLabelProperty: newRelationshipLabelProperty
+    };
+
+    setLocalSettings(newSettings);
+    onSettingsChange(newSettings);
+  };
+
+  const [activeTab, setActiveTab] = useState<'general' | 'nodeLabels' | 'relationshipLabels'>('general');
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className="text-gray-700 hover:text-blue-600 flex items-center"
+          title="Graph Settings"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-96 max-h-[80vh] overflow-y-auto p-4" align="center">
+        <h3 className="font-semibold text-gray-900 mb-4">Graph Settings</h3>
+
+        {/* Custom Tabs */}
+        <div className="flex border-b border-gray-200 mb-4">
+          <button
+            className={`py-2 px-4 font-medium text-sm ${activeTab === 'general' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            onClick={() => setActiveTab('general')}
+          >
+            General
+          </button>
+          <button
+            className={`py-2 px-4 font-medium text-sm ${activeTab === 'nodeLabels' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            onClick={() => setActiveTab('nodeLabels')}
+          >
+            Node Labels
+          </button>
+          <button
+            className={`py-2 px-4 font-medium text-sm ${activeTab === 'relationshipLabels' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            onClick={() => setActiveTab('relationshipLabels')}
+          >
+            Relationship Labels
+          </button>
+        </div>
+
+        {/* General Settings Tab */}
+        {activeTab === 'general' && (
+          <div className="space-y-4">
+            {/* Toggle switches */}
+            <div className="flex items-center justify-between">
+              <label htmlFor="showRelationshipLabels" className="text-sm font-medium text-gray-700">
+                Show Relationship Labels
+              </label>
+              <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                <input
+                  type="checkbox"
+                  id="showRelationshipLabels"
+                  checked={localSettings.showRelationshipLabels}
+                  onChange={(e) => handleChange('showRelationshipLabels', e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showRelationshipLabels ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform transform ${localSettings.showRelationshipLabels ? 'translate-x-4' : ''}`}></div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label htmlFor="showNodeLabels" className="text-sm font-medium text-gray-700">
+                Show Node Labels
+              </label>
+              <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                <input
+                  type="checkbox"
+                  id="showNodeLabels"
+                  checked={localSettings.showNodeLabels}
+                  onChange={(e) => handleChange('showNodeLabels', e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showNodeLabels ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform transform ${localSettings.showNodeLabels ? 'translate-x-4' : ''}`}></div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label htmlFor="darkMode" className="text-sm font-medium text-gray-700">
+                Dark Mode
+              </label>
+              <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                <input
+                  type="checkbox"
+                  id="darkMode"
+                  checked={localSettings.darkMode}
+                  onChange={(e) => handleChange('darkMode', e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.darkMode ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform transform ${localSettings.darkMode ? 'translate-x-4' : ''}`}></div>
+              </div>
+            </div>
+
+            {/* Sliders */}
+            <div className="space-y-2">
+              <label htmlFor="nodeSize" className="text-sm font-medium text-gray-700 block">
+                Node Size: {localSettings.nodeSize}
+              </label>
+              <input
+                type="range"
+                id="nodeSize"
+                min="1"
+                max="10"
+                step="1"
+                value={localSettings.nodeSize}
+                onChange={(e) => handleChange('nodeSize', parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="linkWidth" className="text-sm font-medium text-gray-700 block">
+                Link Width: {localSettings.linkWidth}
+              </label>
+              <input
+                type="range"
+                id="linkWidth"
+                min="0.5"
+                max="3"
+                step="0.5"
+                value={localSettings.linkWidth}
+                onChange={(e) => handleChange('linkWidth', parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Node Label Settings Tab */}
+        {activeTab === 'nodeLabels' && (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600 mb-2">
+              Select which property to display as the label for each node type:
+            </p>
+
+            {schema?.nodeTables.map(nodeTable => {
+              const nodeType = nodeTable.name;
+              const currentProperty = localSettings.nodeLabelProperty[nodeType] || 'default';
+
+              return (
+                <div key={nodeType} className="border border-gray-200 rounded-lg p-3">
+                  <h4 className="font-medium text-gray-800 mb-2">{nodeType}</h4>
+                  <select
+                    value={currentProperty}
+                    onChange={(e) => handleNodeLabelChange(nodeType, e.target.value)}
+                    className="block w-full p-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="default">Default (Auto)</option>
+                    {nodeTable.properties.map(prop => (
+                      <option key={prop.name} value={prop.name}>
+                        {prop.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            })}
+
+            {(!schema || schema.nodeTables.length === 0) && (
+              <div className="text-gray-500 italic text-sm">
+                No node types available in schema
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Relationship Label Settings Tab */}
+        {activeTab === 'relationshipLabels' && (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600 mb-2">
+              Select which property to display as the label for each relationship type:
+            </p>
+
+            {schema?.relTables.map(relTable => {
+              const relType = relTable.name;
+              const currentProperty = localSettings.relationshipLabelProperty[relType] || 'default';
+
+              return (
+                <div key={relType} className="border border-gray-200 rounded-lg p-3">
+                  <h4 className="font-medium text-gray-800 mb-2">{relType}</h4>
+                  <select
+                    value={currentProperty}
+                    onChange={(e) => handleRelationshipLabelChange(relType, e.target.value)}
+                    className="block w-full p-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="default">Default (Type Name)</option>
+                    {relTable.properties.map(prop => (
+                      <option key={prop.name} value={prop.name}>
+                        {prop.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            })}
+
+            {(!schema || schema.relTables.length === 0) && (
+              <div className="text-gray-500 italic text-sm">
+                No relationship types available in schema
+              </div>
+            )}
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
