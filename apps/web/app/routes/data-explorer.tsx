@@ -36,7 +36,9 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
     use3D: false,
     darkMode: false,
     nodeSize: 6,
-    linkWidth: 1.5
+    linkWidth: 1.5,
+    nodeLabelProperty: {} as Record<string, string>,
+    relationshipLabelProperty: {} as Record<string, string>
   });
   const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -692,6 +694,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                           {/* Graph Settings Panel */}
                           <GraphSettings
                             settings={graphSettings}
+                            schema={schema}
                             onSettingsChange={setGraphSettings}
                             isOpen={graphSettingsOpen}
                             onClose={() => setGraphSettingsOpen(false)}
@@ -711,9 +714,25 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                               width={dimensions.width}
                               height={dimensions.height}
                               backgroundColor={graphSettings.darkMode ? "#111827" : "#FFFFFF"}
-                              nodeLabel={(node: any) => `${node.label}: ${node.name}`}
+                              nodeLabel={(node: any) => {
+                                // Get custom property if configured
+                                const customProperty = graphSettings.nodeLabelProperty[node.label];
+                                if (customProperty && customProperty !== 'default' && node.properties && node.properties[customProperty] !== undefined) {
+                                  return `${node.label}: ${node.properties[customProperty]}`;
+                                }
+                                // Default label
+                                return `${node.label}: ${node.name}`;
+                              }}
                               nodeColor={(node: any) => node.color}
-                              linkLabel={(link: any) => link.type}
+                              linkLabel={(link: any) => {
+                                // Get custom property if configured
+                                const customProperty = graphSettings.relationshipLabelProperty[link.type];
+                                if (customProperty && customProperty !== 'default' && link.properties && link.properties[customProperty] !== undefined) {
+                                  return `${link.type}: ${link.properties[customProperty]}`;
+                                }
+                                // Default label
+                                return link.type;
+                              }}
                               linkWidth={graphSettings.linkWidth}
                               linkColor={() => graphSettings.darkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'}
                               linkCanvasObjectMode={() => graphSettings.showRelationshipLabels ? 'after' : 'none'}
@@ -735,13 +754,22 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                                 // Set font size based on zoom level
                                 const fontSize = 10 / globalScale;
 
+                                // Get the label text to display
+                                let labelText = link.type;
+
+                                // Check if a custom property is configured for this relationship type
+                                const customProperty = graphSettings.relationshipLabelProperty[link.type];
+                                if (customProperty && customProperty !== 'default' && link.properties && link.properties[customProperty] !== undefined) {
+                                  labelText = link.properties[customProperty];
+                                }
+
                                 // Draw the relationship label
                                 ctx.font = `${fontSize}px Sans-Serif`;
                                 ctx.textAlign = 'center';
                                 ctx.textBaseline = 'middle';
 
                                 // Add a background for better readability
-                                const textWidth = ctx.measureText(link.type).width;
+                                const textWidth = ctx.measureText(labelText).width;
                                 const backgroundHeight = fontSize;
                                 const backgroundWidth = textWidth + fontSize * 0.8;
 
@@ -755,14 +783,22 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
 
                                 // Draw the text
                                 ctx.fillStyle = graphSettings.darkMode ? '#D1D5DB' : '#4B5563';
-                                ctx.fillText(link.type, middleX, middleY);
+                                ctx.fillText(labelText, middleX, middleY);
                               }}
                               nodeRelSize={graphSettings.nodeSize}
                               // @ts-ignore - cooldownTicks is a valid prop for ForceGraph2D
                               cooldownTicks={100}
                               nodeCanvasObject={(node: any, ctx, globalScale) => {
                                 // Draw the node circle
-                                const label = node.name as string;
+                                // Get the label text to display
+                                let label = node.name as string;
+
+                                // Check if a custom property is configured for this node type
+                                const customProperty = graphSettings.nodeLabelProperty[node.label];
+                                if (customProperty && customProperty !== 'default' && node.properties && node.properties[customProperty] !== undefined) {
+                                  label = node.properties[customProperty] as string;
+                                }
+
                                 const fontSize = 12 / globalScale;
                                 const nodeR = Math.sqrt((node.val || 1) * (graphSettings.nodeSize / 6) * 25 / Math.PI);
 
