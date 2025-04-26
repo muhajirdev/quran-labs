@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { DataExplorerSidebar } from '~/components/data-explorer/Sidebar';
 import { ExampleQueries } from '~/components/data-explorer/ExampleQueries';
 import { SchemaViewer } from '~/components/data-explorer/SchemaViewer';
+import { GraphSettings } from '~/components/data-explorer/GraphSettings';
 import { renderCellValue, getNodeColor } from '~/components/data-explorer/utils';
 import type { GraphData, GraphNode, SchemaData, NodeTable, RelationshipTable } from '~/components/data-explorer/types';
 
@@ -28,9 +29,68 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [schema, setSchema] = useState<SchemaData | null>(null);
   const [schemaLoading, setSchemaLoading] = useState(false);
+  const [graphSettingsOpen, setGraphSettingsOpen] = useState(false);
+  const [graphSettings, setGraphSettings] = useState({
+    showRelationshipLabels: true,
+    showNodeLabels: true,
+    use3D: false,
+    darkMode: false,
+    nodeSize: 6,
+    linkWidth: 1.5
+  });
   const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
+
+  // Function to get the display name for a node based on its label and properties
+  const getNodeDisplayName = (label: string, properties: any): string => {
+    // Helper function to truncate text
+    const truncateText = (text: string, maxLength: number = 50): string => {
+      return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
+    };
+
+    // For text-based nodes (Translation, Tafsir), use the text property
+    if ((label === 'Translation' || label === 'Tafsir') && properties.text) {
+      return truncateText(properties.text as string);
+    }
+
+    // For Verse nodes, prefer verse_key
+    if (label === 'Verse') {
+      return properties.verse_key ||
+        (properties.surah_number && properties.ayah_number ?
+          `${properties.surah_number}:${properties.ayah_number}` :
+          `Verse-${properties._id?.offset || ''}`);
+    }
+
+    // For Topic nodes, prefer name or topic_id
+    if (label === 'Topic') {
+      return properties.name ||
+        (properties.topic_id ? `Topic ${properties.topic_id}` :
+          `Topic-${properties._id?.offset || ''}`);
+    }
+
+    // For Word nodes
+    if (label === 'Word') {
+      return properties.text ||
+        (properties.verse_key ? `Word in ${properties.verse_key}` :
+          `Word-${properties._id?.offset || ''}`);
+    }
+
+    // For Chapter/Surah nodes
+    if (label === 'Chapter' || label === 'Surah') {
+      return properties.name ||
+        (properties.surah_number ? `Surah ${properties.surah_number}` :
+          `${label}-${properties._id?.offset || ''}`);
+    }
+
+    // For all other node types, use standard properties
+    return properties.name ||
+      properties.verse_key ||
+      properties.topic_id ||
+      (properties.surah_number && properties.ayah_number ?
+        `${properties.surah_number}:${properties.ayah_number}` :
+        `${label}-${properties._id?.offset || ''}`);
+  };
 
   // Function to convert query results to graph data
   const convertToGraphData = (results: any): GraphData => {
@@ -55,8 +115,8 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
             id: verseId,
             label: verse._label,
             properties: { ...verse },
-            // Use verse_key as the display name
-            name: verse.verse_key || `${verse.surah_number}:${verse.ayah_number}`,
+            // Use getNodeDisplayName to determine the display name
+            name: getNodeDisplayName(verse._label, verse),
             // Make verses slightly smaller
             val: 0.8,
             color: getNodeColor(verse._label)
@@ -79,8 +139,8 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
             id: topicId,
             label: topic._label,
             properties: { ...topic },
-            // Use name or topic_id as the display name
-            name: topic.name || `Topic ${topic.topic_id}`,
+            // Use getNodeDisplayName to determine the display name
+            name: getNodeDisplayName(topic._label, topic),
             // Make topics slightly larger
             val: 1.2,
             color: getNodeColor(topic._label)
@@ -146,9 +206,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                 label: label,
                 properties: { ...value },
                 // Add display properties - try different possible name fields
-                name: value.name || value.verse_key || value.topic_id ||
-                  (value.surah_number && value.ayah_number ?
-                    `${value.surah_number}:${value.ayah_number}` : nodeId),
+                name: getNodeDisplayName(label, value),
                 val: 1, // Size
                 color: getNodeColor(label)
               };
@@ -604,11 +662,22 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                       <div className="mb-6">
                         <div className="flex justify-between items-center mb-3">
                           <h3 className="text-lg font-semibold text-gray-900">Graph Visualization</h3>
-                          <div className="text-sm text-gray-800 font-medium flex items-center">
-                            <svg className="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            <span>{graphData.nodes.length} nodes, {graphData.links.length} relationships</span>
+                          <div className="flex items-center space-x-4">
+                            <button
+                              onClick={() => setGraphSettingsOpen(!graphSettingsOpen)}
+                              className="text-gray-700 hover:text-blue-600 flex items-center"
+                              title="Graph Settings"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                              </svg>
+                            </button>
+                            <div className="text-sm text-gray-800 font-medium flex items-center">
+                              <svg className="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                              <span>{graphData.nodes.length} nodes, {graphData.links.length} relationships</span>
+                            </div>
                           </div>
                         </div>
                         <div className="bg-gray-50 p-2 rounded-lg mb-3 text-sm text-gray-700">
@@ -619,7 +688,15 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                             <span>Click a node to view details. Double-click to expand connections.</span>
                           </div>
                         </div>
-                        <div ref={containerRef} className="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-md">
+                        <div ref={containerRef} className="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-md relative">
+                          {/* Graph Settings Panel */}
+                          <GraphSettings
+                            settings={graphSettings}
+                            onSettingsChange={setGraphSettings}
+                            isOpen={graphSettingsOpen}
+                            onClose={() => setGraphSettingsOpen(false)}
+                          />
+
                           <Suspense fallback={
                             <div className="flex items-center justify-center h-[500px] bg-white">
                               <div className="text-center">
@@ -633,54 +710,96 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                               graphData={graphData}
                               width={dimensions.width}
                               height={dimensions.height}
-                              backgroundColor="#FFFFFF"
+                              backgroundColor={graphSettings.darkMode ? "#111827" : "#FFFFFF"}
                               nodeLabel={(node: any) => `${node.label}: ${node.name}`}
                               nodeColor={(node: any) => node.color}
                               linkLabel={(link: any) => link.type}
-                              linkWidth={1}
-                              linkColor={() => 'rgba(0,0,0,0.3)'}
-                              nodeRelSize={6}
+                              linkWidth={graphSettings.linkWidth}
+                              linkColor={() => graphSettings.darkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'}
+                              linkCanvasObjectMode={() => graphSettings.showRelationshipLabels ? 'after' : 'none'}
+                              linkCanvasObject={(link: any, ctx, globalScale) => {
+                                // Skip if no type is defined or relationship labels are disabled
+                                if (!link.type || !graphSettings.showRelationshipLabels) return;
+
+                                // Calculate the position for the label
+                                const start = link.source;
+                                const end = link.target;
+
+                                // Skip if positions are not available
+                                if (!start.x || !start.y || !end.x || !end.y) return;
+
+                                // Calculate the middle point of the link
+                                const middleX = start.x + (end.x - start.x) / 2;
+                                const middleY = start.y + (end.y - start.y) / 2;
+
+                                // Set font size based on zoom level
+                                const fontSize = 10 / globalScale;
+
+                                // Draw the relationship label
+                                ctx.font = `${fontSize}px Sans-Serif`;
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+
+                                // Add a background for better readability
+                                const textWidth = ctx.measureText(link.type).width;
+                                const backgroundHeight = fontSize;
+                                const backgroundWidth = textWidth + fontSize * 0.8;
+
+                                ctx.fillStyle = graphSettings.darkMode ? 'rgba(17, 24, 39, 0.8)' : 'rgba(255, 255, 255, 0.8)';
+                                ctx.fillRect(
+                                  middleX - backgroundWidth / 2,
+                                  middleY - backgroundHeight / 2,
+                                  backgroundWidth,
+                                  backgroundHeight
+                                );
+
+                                // Draw the text
+                                ctx.fillStyle = graphSettings.darkMode ? '#D1D5DB' : '#4B5563';
+                                ctx.fillText(link.type, middleX, middleY);
+                              }}
+                              nodeRelSize={graphSettings.nodeSize}
                               // @ts-ignore - cooldownTicks is a valid prop for ForceGraph2D
                               cooldownTicks={100}
                               nodeCanvasObject={(node: any, ctx, globalScale) => {
                                 // Draw the node circle
                                 const label = node.name as string;
                                 const fontSize = 12 / globalScale;
-                                const nodeR = Math.sqrt((node.val || 1) * 25 / Math.PI);
+                                const nodeR = Math.sqrt((node.val || 1) * (graphSettings.nodeSize / 6) * 25 / Math.PI);
 
                                 // Draw a slightly larger circle for expanded nodes
                                 if (expandedNodes.has(node.id)) {
                                   ctx.beginPath();
                                   ctx.arc(node.x || 0, node.y || 0, nodeR + 2, 0, 2 * Math.PI);
-                                  ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                                  ctx.fillStyle = graphSettings.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
                                   ctx.fill();
                                 }
 
                                 ctx.beginPath();
                                 ctx.arc(node.x || 0, node.y || 0, nodeR, 0, 2 * Math.PI);
-                                ctx.fillStyle = node.color || '#4B5563';
+                                ctx.fillStyle = node.color || (graphSettings.darkMode ? '#D1D5DB' : '#4B5563');
                                 ctx.fill();
 
-                                // Draw the label below the node
-                                ctx.font = `bold ${fontSize}px Sans-Serif`;
-                                ctx.textAlign = 'center';
-                                ctx.textBaseline = 'middle';
-                                ctx.fillStyle = '#111827';
+                                // Draw the label below the node if enabled
+                                if (graphSettings.showNodeLabels) {
+                                  ctx.font = `bold ${fontSize}px Sans-Serif`;
+                                  ctx.textAlign = 'center';
+                                  ctx.textBaseline = 'middle';
 
-                                // Add a white background to the text for better readability
-                                const textWidth = ctx.measureText(label).width;
-                                const backgroundDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.4);
+                                  // Add a background for better readability
+                                  const textWidth = ctx.measureText(label).width;
+                                  const backgroundDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.4);
 
-                                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                                ctx.fillRect(
-                                  (node.x || 0) - backgroundDimensions[0] / 2,
-                                  (node.y || 0) + nodeR + fontSize / 2 - backgroundDimensions[1] / 2,
-                                  backgroundDimensions[0],
-                                  backgroundDimensions[1]
-                                );
+                                  ctx.fillStyle = graphSettings.darkMode ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+                                  ctx.fillRect(
+                                    (node.x || 0) - backgroundDimensions[0] / 2,
+                                    (node.y || 0) + nodeR + fontSize / 2 - backgroundDimensions[1] / 2,
+                                    backgroundDimensions[0],
+                                    backgroundDimensions[1]
+                                  );
 
-                                ctx.fillStyle = '#111827';
-                                ctx.fillText(label, node.x || 0, (node.y || 0) + nodeR + fontSize / 2);
+                                  ctx.fillStyle = graphSettings.darkMode ? '#D1D5DB' : '#111827';
+                                  ctx.fillText(label, node.x || 0, (node.y || 0) + nodeR + fontSize / 2);
+                                }
                               }}
                               onNodeClick={(node: any) => {
                                 // Check if it's a double click
