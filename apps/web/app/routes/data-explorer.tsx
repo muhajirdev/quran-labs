@@ -2,8 +2,9 @@ import { useState, useRef, useEffect, lazy } from 'react';
 import { Suspense } from 'react';
 import { DataExplorerSidebar } from '~/components/data-explorer/Sidebar';
 import { ExampleQueries } from '~/components/data-explorer/ExampleQueries';
+import { SchemaViewer } from '~/components/data-explorer/SchemaViewer';
 import { renderCellValue, getNodeColor } from '~/components/data-explorer/utils';
-import type { GraphData, GraphNode } from '~/components/data-explorer/types';
+import type { GraphData, GraphNode, SchemaData, NodeTable, RelationshipTable } from '~/components/data-explorer/types';
 
 const ForceGraph2D = lazy(() => import('react-force-graph-2d'));
 
@@ -25,6 +26,8 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [schema, setSchema] = useState<SchemaData | null>(null);
+  const [schemaLoading, setSchemaLoading] = useState(false);
   const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
@@ -45,7 +48,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
         const verse = row.v;
         // Create a unique ID for the verse
         const verseId = `${verse._label}-${verse.verse_key}`;
-        
+
         // Add verse node if it doesn't exist
         if (!nodeMap.has(verseId)) {
           const node: GraphNode = {
@@ -58,18 +61,18 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
             val: 0.8,
             color: getNodeColor(verse._label)
           };
-          
+
           nodeMap.set(verseId, node);
           graphData.nodes.push(node);
         }
       }
-      
+
       // Check for topic nodes (t)
       if (row.t && typeof row.t === 'object') {
         const topic = row.t;
         // Create a unique ID for the topic
         const topicId = `${topic._label}-${topic.topic_id}`;
-        
+
         // Add topic node if it doesn't exist
         if (!nodeMap.has(topicId)) {
           const node: GraphNode = {
@@ -82,22 +85,22 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
             val: 1.2,
             color: getNodeColor(topic._label)
           };
-          
+
           nodeMap.set(topicId, node);
           graphData.nodes.push(node);
         }
       }
-      
+
       // Check for relationships (h)
       if (row.h && typeof row.h === 'object' && row.v && row.t) {
         const verse = row.v;
         const topic = row.t;
         const rel = row.h;
-        
+
         // Create IDs for source and target
         const verseId = `${verse._label}-${verse.verse_key}`;
         const topicId = `${topic._label}-${topic.topic_id}`;
-        
+
         // Add relationship
         if (nodeMap.has(verseId) && nodeMap.has(topicId)) {
           graphData.links.push({
@@ -122,13 +125,13 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
           if (!value || typeof value !== 'object') return;
 
           // Check if it's a node (has _id and _label properties)
-          if ((value._id !== undefined || value._ID !== undefined) && 
-              (value._label !== undefined || value._LABEL !== undefined)) {
-            
+          if ((value._id !== undefined || value._ID !== undefined) &&
+            (value._label !== undefined || value._LABEL !== undefined)) {
+
             const label = value._label || value._LABEL;
             const id = value._id || value._ID;
             let nodeId;
-            
+
             // Handle different ID formats
             if (typeof id === 'object' && id.offset !== undefined) {
               nodeId = `${label}-${id.offset}-${id.table || 0}`;
@@ -143,9 +146,9 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                 label: label,
                 properties: { ...value },
                 // Add display properties - try different possible name fields
-                name: value.name || value.verse_key || value.topic_id || 
-                      (value.surah_number && value.ayah_number ? 
-                       `${value.surah_number}:${value.ayah_number}` : nodeId),
+                name: value.name || value.verse_key || value.topic_id ||
+                  (value.surah_number && value.ayah_number ?
+                    `${value.surah_number}:${value.ayah_number}` : nodeId),
                 val: 1, // Size
                 color: getNodeColor(label)
               };
@@ -159,8 +162,8 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
 
       // Try to extract relationships from the results
       if (query.toUpperCase().includes('MATCH') &&
-          query.toUpperCase().includes('RETURN')) {
-        
+        query.toUpperCase().includes('RETURN')) {
+
         results.data.forEach((row: any) => {
           let source: string | null = null;
           let target: string | null = null;
@@ -169,20 +172,20 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
           // Look for relationship objects in the row
           Object.keys(row).forEach(key => {
             const value = row[key];
-            
+
             // Check if this is a relationship object
-            if (value && typeof value === 'object' && 
-                value._src !== undefined && value._dst !== undefined) {
-              
+            if (value && typeof value === 'object' &&
+              value._src !== undefined && value._dst !== undefined) {
+
               // Try to find source and target nodes
-              const sourceNode = graphData.nodes.find(n => 
-                n.properties?._id?.offset === value._src.offset && 
+              const sourceNode = graphData.nodes.find(n =>
+                n.properties?._id?.offset === value._src.offset &&
                 n.properties?._id?.table === value._src.table);
-              
-              const targetNode = graphData.nodes.find(n => 
-                n.properties?._id?.offset === value._dst.offset && 
+
+              const targetNode = graphData.nodes.find(n =>
+                n.properties?._id?.offset === value._dst.offset &&
                 n.properties?._id?.table === value._dst.table);
-              
+
               if (sourceNode && targetNode) {
                 source = sourceNode.id;
                 target = targetNode.id;
@@ -211,34 +214,78 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const expandNode = async (nodeId: string) => {
     // Don't expand if already expanded
     if (expandedNodes.has(nodeId)) return;
-    
+
     // Get the node from the graph data
     const node = graphData.nodes.find(n => n.id === nodeId);
     if (!node) return;
-    
+
     // Create a query based on the node type
     let expansionQuery = '';
-    
+
     if (node.label === 'Verse') {
       // For verses, find all topics
-      expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic) 
-                        WHERE v.verse_key = "${node.properties?.verse_key || ''}" 
+      expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
+                        WHERE v.verse_key = "${node.properties?.verse_key || ''}"
                         RETURN v, h, t`;
     } else if (node.label === 'Topic') {
       // For topics, find all verses
-      expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic) 
-                        WHERE t.topic_id = ${node.properties?.topic_id || 0} 
+      expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
+                        WHERE t.topic_id = ${node.properties?.topic_id || 0}
                         RETURN v, h, t`;
-    } else {
-      // Generic query for other node types
-      expansionQuery = `MATCH (n)-[r]-(m) 
-                        WHERE n._id.offset = ${node.properties?._id?.offset || 0} 
+    } else if (schema) {
+      // Check if this node type exists in our schema
+      const nodeTable = schema.nodeTables.find(t => t.name === node.label);
+      if (nodeTable) {
+        // Find relationships that connect to this node type
+        const relTables = schema.relTables.filter(r =>
+          r.connectivity.some(c => c.src === node.label || c.dst === node.label)
+        );
+
+        if (relTables.length > 0) {
+          // Use the first relationship we find
+          const relTable = relTables[0];
+          const conn = relTable.connectivity.find(c => c.src === node.label || c.dst === node.label);
+
+          if (conn) {
+            if (conn.src === node.label) {
+              // This node is the source
+              expansionQuery = `MATCH (n:${node.label})-[r:${relTable.name}]->(m:${conn.dst})
+                              WHERE n._id.offset = ${node.properties?._id?.offset || 0}
+                              RETURN n, r, m LIMIT 20`;
+            } else {
+              // This node is the destination
+              expansionQuery = `MATCH (n:${conn.src})-[r:${relTable.name}]->(m:${node.label})
+                              WHERE m._id.offset = ${node.properties?._id?.offset || 0}
+                              RETURN n, r, m LIMIT 20`;
+            }
+          } else {
+            // Fallback to generic query
+            expansionQuery = `MATCH (n)-[r]-(m)
+                            WHERE n._id.offset = ${node.properties?._id?.offset || 0}
+                            RETURN n, r, m LIMIT 20`;
+          }
+        } else {
+          // No relationships found, use generic query
+          expansionQuery = `MATCH (n)-[r]-(m)
+                          WHERE n._id.offset = ${node.properties?._id?.offset || 0}
+                          RETURN n, r, m LIMIT 20`;
+        }
+      } else {
+        // Node type not found in schema, use generic query
+        expansionQuery = `MATCH (n)-[r]-(m)
+                        WHERE n._id.offset = ${node.properties?._id?.offset || 0}
                         RETURN n, r, m LIMIT 20`;
+      }
+    } else {
+      // Schema not available, use generic query
+      expansionQuery = `MATCH (n)-[r]-(m)
+                      WHERE n._id.offset = ${node.properties?._id?.offset || 0}
+                      RETURN n, r, m LIMIT 20`;
     }
-    
+
     try {
       setLoading(true);
-      
+
       const response = await fetch('https://kuzu-api.fly.dev/query', {
         method: 'POST',
         headers: {
@@ -246,47 +293,47 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
         },
         body: JSON.stringify({ query: expansionQuery }),
       });
-      
+
       const data = await response.json() as any;
-      
+
       if (!response.ok) {
         throw new Error(data.detail || 'Failed to execute expansion query');
       }
-      
+
       // Convert results to graph data
       const newGraphData = convertToGraphData(data);
-      
+
       // Merge with existing graph data
       const mergedNodes = [...graphData.nodes];
       const mergedLinks = [...graphData.links];
-      
+
       // Add new nodes if they don't exist
       newGraphData.nodes.forEach(newNode => {
         if (!mergedNodes.some(n => n.id === newNode.id)) {
           mergedNodes.push(newNode);
         }
       });
-      
+
       // Add new links if they don't exist
       newGraphData.links.forEach(newLink => {
-        if (!mergedLinks.some(l => 
-          l.source === newLink.source && 
-          l.target === newLink.target && 
+        if (!mergedLinks.some(l =>
+          l.source === newLink.source &&
+          l.target === newLink.target &&
           l.type === newLink.type
         )) {
           mergedLinks.push(newLink);
         }
       });
-      
+
       // Update graph data
       setGraphData({
         nodes: mergedNodes,
         links: mergedLinks
       });
-      
+
       // Mark node as expanded
       setExpandedNodes(prev => new Set([...prev, nodeId]));
-      
+
     } catch (err) {
       console.error('Error expanding node:', err);
     } finally {
@@ -294,13 +341,109 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
     }
   };
 
-  // Execute initial query when component loads
+  // Function to fetch the database schema
+  const fetchSchema = async () => {
+    setSchemaLoading(true);
+    try {
+      // First get the node tables
+      const nodeTablesQuery = "CALL show_tables() RETURN *";
+      const response = await fetch('https://kuzu-api.fly.dev/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: nodeTablesQuery }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch schema');
+      }
+
+      const tablesData = await response.json() as any;
+      console.log('Tables data:', tablesData);
+
+      // Process the tables data to create our schema
+      const nodeTables: NodeTable[] = [];
+      const relTables: RelationshipTable[] = [];
+
+      // Process each table to get its properties and type
+      for (const table of tablesData.data) {
+        // Skip system tables
+        if (table.name.startsWith('_')) continue;
+
+        // Get table properties
+        const propertiesQuery = `CALL TABLE_INFO('${table.name}') RETURN *`;
+        const propsResponse = await fetch('https://kuzu-api.fly.dev/query', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query: propertiesQuery }),
+        });
+
+        if (!propsResponse.ok) {
+          console.error(`Failed to fetch properties for table ${table.name}`);
+          continue;
+        }
+
+        const propsData = await propsResponse.json() as any;
+        const properties = propsData.data.map((prop: any) => ({
+          name: prop.name,
+          type: prop.type,
+          isPrimaryKey: prop['primary key'] === 'YES'
+        }));
+
+        if (table.type === 'NODE') {
+          nodeTables.push({
+            name: table.name,
+            properties
+          });
+        } else if (table.type === 'REL') {
+          // For relationship tables, get connectivity information
+          const connectivityQuery = `CALL SHOW_CONNECTION('${table.name}') RETURN *`;
+          const connResponse = await fetch('https://kuzu-api.fly.dev/query', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: connectivityQuery }),
+          });
+
+          if (!connResponse.ok) {
+            console.error(`Failed to fetch connectivity for table ${table.name}`);
+            continue;
+          }
+
+          const connData = await connResponse.json() as any;
+          const connectivity = connData.data.map((conn: any) => ({
+            src: conn['source table name'],
+            dst: conn['destination table name']
+          }));
+
+          relTables.push({
+            name: table.name,
+            properties,
+            connectivity
+          });
+        }
+      }
+
+      setSchema({ nodeTables, relTables });
+    } catch (err) {
+      console.error('Error fetching schema:', err);
+    } finally {
+      setSchemaLoading(false);
+    }
+  };
+
+  // Execute initial query and fetch schema when component loads
   useEffect(() => {
     // Execute a simple query to test the API
     const timer = setTimeout(() => {
       executeQuery();
+      fetchSchema();
     }, 500); // Add a small delay to ensure the component is fully mounted
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -419,6 +562,9 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
 
             {/* Example Queries */}
             <ExampleQueries setQuery={setQuery} />
+
+            {/* Schema Viewer */}
+            <SchemaViewer schema={schema} loading={schemaLoading} setQuery={setQuery} />
           </div>
 
           {/* Right column - Results */}
@@ -494,6 +640,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                               linkWidth={1}
                               linkColor={() => 'rgba(0,0,0,0.3)'}
                               nodeRelSize={6}
+                              // @ts-ignore - cooldownTicks is a valid prop for ForceGraph2D
                               cooldownTicks={100}
                               nodeCanvasObject={(node: any, ctx, globalScale) => {
                                 // Draw the node circle
@@ -540,7 +687,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                                 const now = new Date().getTime();
                                 const lastClick = (node as any)._lastClickTime || 0;
                                 (node as any)._lastClickTime = now;
-                                
+
                                 if (now - lastClick < 300) {
                                   // Double click - expand node
                                   expandNode(node.id);
@@ -606,8 +753,8 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
       </div>
 
       {/* Node Details Sidebar */}
-      <DataExplorerSidebar 
-        selectedNode={selectedNode} 
+      <DataExplorerSidebar
+        selectedNode={selectedNode}
         setSelectedNode={setSelectedNode}
         setSidebarOpen={setSidebarOpen}
         expandNode={expandNode}
