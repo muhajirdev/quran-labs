@@ -4,8 +4,12 @@ import { DataExplorerSidebar } from '~/components/data-explorer/Sidebar';
 import { ExampleQueries } from '~/components/data-explorer/ExampleQueries';
 import { SchemaViewer } from '~/components/data-explorer/SchemaViewer';
 import { GraphSettingsPopover } from '~/components/data-explorer/GraphSettingsPopover';
-import { renderCellValue, getNodeColor } from '~/components/data-explorer/utils';
 import type { GraphData, GraphNode, SchemaData, NodeTable, RelationshipTable } from '~/components/data-explorer/types';
+import {
+  convertToGraphData,
+  createExpansionQuery,
+  renderCellValue
+} from '~/components/data-explorer/simpleGraphUtils';
 
 const ForceGraph2D = lazy(() => import('react-force-graph-2d'));
 
@@ -44,244 +48,6 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
 
-  // Function to get the display name for a node based on its label and properties
-  const getNodeDisplayName = (label: string, properties: any): string => {
-    // Helper function to truncate text
-    const truncateText = (text: string, maxLength: number = 50): string => {
-      return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
-    };
-
-    // For text-based nodes (Translation, Tafsir), use the text property
-    if ((label === 'Translation' || label === 'Tafsir') && properties.text) {
-      return truncateText(properties.text as string);
-    }
-
-    // For Verse nodes, prefer verse_key
-    if (label === 'Verse') {
-      return properties.verse_key ||
-        (properties.surah_number && properties.ayah_number ?
-          `${properties.surah_number}:${properties.ayah_number}` :
-          `Verse-${properties._id?.offset || ''}`);
-    }
-
-    // For Topic nodes, prefer name or topic_id
-    if (label === 'Topic') {
-      return properties.name ||
-        (properties.topic_id ? `Topic ${properties.topic_id}` :
-          `Topic-${properties._id?.offset || ''}`);
-    }
-
-    // For Word nodes
-    if (label === 'Word') {
-      return properties.text ||
-        (properties.verse_key ? `Word in ${properties.verse_key}` :
-          `Word-${properties._id?.offset || ''}`);
-    }
-
-    // For Chapter/Surah nodes
-    if (label === 'Chapter' || label === 'Surah') {
-      return properties.name ||
-        (properties.surah_number ? `Surah ${properties.surah_number}` :
-          `${label}-${properties._id?.offset || ''}`);
-    }
-
-    // For all other node types, use standard properties
-    return properties.name ||
-      properties.verse_key ||
-      properties.topic_id ||
-      (properties.surah_number && properties.ayah_number ?
-        `${properties.surah_number}:${properties.ayah_number}` :
-        `${label}-${properties._id?.offset || ''}`);
-  };
-
-  // Function to convert query results to graph data
-  const convertToGraphData = (results: any): GraphData => {
-    const graphData: GraphData = {
-      nodes: [],
-      links: []
-    };
-
-    const nodeMap = new Map<string, GraphNode>();
-
-    // Process each row in the results
-    results.data.forEach((row: any) => {
-      // Check for verse nodes (v)
-      if (row.v && typeof row.v === 'object') {
-        const verse = row.v;
-        // Create a unique ID for the verse
-        const verseId = `${verse._label}-${verse.verse_key}`;
-
-        // Add verse node if it doesn't exist
-        if (!nodeMap.has(verseId)) {
-          const node: GraphNode = {
-            id: verseId,
-            label: verse._label,
-            properties: { ...verse },
-            // Use getNodeDisplayName to determine the display name
-            name: getNodeDisplayName(verse._label, verse),
-            // Make verses slightly smaller
-            val: 0.8,
-            color: getNodeColor(verse._label)
-          };
-
-          nodeMap.set(verseId, node);
-          graphData.nodes.push(node);
-        }
-      }
-
-      // Check for topic nodes (t)
-      if (row.t && typeof row.t === 'object') {
-        const topic = row.t;
-        // Create a unique ID for the topic
-        const topicId = `${topic._label}-${topic.topic_id}`;
-
-        // Add topic node if it doesn't exist
-        if (!nodeMap.has(topicId)) {
-          const node: GraphNode = {
-            id: topicId,
-            label: topic._label,
-            properties: { ...topic },
-            // Use getNodeDisplayName to determine the display name
-            name: getNodeDisplayName(topic._label, topic),
-            // Make topics slightly larger
-            val: 1.2,
-            color: getNodeColor(topic._label)
-          };
-
-          nodeMap.set(topicId, node);
-          graphData.nodes.push(node);
-        }
-      }
-
-      // Check for relationships (h)
-      if (row.h && typeof row.h === 'object' && row.v && row.t) {
-        const verse = row.v;
-        const topic = row.t;
-        const rel = row.h;
-
-        // Create IDs for source and target
-        const verseId = `${verse._label}-${verse.verse_key}`;
-        const topicId = `${topic._label}-${topic.topic_id}`;
-
-        // Add relationship
-        if (nodeMap.has(verseId) && nodeMap.has(topicId)) {
-          graphData.links.push({
-            source: verseId,
-            target: topicId,
-            type: rel._label || 'HAS_TOPIC',
-            value: 1,
-            properties: { ...rel }
-          });
-        }
-      }
-    });
-
-    // If no relationships were found but we have nodes with _id, _label, etc.
-    if (graphData.links.length === 0 && results.data.length > 0) {
-      // Process each row in the results for generic nodes
-      results.data.forEach((row: any) => {
-        // Process each column in the row
-        results.columns.forEach((column: string) => {
-          const value = row[column];
-
-          // Skip if not an object or null
-          if (!value || typeof value !== 'object') return;
-
-          // Check if it's a node (has _id and _label properties)
-          if ((value._id !== undefined || value._ID !== undefined) &&
-            (value._label !== undefined || value._LABEL !== undefined)) {
-
-            const label = value._label || value._LABEL;
-            const id = value._id || value._ID;
-            let nodeId;
-
-            // Handle different ID formats
-            if (typeof id === 'object' && id.offset !== undefined) {
-              nodeId = `${label}-${id.offset}-${id.table || 0}`;
-            } else {
-              nodeId = `${label}-${id}`;
-            }
-
-            // Add node if it doesn't exist
-            if (!nodeMap.has(nodeId)) {
-              const node: GraphNode = {
-                id: nodeId,
-                label: label,
-                properties: { ...value },
-                // Add display properties - try different possible name fields
-                name: getNodeDisplayName(label, value),
-                val: 1, // Size
-                color: getNodeColor(label)
-              };
-
-              nodeMap.set(nodeId, node);
-              graphData.nodes.push(node);
-            }
-          }
-        });
-      });
-
-      // Try to extract relationships from the results
-      if (query.toUpperCase().includes('MATCH') &&
-        query.toUpperCase().includes('RETURN')) {
-
-        results.data.forEach((row: any) => {
-          let source: string | null = null;
-          let target: string | null = null;
-          let relType: string | null = null;
-
-          // Look for relationship objects in the row
-          Object.keys(row).forEach(key => {
-            const value = row[key];
-
-            // Check if this is a relationship object
-            if (value && typeof value === 'object' &&
-              value._src !== undefined && value._dst !== undefined) {
-
-              // Try to find source and target nodes
-              const sourceNode = graphData.nodes.find(n =>
-                n.properties?._id?.offset === value._src.offset &&
-                n.properties?._id?.table === value._src.table);
-
-              const targetNode = graphData.nodes.find(n =>
-                n.properties?._id?.offset === value._dst.offset &&
-                n.properties?._id?.table === value._dst.table);
-
-              if (sourceNode && targetNode) {
-                source = sourceNode.id;
-                target = targetNode.id;
-                relType = value._label;
-              }
-            }
-          });
-
-          // If we found both source and target, add a link
-          if (source && target && source !== target) {
-            // Find the relationship object in the row
-            let relObject = null;
-            Object.keys(row).forEach(key => {
-              const value = row[key];
-              if (value && typeof value === 'object' &&
-                value._src !== undefined && value._dst !== undefined) {
-                relObject = value;
-              }
-            });
-
-            graphData.links.push({
-              source,
-              target,
-              type: relType || 'RELATED_TO',
-              value: 1,
-              properties: relObject ? { ...relObject as object } : {}
-            });
-          }
-        });
-      }
-    }
-
-    return graphData;
-  };
-
   // Function to expand a node (fetch related nodes)
   const expandNode = async (nodeId: string, expansionType?: string) => {
     // Only check for already expanded if no specific expansion type is provided
@@ -294,167 +60,65 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
     const node = graphData.nodes.find(n => n.id === nodeId);
     if (!node) return;
 
-    // Create a query based on the node type and expansion type
-    let expansionQuery = '';
+    // Create an expansion query
+    const expansionQuery = createExpansionQuery(node, expansionType);
+    console.log(`Executing expansion query for ${expansionType || 'default'} expansion:`, expansionQuery);
 
-    // If an expansion type is specified, create a specific query
-    if (expansionType && expansionType !== 'all') {
-      if (node.label === 'Verse') {
-        if (expansionType === 'tafsir') {
-          expansionQuery = `MATCH (v:Verse)-[r:HAS_TAFSIR]->(t:Tafsir)
-                          WHERE v.verse_key = "${node.properties?.verse_key || ''}"
-                          RETURN v, r, t`;
-        } else if (expansionType === 'translation') {
-          expansionQuery = `MATCH (v:Verse)-[r:HAS_TRANSLATION]->(t:Translation)
-                          WHERE v.verse_key = "${node.properties?.verse_key || ''}"
-                          RETURN v, r, t`;
-        } else if (expansionType === 'verse') {
-          // For verse expansion, find adjacent verses
-          const verseKey = node.properties?.verse_key || '';
-          const parts = verseKey.split(':');
-          if (parts.length === 2) {
-            const surah = parts[0];
-            const ayah = parseInt(parts[1]);
-            expansionQuery = `MATCH (v:Verse)
-                            WHERE v.surah_number = ${surah} AND
-                                  (v.ayah_number = ${ayah - 1} OR v.ayah_number = ${ayah + 1})
-                            RETURN v`;
-          }
-        }
-      } else if (node.label === 'Topic') {
-        if (expansionType === 'verse') {
-          expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
-                          WHERE t.topic_id = ${node.properties?.topic_id || 0}
-                          RETURN v, h, t`;
-        }
+    try {
+      setLoading(true);
+
+      const response = await fetch('https://kuzu-api.fly.dev/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: expansionQuery }),
+      });
+
+      const data = await response.json() as any;
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Failed to execute expansion query');
       }
 
-      // If we couldn't create a specific query, fall back to the default
-      if (!expansionQuery) {
-        console.log(`No specific expansion query for ${node.label} with type ${expansionType}, using default`);
-      }
-    }
+      // Convert results to graph data
+      const newGraphData = convertToGraphData(data);
+      console.log(`Expansion results for ${expansionType || 'default'}:`, newGraphData);
 
-    // If no specific query was created, use the default expansion logic
-    if (!expansionQuery) {
+      // Merge with existing graph data
+      const mergedNodes = [...graphData.nodes];
+      const mergedLinks = [...graphData.links];
 
-      if (node.label === 'Verse') {
-        // For verses, find all topics
-        expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
-                        WHERE v.verse_key = "${node.properties?.verse_key || ''}"
-                        RETURN v, h, t`;
-      } else if (node.label === 'Topic') {
-        // For topics, find all verses
-        expansionQuery = `MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic)
-                        WHERE t.topic_id = ${node.properties?.topic_id || 0}
-                        RETURN v, h, t`;
-      } else if (schema) {
-        // Check if this node type exists in our schema
-        const nodeTable = schema.nodeTables.find(t => t.name === node.label);
-        if (nodeTable) {
-          // Find relationships that connect to this node type
-          const relTables = schema.relTables.filter(r =>
-            r.connectivity.some(c => c.src === node.label || c.dst === node.label)
-          );
-
-          if (relTables.length > 0) {
-            // Use the first relationship we find
-            const relTable = relTables[0];
-            const conn = relTable.connectivity.find(c => c.src === node.label || c.dst === node.label);
-
-            if (conn) {
-              if (conn.src === node.label) {
-                // This node is the source
-                expansionQuery = `MATCH (n:${node.label})-[r:${relTable.name}]->(m:${conn.dst})
-                              WHERE n._id.offset = ${node.properties?._id?.offset || 0}
-                              RETURN n, r, m LIMIT 20`;
-              } else {
-                // This node is the destination
-                expansionQuery = `MATCH (n:${conn.src})-[r:${relTable.name}]->(m:${node.label})
-                              WHERE m._id.offset = ${node.properties?._id?.offset || 0}
-                              RETURN n, r, m LIMIT 20`;
-              }
-            } else {
-              // Fallback to generic query
-              expansionQuery = `MATCH (n)-[r]-(m)
-                            WHERE n._id.offset = ${node.properties?._id?.offset || 0}
-                            RETURN n, r, m LIMIT 20`;
-            }
-          } else {
-            // No relationships found, use generic query
-            expansionQuery = `MATCH (n)-[r]-(m)
-                          WHERE n._id.offset = ${node.properties?._id?.offset || 0}
-                          RETURN n, r, m LIMIT 20`;
-          }
-        } else {
-          // Node type not found in schema, use generic query
-          expansionQuery = `MATCH (n)-[r]-(m)
-                        WHERE n._id.offset = ${node.properties?._id?.offset || 0}
-                        RETURN n, r, m LIMIT 20`;
+      // Add new nodes if they don't exist
+      newGraphData.nodes.forEach((newNode: GraphNode) => {
+        if (!mergedNodes.some(n => n.id === newNode.id)) {
+          mergedNodes.push(newNode);
         }
-      } else {
-        // Schema not available, use generic query
-        expansionQuery = `MATCH (n)-[r]-(m)
-                      WHERE n._id.offset = ${node.properties?._id?.offset || 0}
-                      RETURN n, r, m LIMIT 20`;
-      }
+      });
 
-      try {
-        setLoading(true);
-
-        const response = await fetch('https://kuzu-api.fly.dev/query', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ query: expansionQuery }),
-        });
-
-        const data = await response.json() as any;
-
-        if (!response.ok) {
-          throw new Error(data.detail || 'Failed to execute expansion query');
+      // Add new links if they don't exist
+      newGraphData.links.forEach((newLink: any) => {
+        if (!mergedLinks.some(l =>
+          l.source === newLink.source &&
+          l.target === newLink.target &&
+          l.type === newLink.type
+        )) {
+          mergedLinks.push(newLink);
         }
+      });
 
-        // Convert results to graph data
-        const newGraphData = convertToGraphData(data);
+      // Update graph data
+      setGraphData({
+        nodes: mergedNodes,
+        links: mergedLinks
+      });
 
-        // Merge with existing graph data
-        const mergedNodes = [...graphData.nodes];
-        const mergedLinks = [...graphData.links];
-
-        // Add new nodes if they don't exist
-        newGraphData.nodes.forEach(newNode => {
-          if (!mergedNodes.some(n => n.id === newNode.id)) {
-            mergedNodes.push(newNode);
-          }
-        });
-
-        // Add new links if they don't exist
-        newGraphData.links.forEach(newLink => {
-          if (!mergedLinks.some(l =>
-            l.source === newLink.source &&
-            l.target === newLink.target &&
-            l.type === newLink.type
-          )) {
-            mergedLinks.push(newLink);
-          }
-        });
-
-        // Update graph data
-        setGraphData({
-          nodes: mergedNodes,
-          links: mergedLinks
-        });
-
-        // Mark node as expanded
-        setExpandedNodes(prev => new Set([...prev, nodeId]));
-
-      } catch (err) {
-        console.error('Error expanding node:', err);
-      } finally {
-        setLoading(false);
-      }
+      // Mark node as expanded
+      setExpandedNodes(prev => new Set([...prev, nodeId]));
+    } catch (err) {
+      console.error('Error expanding node:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -616,7 +280,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
         console.log('Converted graph data:', newGraphData);
 
         // Debug: Log relationship properties
-        newGraphData.links.forEach(link => {
+        newGraphData.links.forEach((link: any) => {
           console.log(`Relationship ${link.type} properties:`, link.properties);
         });
 
@@ -842,7 +506,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                                 ctx.fillText(labelText, middleX, middleY);
                               }}
                               nodeRelSize={graphSettings.nodeSize}
-                              // @ts-ignore - cooldownTicks is a valid prop for ForceGraph2D
+                              // cooldownTicks is a valid prop for ForceGraph2D
                               cooldownTicks={100}
                               nodeCanvasObject={(node: any, ctx, globalScale) => {
                                 // Draw the node circle
