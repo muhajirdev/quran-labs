@@ -1,21 +1,60 @@
 import React from 'react';
-import type { GraphNode } from './types';
+import type { GraphData, GraphNode, SchemaData } from './types';
 import { ExpandNodeDropdown } from './ExpandNodeDropdown';
+import { getNodeRelationships } from './nodeRelationshipUtils';
 
 interface DataExplorerSidebarProps {
   selectedNode: GraphNode | null;
   setSelectedNode: (node: GraphNode | null) => void;
   setSidebarOpen: (open: boolean) => void;
-  expandNode: (nodeId: string, expansionType?: string) => void;
+  expandNode: (nodeId: string) => void;
+  graphData: GraphData;
+  schema: SchemaData | null;
 }
 
 export function DataExplorerSidebar({
   selectedNode,
   setSelectedNode,
   setSidebarOpen,
-  expandNode
+  expandNode,
+  graphData,
+  schema
 }: DataExplorerSidebarProps) {
   if (!selectedNode) return null;
+
+  // State to track expanded property values
+  const [expandedProps, setExpandedProps] = React.useState<Set<string>>(new Set());
+
+  // Reset expanded properties when node changes
+  React.useEffect(() => {
+    setExpandedProps(new Set());
+  }, [selectedNode.id]);
+
+  // Function to toggle property expansion
+  const togglePropertyExpansion = (key: string) => {
+    setExpandedProps(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(key)) {
+        newSet.delete(key);
+      } else {
+        newSet.add(key);
+      }
+      return newSet;
+    });
+  };
+
+  // Function to truncate text with ellipsis
+  const truncateText = (text: string, maxLength: number = 100) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  // Get relationship information for the selected node
+  const { actualRelationships, schemaRelationships } = getNodeRelationships({
+    node: selectedNode,
+    graphData,
+    schema
+  });
 
   return (
     <>
@@ -46,19 +85,127 @@ export function DataExplorerSidebar({
 
           {selectedNode.properties && (
             <div className="mt-2">
-              <h4 className="font-semibold text-sm text-gray-900 mb-2">Properties:</h4>
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="font-semibold text-sm text-gray-900">Properties:</h4>
+
+                {/* Only show Expand/Collapse All if there are long properties */}
+                {(() => {
+                  const longProps = Object.entries(selectedNode.properties || {})
+                    .filter(([key, value]) => !key.startsWith('_') && String(value).length > 100)
+                    .map(([key]) => key);
+
+                  if (longProps.length === 0) return null;
+
+                  const allExpanded = longProps.every(key => expandedProps.has(key));
+
+                  return (
+                    <button
+                      onClick={() => {
+                        if (allExpanded) {
+                          setExpandedProps(new Set());
+                        } else {
+                          setExpandedProps(new Set(longProps));
+                        }
+                      }}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      {allExpanded ? 'Collapse All' : 'Expand All'}
+                    </button>
+                  );
+                })()}
+              </div>
               <div className="bg-gray-100 rounded p-3 border border-gray-300">
                 {Object.entries(selectedNode.properties)
                   .filter(([key]) => !key.startsWith('_'))
-                  .map(([key, value]) => (
-                    <div key={key} className="grid grid-cols-3 gap-2 mb-1 text-sm">
-                      <span className="text-gray-900 font-medium">{key}:</span>
-                      <span className="col-span-2 text-gray-900 break-words">{String(value)}</span>
-                    </div>
-                  ))}
+                  .map(([key, value]) => {
+                    const stringValue = String(value);
+                    const isLongText = stringValue.length > 100;
+                    const isExpanded = expandedProps.has(key);
+                    const displayValue = isLongText && !isExpanded
+                      ? truncateText(stringValue)
+                      : stringValue;
+
+                    return (
+                      <div key={key} className="mb-2 last:mb-0">
+                        <div className="grid grid-cols-3 gap-2 mb-1 text-sm">
+                          <span className="text-gray-900 font-medium">{key}:</span>
+                          <div className="col-span-2">
+                            <span className="text-gray-900 break-words">{displayValue}</span>
+
+                            {isLongText && (
+                              <button
+                                onClick={() => togglePropertyExpansion(key)}
+                                className="ml-1 text-xs text-blue-600 hover:text-blue-800 font-medium"
+                              >
+                                {isExpanded ? 'Show less' : 'Read more'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
           )}
+
+          {/* Relationship Information */}
+          <div className="mt-4">
+            <h4 className="font-semibold text-sm text-gray-900 mb-2">Relationships:</h4>
+
+            {/* Actual relationships in the current graph */}
+            {actualRelationships.length > 0 ? (
+              <div className="bg-gray-100 rounded p-3 border border-gray-300 mb-3">
+                <h5 className="text-xs font-medium text-gray-700 mb-2">Current Connections:</h5>
+                {actualRelationships.map((rel, index) => (
+                  <div key={`actual-${index}`} className="mb-2 last:mb-0">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                      <span className="text-sm font-medium text-gray-900">{rel.type}</span>
+                    </div>
+                    <div className="ml-4 mt-1">
+                      <span className="text-xs text-gray-600">Connected to {rel.connectedNodes.length} node(s):</span>
+                      <ul className="ml-2 mt-1 text-xs text-gray-800">
+                        {rel.connectedNodes.slice(0, 3).map((node, idx) => (
+                          <li key={idx} className="truncate">• {node.label}: {node.name}</li>
+                        ))}
+                        {rel.connectedNodes.length > 3 && (
+                          <li className="text-gray-500">• ...and {rel.connectedNodes.length - 3} more</li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500 mb-3">No connections in current graph view.</div>
+            )}
+
+            {/* Potential relationships from schema */}
+            {schemaRelationships.length > 0 && (
+              <div className="bg-gray-100 rounded p-3 border border-gray-300">
+                <h5 className="text-xs font-medium text-gray-700 mb-2">Available in Schema:</h5>
+                {schemaRelationships.map((rel, index) => (
+                  <div key={`schema-${index}`} className="mb-2 last:mb-0">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                      <span className="text-sm font-medium text-gray-900">{rel.type}</span>
+                    </div>
+                    <div className="ml-4 mt-1">
+                      <span className="text-xs text-gray-600">Can connect to:</span>
+                      <div className="ml-2 mt-1 text-xs text-gray-800">
+                        {rel.connectedNodeTypes.map((type, idx) => (
+                          <span key={idx} className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-medium text-gray-700 mr-1 mb-1">
+                            {type}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           <div className="mt-4 pt-4 border-t border-gray-300 flex justify-between">
             <button

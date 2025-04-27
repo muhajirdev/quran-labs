@@ -590,6 +590,8 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
         setSelectedNode={setSelectedNode}
         setSidebarOpen={setSidebarOpen}
         expandNode={expandNode}
+        graphData={graphData}
+        schema={schema}
       />
     </div>
   );
