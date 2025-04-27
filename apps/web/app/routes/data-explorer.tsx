@@ -7,9 +7,9 @@ import { GraphSettingsPopover } from '~/components/data-explorer/GraphSettingsPo
 import type { GraphData, GraphNode, SchemaData, NodeTable, RelationshipTable } from '~/components/data-explorer/types';
 import {
   convertToGraphData,
-  createExpansionQuery,
   renderCellValue
 } from '~/components/data-explorer/simpleGraphUtils';
+import { expandNode as expandNodeUtil } from '~/components/data-explorer/expandNodeUtils';
 
 const ForceGraph2D = lazy(() => import('react-force-graph-2d'));
 
@@ -30,7 +30,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const [showGraph, setShowGraph] = useState(false);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Used when a node is clicked
   const [schema, setSchema] = useState<SchemaData | null>(null);
   const [schemaLoading, setSchemaLoading] = useState(false);
   // We don't need graphSettingsOpen state anymore with the Popover component
@@ -49,77 +49,25 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
 
   // Function to expand a node (fetch related nodes)
-  const expandNode = async (nodeId: string, expansionType?: string) => {
-    // Only check for already expanded if no specific expansion type is provided
-    if (!expansionType && expandedNodes.has(nodeId)) {
-      console.log(`Node ${nodeId} is already expanded`);
+  const expandNode = async (nodeId: string) => {
+    // Get the node from the graph data
+    const node = graphData.nodes.find(n => n.id === nodeId);
+    if (!node) {
+      console.error("Node not found in graph data:", nodeId);
       return;
     }
 
-    // Get the node from the graph data
-    const node = graphData.nodes.find(n => n.id === nodeId);
-    if (!node) return;
-
-    // Create an expansion query
-    const expansionQuery = createExpansionQuery(node, expansionType);
-    console.log(`Executing expansion query for ${expansionType || 'default'} expansion:`, expansionQuery);
-
-    try {
-      setLoading(true);
-
-      const response = await fetch('https://kuzu-api.fly.dev/query', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: expansionQuery }),
-      });
-
-      const data = await response.json() as any;
-
-      if (!response.ok) {
-        throw new Error(data.detail || 'Failed to execute expansion query');
-      }
-
-      // Convert results to graph data
-      const newGraphData = convertToGraphData(data);
-      console.log(`Expansion results for ${expansionType || 'default'}:`, newGraphData);
-
-      // Merge with existing graph data
-      const mergedNodes = [...graphData.nodes];
-      const mergedLinks = [...graphData.links];
-
-      // Add new nodes if they don't exist
-      newGraphData.nodes.forEach((newNode: GraphNode) => {
-        if (!mergedNodes.some(n => n.id === newNode.id)) {
-          mergedNodes.push(newNode);
-        }
-      });
-
-      // Add new links if they don't exist
-      newGraphData.links.forEach((newLink: any) => {
-        if (!mergedLinks.some(l =>
-          l.source === newLink.source &&
-          l.target === newLink.target &&
-          l.type === newLink.type
-        )) {
-          mergedLinks.push(newLink);
-        }
-      });
-
-      // Update graph data
-      setGraphData({
-        nodes: mergedNodes,
-        links: mergedLinks
-      });
-
-      // Mark node as expanded
-      setExpandedNodes(prev => new Set([...prev, nodeId]));
-    } catch (err) {
-      console.error('Error expanding node:', err);
-    } finally {
-      setLoading(false);
-    }
+    // Call the utility function to expand the node
+    await expandNodeUtil({
+      nodeId,
+      node,
+      graphData,
+      schema,
+      expandedNodes,
+      setExpandedNodes,
+      setGraphData,
+      setLoading
+    });
   };
 
   // Function to fetch the database schema
@@ -168,11 +116,14 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
         }
 
         const propsData = await propsResponse.json() as any;
-        const properties = propsData.data.map((prop: any) => ({
-          name: prop.name,
-          type: prop.type,
-          isPrimaryKey: prop['primary key'] === 'YES'
-        }));
+        const properties = propsData.data.map((prop: any) => {
+          console.log("Property info:", prop);
+          return {
+            name: prop.name,
+            type: prop.type,
+            isPrimaryKey: prop['primary key'] === true
+          };
+        });
 
         if (table.type === 'NODE') {
           nodeTables.push({
@@ -506,7 +457,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                                 ctx.fillText(labelText, middleX, middleY);
                               }}
                               nodeRelSize={graphSettings.nodeSize}
-                              // cooldownTicks is a valid prop for ForceGraph2D
+                              // Physics simulation settings
                               cooldownTicks={100}
                               nodeCanvasObject={(node: any, ctx, globalScale) => {
                                 // Draw the node circle
@@ -558,16 +509,22 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                                 }
                               }}
                               onNodeClick={(node: any) => {
+                                console.log("Node clicked:", node);
+
                                 // Check if it's a double click
                                 const now = new Date().getTime();
                                 const lastClick = (node as any)._lastClickTime || 0;
                                 (node as any)._lastClickTime = now;
 
+                                console.log("Time since last click:", now - lastClick);
+
                                 if (now - lastClick < 300) {
                                   // Double click - expand node
+                                  console.log("Double click detected, expanding node:", node.id);
                                   expandNode(node.id);
                                 } else {
                                   // Single click - show node details in sidebar
+                                  console.log("Single click detected, showing node details");
                                   setSelectedNode(node);
                                   setSidebarOpen(true);
                                 }
