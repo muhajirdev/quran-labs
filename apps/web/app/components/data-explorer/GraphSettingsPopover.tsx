@@ -70,7 +70,7 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className="text-gray-700 hover:text-blue-600 flex items-center"
+          className="text-primary hover:text-primary/80 flex items-center"
           title="Graph Settings"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -78,25 +78,25 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
           </svg>
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[400px] max-h-[80vh] overflow-y-auto p-4" align="center">
-        <h3 className="font-semibold text-gray-900 mb-4">Graph Settings</h3>
+      <PopoverContent className="w-[400px] max-h-[80vh] overflow-y-auto p-4 bg-card border-border" align="center">
+        <h3 className="font-semibold text-foreground mb-4">Graph Settings</h3>
 
         {/* Custom Tabs */}
-        <div className="flex border-b border-gray-200 mb-4">
+        <div className="flex border-b border-border mb-4">
           <button
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'general' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`py-2 px-4 font-medium text-sm ${activeTab === 'general' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground hover:text-foreground'}`}
             onClick={() => setActiveTab('general')}
           >
             General
           </button>
           <button
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'nodeLabels' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`py-2 px-4 font-medium text-sm ${activeTab === 'nodeLabels' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground hover:text-foreground'}`}
             onClick={() => setActiveTab('nodeLabels')}
           >
             Node Labels
           </button>
           <button
-            className={`py-2 px-4 font-medium text-sm ${activeTab === 'relationshipLabels' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`py-2 px-4 font-medium text-sm ${activeTab === 'relationshipLabels' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground hover:text-foreground'}`}
             onClick={() => setActiveTab('relationshipLabels')}
           >
             Relationship Labels
@@ -108,7 +108,7 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
           <div className="space-y-4">
             {/* Toggle switches */}
             <div className="flex items-center justify-between">
-              <label htmlFor="showRelationshipLabels" className="text-sm font-medium text-gray-700">
+              <label htmlFor="showRelationshipLabels" className="text-sm font-medium text-foreground">
                 Show Relationship Labels
               </label>
               <div className="relative inline-block w-10 mr-2 align-middle select-none">
@@ -119,13 +119,13 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
                   onChange={(e) => handleChange('showRelationshipLabels', e.target.checked)}
                   className="sr-only"
                 />
-                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showRelationshipLabels ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform transform ${localSettings.showRelationshipLabels ? 'translate-x-4' : ''}`}></div>
+                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showRelationshipLabels ? 'bg-primary' : 'bg-secondary'}`}></div>
+                <div className={`absolute left-1 top-1 bg-background w-4 h-4 rounded-full transition-transform transform ${localSettings.showRelationshipLabels ? 'translate-x-4' : ''}`}></div>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
-              <label htmlFor="showNodeLabels" className="text-sm font-medium text-gray-700">
+              <label htmlFor="showNodeLabels" className="text-sm font-medium text-foreground">
                 Show Node Labels
               </label>
               <div className="relative inline-block w-10 mr-2 align-middle select-none">
@@ -136,13 +136,13 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
                   onChange={(e) => handleChange('showNodeLabels', e.target.checked)}
                   className="sr-only"
                 />
-                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showNodeLabels ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform transform ${localSettings.showNodeLabels ? 'translate-x-4' : ''}`}></div>
+                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showNodeLabels ? 'bg-primary' : 'bg-secondary'}`}></div>
+                <div className={`absolute left-1 top-1 bg-background w-4 h-4 rounded-full transition-transform transform ${localSettings.showNodeLabels ? 'translate-x-4' : ''}`}></div>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
-              <label htmlFor="darkMode" className="text-sm font-medium text-gray-700">
+              <label htmlFor="darkMode" className="text-sm font-medium text-foreground">
                 Dark Mode
               </label>
               <div className="relative inline-block w-10 mr-2 align-middle select-none">
@@ -153,14 +153,14 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
                   onChange={(e) => handleChange('darkMode', e.target.checked)}
                   className="sr-only"
                 />
-                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.darkMode ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform transform ${localSettings.darkMode ? 'translate-x-4' : ''}`}></div>
+                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.darkMode ? 'bg-primary' : 'bg-secondary'}`}></div>
+                <div className={`absolute left-1 top-1 bg-background w-4 h-4 rounded-full transition-transform transform ${localSettings.darkMode ? 'translate-x-4' : ''}`}></div>
               </div>
             </div>
 
             {/* Sliders */}
             <div className="space-y-2">
-              <label htmlFor="nodeSize" className="text-sm font-medium text-gray-700 block">
+              <label htmlFor="nodeSize" className="text-sm font-medium text-foreground block">
                 Node Size: {localSettings.nodeSize}
               </label>
               <input
@@ -171,12 +171,12 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
                 step="1"
                 value={localSettings.nodeSize}
                 onChange={(e) => handleChange('nodeSize', parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="linkWidth" className="text-sm font-medium text-gray-700 block">
+              <label htmlFor="linkWidth" className="text-sm font-medium text-foreground block">
                 Link Width: {localSettings.linkWidth}
               </label>
               <input
@@ -187,7 +187,7 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
                 step="0.5"
                 value={localSettings.linkWidth}
                 onChange={(e) => handleChange('linkWidth', parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
               />
             </div>
           </div>
@@ -196,7 +196,7 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
         {/* Node Label Settings Tab */}
         {activeTab === 'nodeLabels' && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm text-muted-foreground mb-2">
               Select which property to display as the label for each node type:
             </p>
 
@@ -205,12 +205,12 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
               const currentProperty = localSettings.nodeLabelProperty[nodeType] || 'default';
 
               return (
-                <div key={nodeType} className="border border-gray-200 rounded-lg p-3">
-                  <h4 className="font-medium text-gray-800 mb-2">{nodeType}</h4>
+                <div key={nodeType} className="border border-border rounded-lg p-3 bg-secondary/10">
+                  <h4 className="font-medium text-foreground mb-2">{nodeType}</h4>
                   <select
                     value={currentProperty}
                     onChange={(e) => handleNodeLabelChange(nodeType, e.target.value)}
-                    className="block w-full p-2 border border-gray-300 rounded-md text-sm"
+                    className="block w-full p-2 border border-border rounded-md text-sm bg-background text-foreground"
                   >
                     <option value="default">Default (Auto)</option>
                     {nodeTable.properties.map(prop => (
@@ -224,7 +224,7 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
             })}
 
             {(!schema || schema.nodeTables.length === 0) && (
-              <div className="text-gray-500 italic text-sm">
+              <div className="text-muted-foreground italic text-sm">
                 No node types available in schema
               </div>
             )}
@@ -234,7 +234,7 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
         {/* Relationship Label Settings Tab */}
         {activeTab === 'relationshipLabels' && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm text-muted-foreground mb-2">
               Select which property to display as the label for each relationship type:
             </p>
 
@@ -243,12 +243,12 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
               const currentProperty = localSettings.relationshipLabelProperty[relType] || 'default';
 
               return (
-                <div key={relType} className="border border-gray-200 rounded-lg p-3">
-                  <h4 className="font-medium text-gray-800 mb-2">{relType}</h4>
+                <div key={relType} className="border border-border rounded-lg p-3 bg-secondary/10">
+                  <h4 className="font-medium text-foreground mb-2">{relType}</h4>
                   <select
                     value={currentProperty}
                     onChange={(e) => handleRelationshipLabelChange(relType, e.target.value)}
-                    className="block w-full p-2 border border-gray-300 rounded-md text-sm"
+                    className="block w-full p-2 border border-border rounded-md text-sm bg-background text-foreground"
                   >
                     <option value="default">Default (Type Name)</option>
                     {relTable.properties.map(prop => (
@@ -262,7 +262,7 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
             })}
 
             {(!schema || schema.relTables.length === 0) && (
-              <div className="text-gray-500 italic text-sm">
+              <div className="text-muted-foreground italic text-sm">
                 No relationship types available in schema
               </div>
             )}

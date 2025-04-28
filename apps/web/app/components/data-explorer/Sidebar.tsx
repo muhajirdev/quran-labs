@@ -59,15 +59,15 @@ export function DataExplorerSidebar({
   return (
     <>
       {/* Node Details Sidebar */}
-      <div className={`fixed top-0 right-0 h-full bg-white shadow-xl w-80 transform transition-transform duration-300 ease-in-out z-40 border-l border-gray-300 ${selectedNode ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="bg-gradient-to-r from-blue-800 to-indigo-800 text-white px-4 py-3 flex justify-between items-center">
+      <div className={`fixed top-0 right-0 h-full bg-sidebar shadow-xl w-80 transform transition-transform duration-300 ease-in-out z-40 border-l border-sidebar-border backdrop-blur-xl ${selectedNode ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="bg-secondary/20 text-sidebar-foreground px-4 py-3 flex justify-between items-center border-b border-sidebar-border">
           <h3 className="font-bold text-lg truncate">{selectedNode.name}</h3>
           <button
             onClick={() => {
               setSelectedNode(null);
               setSidebarOpen(false);
             }}
-            className="text-white hover:text-blue-100"
+            className="text-sidebar-foreground hover:text-sidebar-primary"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -77,16 +77,16 @@ export function DataExplorerSidebar({
         <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 56px)' }}>
           <div className="flex items-center mb-4">
             <div
-              className="w-6 h-6 rounded-full mr-2 border border-gray-400"
+              className="w-6 h-6 rounded-full mr-2 border border-sidebar-border"
               style={{ backgroundColor: selectedNode.color || '#4B5563' }}
             ></div>
-            <span className="font-medium text-gray-900">Type: {selectedNode.label}</span>
+            <span className="font-medium text-sidebar-foreground">Type: {selectedNode.label}</span>
           </div>
 
           {selectedNode.properties && (
             <div className="mt-2">
               <div className="flex justify-between items-center mb-2">
-                <h4 className="font-semibold text-sm text-gray-900">Properties:</h4>
+                <h4 className="font-semibold text-sm text-sidebar-foreground">Properties:</h4>
 
                 {/* Only show Expand/Collapse All if there are long properties */}
                 {(() => {
@@ -107,14 +107,14 @@ export function DataExplorerSidebar({
                           setExpandedProps(new Set(longProps));
                         }
                       }}
-                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                      className="text-xs text-sidebar-primary hover:text-sidebar-primary/80 font-medium"
                     >
                       {allExpanded ? 'Collapse All' : 'Expand All'}
                     </button>
                   );
                 })()}
               </div>
-              <div className="bg-gray-100 rounded p-3 border border-gray-300">
+              <div className="bg-secondary/20 rounded p-3 border border-sidebar-border">
                 {Object.entries(selectedNode.properties)
                   .filter(([key]) => !key.startsWith('_'))
                   .map(([key, value]) => {
@@ -128,14 +128,14 @@ export function DataExplorerSidebar({
                     return (
                       <div key={key} className="mb-2 last:mb-0">
                         <div className="grid grid-cols-3 gap-2 mb-1 text-sm">
-                          <span className="text-gray-900 font-medium">{key}:</span>
+                          <span className="text-sidebar-foreground font-medium">{key}:</span>
                           <div className="col-span-2">
-                            <span className="text-gray-900 break-words">{displayValue}</span>
+                            <span className="text-sidebar-foreground break-words">{displayValue}</span>
 
                             {isLongText && (
                               <button
                                 onClick={() => togglePropertyExpansion(key)}
-                                className="ml-1 text-xs text-blue-600 hover:text-blue-800 font-medium"
+                                className="ml-1 text-xs text-sidebar-primary hover:text-sidebar-primary/80 font-medium"
                               >
                                 {isExpanded ? 'Show less' : 'Read more'}
                               </button>
@@ -151,32 +151,32 @@ export function DataExplorerSidebar({
 
           {/* Relationship Information */}
           <div className="mt-4">
-            <h4 className="font-semibold text-sm text-gray-900 mb-2">Relationships:</h4>
+            <h4 className="font-semibold text-sm text-sidebar-foreground mb-2">Relationships:</h4>
 
             {/* Actual relationships in the current graph */}
             {actualRelationships.length > 0 ? (
-              <div className="bg-gray-100 rounded p-3 border border-gray-300 mb-3">
-                <h5 className="text-xs font-medium text-gray-700 mb-2">Current Connections:</h5>
+              <div className="bg-secondary/20 rounded p-3 border border-sidebar-border mb-3">
+                <h5 className="text-xs font-medium text-sidebar-foreground mb-2">Current Connections:</h5>
                 {actualRelationships.map((rel, index) => (
                   <div key={`actual-${index}`} className="mb-3 last:mb-0">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                        <div className="w-2 h-2 rounded-full bg-primary mr-2"></div>
                         <div className="flex items-center">
                           {/* Show direction indicator */}
                           {rel.direction === 'incoming' && (
-                            <svg className="w-4 h-4 mr-1 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <svg className="w-4 h-4 mr-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
                           )}
-                          <span className="text-sm font-medium text-gray-900">{rel.type}</span>
+                          <span className="text-sm font-medium text-sidebar-foreground">{rel.type}</span>
                           {rel.direction === 'outgoing' && (
-                            <svg className="w-4 h-4 ml-1 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <svg className="w-4 h-4 ml-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
                           )}
                           {rel.direction === 'both' && (
-                            <svg className="w-4 h-4 ml-1 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <svg className="w-4 h-4 ml-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18m-7 4l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                           )}
@@ -197,13 +197,13 @@ export function DataExplorerSidebar({
                       />
                     </div>
                     <div className="ml-4 mt-1">
-                      <span className="text-xs text-gray-600">Connected to {rel.connectedNodes.length} node(s):</span>
-                      <ul className="ml-2 mt-1 text-xs text-gray-800">
+                      <span className="text-xs text-sidebar-foreground/70">Connected to {rel.connectedNodes.length} node(s):</span>
+                      <ul className="ml-2 mt-1 text-xs text-sidebar-foreground">
                         {rel.connectedNodes.slice(0, 3).map((node, idx) => (
                           <li key={idx} className="truncate">• {node.label}: {node.name}</li>
                         ))}
                         {rel.connectedNodes.length > 3 && (
-                          <li className="text-gray-500">• ...and {rel.connectedNodes.length - 3} more</li>
+                          <li className="text-sidebar-foreground/50">• ...and {rel.connectedNodes.length - 3} more</li>
                         )}
                       </ul>
                     </div>
@@ -211,33 +211,33 @@ export function DataExplorerSidebar({
                 ))}
               </div>
             ) : (
-              <div className="text-sm text-gray-500 mb-3">No connections in current graph view.</div>
+              <div className="text-sm text-sidebar-foreground/70 mb-3">No connections in current graph view.</div>
             )}
 
             {/* Potential relationships from schema */}
             {schemaRelationships.length > 0 && (
-              <div className="bg-gray-100 rounded p-3 border border-gray-300">
-                <h5 className="text-xs font-medium text-gray-700 mb-2">Available in Schema:</h5>
+              <div className="bg-secondary/20 rounded p-3 border border-sidebar-border">
+                <h5 className="text-xs font-medium text-sidebar-foreground mb-2">Available in Schema:</h5>
                 {schemaRelationships.map((rel, index) => (
                   <div key={`schema-${index}`} className="mb-3 last:mb-0">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                        <div className="w-2 h-2 rounded-full bg-accent mr-2"></div>
                         <div className="flex items-center">
                           {/* Show direction indicator */}
                           {rel.direction === 'incoming' && (
-                            <svg className="w-4 h-4 mr-1 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <svg className="w-4 h-4 mr-1 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
                           )}
-                          <span className="text-sm font-medium text-gray-900">{rel.type}</span>
+                          <span className="text-sm font-medium text-sidebar-foreground">{rel.type}</span>
                           {rel.direction === 'outgoing' && (
-                            <svg className="w-4 h-4 ml-1 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <svg className="w-4 h-4 ml-1 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
                           )}
                           {rel.direction === 'both' && (
-                            <svg className="w-4 h-4 ml-1 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <svg className="w-4 h-4 ml-1 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18m-7 4l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                           )}
@@ -258,10 +258,10 @@ export function DataExplorerSidebar({
                       />
                     </div>
                     <div className="ml-4 mt-1">
-                      <span className="text-xs text-gray-600">Can connect to:</span>
-                      <div className="ml-2 mt-1 text-xs text-gray-800">
+                      <span className="text-xs text-sidebar-foreground/70">Can connect to:</span>
+                      <div className="ml-2 mt-1 text-xs text-sidebar-foreground">
                         {rel.connectedNodeTypes.map((type, idx) => (
-                          <span key={idx} className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-medium text-gray-700 mr-1 mb-1">
+                          <span key={idx} className="inline-block bg-secondary/30 rounded-full px-2 py-1 text-xs font-medium text-sidebar-foreground mr-1 mb-1 border border-sidebar-border">
                             {type}
                           </span>
                         ))}
@@ -273,13 +273,13 @@ export function DataExplorerSidebar({
             )}
           </div>
 
-          <div className="mt-4 pt-4 border-t border-gray-300 flex justify-between">
+          <div className="mt-4 pt-4 border-t border-sidebar-border flex justify-between">
             <button
               onClick={() => {
                 setSelectedNode(null);
                 setSidebarOpen(false);
               }}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-secondary hover:bg-secondary/80 text-sidebar-foreground px-4 py-2 rounded-md text-sm font-medium"
             >
               Close
             </button>
@@ -306,7 +306,7 @@ export function DataExplorerSidebar({
 
       {/* Overlay when sidebar is open */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-20 z-30 md:hidden"
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-30 md:hidden"
         onClick={() => {
           setSelectedNode(null);
           setSidebarOpen(false);

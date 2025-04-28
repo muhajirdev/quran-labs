@@ -40,7 +40,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
     showRelationshipLabels: true,
     showNodeLabels: true,
     use3D: false,
-    darkMode: false,
+    darkMode: true, // Set dark mode to true by default to match the Figma design
     nodeSize: 6,
     linkWidth: 1.5,
     nodeLabelProperty: {} as Record<string, string>,
@@ -254,11 +254,11 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      <div className="bg-gradient-to-r from-blue-800 to-indigo-800 text-white py-6 shadow-md">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <div className="bg-card backdrop-blur-xl border-b border-border shadow-lg py-6">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold">Quran Graph Data Explorer</h1>
-          <p className="text-white mt-2">Explore the Quran Knowledge Graph through Cypher queries</p>
+          <h1 className="text-3xl font-bold text-foreground">Quran Graph Data Explorer</h1>
+          <p className="text-primary mt-2">Explore the Quran Knowledge Graph through Cypher queries</p>
         </div>
       </div>
 
@@ -267,19 +267,19 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
           {/* Left column - Query and Examples */}
           <div className="lg:col-span-4 space-y-6">
             {/* Query Input */}
-            <div className="bg-white p-6 rounded-xl shadow-md border border-gray-300">
+            <div className="bg-card p-6 rounded-xl shadow-lg border border-border backdrop-blur-xl">
               <div className="flex justify-between items-center mb-3">
-                <label htmlFor="query" className="text-lg font-semibold text-gray-900">
+                <label htmlFor="query" className="text-lg font-semibold text-foreground">
                   Cypher Query
                 </label>
                 <button
                   onClick={executeQuery}
                   disabled={loading}
-                  className="px-4 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-800 disabled:bg-blue-400 font-medium flex items-center"
+                  className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 disabled:opacity-50 font-medium flex items-center"
                 >
                   {loading ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-secondary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
@@ -293,7 +293,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
               <div className="relative">
                 <textarea
                   id="query"
-                  className="w-full h-48 p-4 border border-gray-400 rounded-md font-mono text-gray-900 bg-white"
+                  className="w-full h-48 p-4 border border-border rounded-md font-mono text-foreground bg-background/50"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Enter your Cypher query here..."
@@ -311,26 +311,26 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
           {/* Right column - Results */}
           <div className="lg:col-span-8 space-y-6 mt-6 lg:mt-0">
             {error && (
-              <div className="p-4 bg-red-100 border border-red-500 text-red-800 rounded-xl">
+              <div className="p-4 bg-destructive/20 border border-destructive text-destructive rounded-xl">
                 <h2 className="text-lg font-semibold mb-2">Error</h2>
                 <p className="font-mono">{error}</p>
               </div>
             )}
 
             {results && (
-              <div className="bg-white rounded-xl shadow-md border border-gray-300 overflow-hidden">
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-300">
+              <div className="bg-card rounded-xl shadow-lg border border-border overflow-hidden backdrop-blur-xl">
+                <div className="bg-secondary/20 px-6 py-4 border-b border-border">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold text-gray-900">Results</h2>
-                    <div className="flex space-x-4 text-sm text-gray-800">
+                    <h2 className="text-xl font-semibold text-foreground">Results</h2>
+                    <div className="flex space-x-4 text-sm text-primary">
                       <div className="flex items-center">
-                        <svg className="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span className="font-medium">{results.execution_time_ms.toFixed(2)}ms</span>
                       </div>
                       <div className="flex items-center">
-                        <svg className="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
                         </svg>
                         <span className="font-medium">{results.data.length} rows</span>
@@ -344,36 +344,36 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                     {showGraph && graphData.nodes.length > 0 && (
                       <div className="mb-6">
                         <div className="flex justify-between items-center mb-3">
-                          <h3 className="text-lg font-semibold text-gray-900">Graph Visualization</h3>
+                          <h3 className="text-lg font-semibold text-foreground">Graph Visualization</h3>
                           <div className="flex items-center space-x-4">
                             <GraphSettingsPopover
                               settings={graphSettings}
                               schema={schema}
                               onSettingsChange={setGraphSettings}
                             />
-                            <div className="text-sm text-gray-800 font-medium flex items-center">
-                              <svg className="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div className="text-sm text-primary font-medium flex items-center">
+                              <svg className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                               </svg>
                               <span>{graphData.nodes.length} nodes, {graphData.links.length} relationships</span>
                             </div>
                           </div>
                         </div>
-                        <div className="bg-gray-50 p-2 rounded-lg mb-3 text-sm text-gray-700">
+                        <div className="bg-secondary/20 p-3 rounded-lg mb-3 text-sm text-primary border border-border">
                           <div className="flex items-center">
-                            <svg className="h-4 w-4 text-blue-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span>Click a node to view details. Double-click to expand connections.</span>
                           </div>
                         </div>
-                        <div ref={containerRef} className="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-md relative">
+                        <div ref={containerRef} className="border border-border rounded-xl overflow-hidden bg-background shadow-lg relative">
 
                           <Suspense fallback={
-                            <div className="flex items-center justify-center h-[500px] bg-white">
+                            <div className="flex items-center justify-center h-[500px] bg-background">
                               <div className="text-center">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700 mx-auto mb-4"></div>
-                                <p className="text-gray-800 font-medium">Loading visualization...</p>
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                                <p className="text-primary font-medium">Loading visualization...</p>
                               </div>
                             </div>
                           }>
@@ -546,20 +546,20 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                     {/* Table View */}
                     <div className="mt-6">
                       <div className="flex justify-between items-center mb-3">
-                        <h3 className="text-lg font-semibold text-gray-900">Table View</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Table View</h3>
                         {results.data.length > 0 && (
-                          <div className="text-sm text-gray-700">
+                          <div className="text-sm text-primary">
                             <span className="font-medium">{results.data.length} rows</span>
                           </div>
                         )}
                       </div>
                       {results.data.length > 0 ? (
-                        <div className="overflow-x-auto border border-gray-300 rounded-lg">
+                        <div className="overflow-x-auto border border-border rounded-lg">
                           <table className="min-w-full">
                             <thead>
-                              <tr className="bg-gray-100 border-b border-gray-300">
+                              <tr className="bg-secondary/20 border-b border-border">
                                 {results.columns.map((column: string) => (
-                                  <th key={column} className="px-4 py-2 text-left text-gray-900 font-semibold">
+                                  <th key={column} className="px-4 py-2 text-left text-foreground font-semibold">
                                     {column}
                                   </th>
                                 ))}
@@ -567,9 +567,9 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                             </thead>
                             <tbody>
                               {results.data.map((row: any, rowIndex: number) => (
-                                <tr key={rowIndex} className="border-b border-gray-300 hover:bg-gray-100">
+                                <tr key={rowIndex} className="border-b border-border hover:bg-secondary/10">
                                   {results.columns.map((column: string) => (
-                                    <td key={`${rowIndex}-${column}`} className="px-4 py-2 text-gray-900">
+                                    <td key={`${rowIndex}-${column}`} className="px-4 py-2 text-foreground">
                                       {renderCellValue(row[column])}
                                     </td>
                                   ))}
@@ -579,7 +579,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                           </table>
                         </div>
                       ) : (
-                        <div className="bg-gray-50 p-4 rounded-lg text-center text-gray-700">
+                        <div className="bg-secondary/20 p-4 rounded-lg text-center text-primary border border-border">
                           No results returned
                         </div>
                       )}
@@ -615,20 +615,20 @@ export function meta() {
 // Fallback component for when JavaScript is loading
 export function HydrateFallback() {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-gradient-to-r from-blue-800 to-indigo-800 text-white py-6 shadow-md">
+    <div className="min-h-screen bg-background text-foreground dark">
+      <div className="bg-card backdrop-blur-xl border-b border-border shadow-lg py-6">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold">Quran Graph Data Explorer</h1>
-          <p className="text-white mt-2">Explore the Quran Knowledge Graph through Cypher queries</p>
+          <h1 className="text-3xl font-bold text-foreground">Quran Graph Data Explorer</h1>
+          <p className="text-primary mt-2">Explore the Quran Knowledge Graph through Cypher queries</p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-lg">
-          <div className="flex items-center justify-center h-[600px] bg-white">
+        <div className="border border-border rounded-xl overflow-hidden bg-card shadow-lg backdrop-blur-xl">
+          <div className="flex items-center justify-center h-[600px]">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700 mx-auto mb-4"></div>
-              <p className="text-gray-800 font-medium">Loading data explorer...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-foreground font-medium">Loading data explorer...</p>
             </div>
           </div>
         </div>

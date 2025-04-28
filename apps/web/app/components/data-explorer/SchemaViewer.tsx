@@ -48,13 +48,13 @@ export function SchemaViewer({ schema, loading, setQuery }: SchemaViewerProps) {
 
   if (loading) {
     return (
-      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-300 animate-pulse">
-        <div className="h-7 bg-gray-200 rounded w-1/3 mb-6"></div>
+      <div className="bg-card p-6 rounded-xl shadow-lg border border-border backdrop-blur-xl animate-pulse">
+        <div className="h-7 bg-secondary/30 rounded w-1/3 mb-6"></div>
         <div className="space-y-4">
-          <div className="h-5 bg-gray-200 rounded w-full"></div>
-          <div className="h-5 bg-gray-200 rounded w-5/6"></div>
-          <div className="h-5 bg-gray-200 rounded w-4/6"></div>
-          <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-5 bg-secondary/30 rounded w-full"></div>
+          <div className="h-5 bg-secondary/30 rounded w-5/6"></div>
+          <div className="h-5 bg-secondary/30 rounded w-4/6"></div>
+          <div className="h-5 bg-secondary/30 rounded w-3/4"></div>
         </div>
       </div>
     );
@@ -62,9 +62,9 @@ export function SchemaViewer({ schema, loading, setQuery }: SchemaViewerProps) {
 
   if (!schema) {
     return (
-      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-300">
-        <h2 className="text-xl font-bold mb-4 text-gray-900">Database Schema</h2>
-        <div className="p-4 bg-gray-100 rounded-lg text-gray-700 font-medium border border-gray-300">
+      <div className="bg-card p-6 rounded-xl shadow-lg border border-border backdrop-blur-xl">
+        <h2 className="text-xl font-bold mb-4 text-foreground">Database Schema</h2>
+        <div className="p-4 bg-secondary/20 rounded-lg text-primary font-medium border border-border">
           Schema information not available. Please try refreshing the page.
         </div>
       </div>
@@ -72,18 +72,18 @@ export function SchemaViewer({ schema, loading, setQuery }: SchemaViewerProps) {
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-300">
-      <h2 className="text-xl font-bold mb-5 text-gray-900 border-b border-gray-200 pb-3">Database Schema</h2>
+    <div className="bg-card p-6 rounded-xl shadow-lg border border-border backdrop-blur-xl">
+      <h2 className="text-xl font-bold mb-5 text-foreground border-b border-border pb-3">Database Schema</h2>
 
       {/* Node Tables Section */}
       <div className="mb-4">
         <div
-          className="flex items-center justify-between cursor-pointer bg-gray-200 p-3 rounded-lg mb-2"
+          className="flex items-center justify-between cursor-pointer bg-secondary/20 p-3 rounded-lg mb-2 border border-border"
           onClick={() => setShowNodeTables(!showNodeTables)}
         >
-          <h3 className="font-semibold text-gray-900 text-base">Node Tables ({schema.nodeTables.length})</h3>
+          <h3 className="font-semibold text-foreground text-base">Node Tables ({schema.nodeTables.length})</h3>
           <svg
-            className={`h-5 w-5 text-gray-800 transform transition-transform ${showNodeTables ? 'rotate-180' : ''}`}
+            className={`h-5 w-5 text-primary transform transition-transform ${showNodeTables ? 'rotate-180' : ''}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -95,24 +95,24 @@ export function SchemaViewer({ schema, loading, setQuery }: SchemaViewerProps) {
         {showNodeTables && (
           <div className="space-y-2 ml-2">
             {schema.nodeTables.map((table) => (
-              <div key={table.name} className="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+              <div key={table.name} className="border border-border rounded-lg overflow-hidden shadow-sm">
                 <div
-                  className="flex items-center justify-between cursor-pointer bg-blue-100 p-3 hover:bg-blue-200 border border-blue-300 rounded-t-lg"
+                  className="flex items-center justify-between cursor-pointer bg-secondary/30 p-3 hover:bg-secondary/40 border border-border rounded-t-lg"
                   onClick={() => toggleNodeTable(table.name)}
                 >
-                  <div className="font-semibold text-blue-900 text-base">{table.name}</div>
+                  <div className="font-semibold text-foreground text-base">{table.name}</div>
                   <div className="flex items-center">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         generateNodeQuery(table.name);
                       }}
-                      className="text-sm bg-blue-700 text-white px-3 py-1 rounded-md mr-3 hover:bg-blue-800 font-medium"
+                      className="text-sm bg-secondary text-secondary-foreground px-3 py-1 rounded-md mr-3 hover:bg-secondary/80 font-medium"
                     >
                       Query
                     </button>
                     <svg
-                      className={`h-5 w-5 text-blue-800 transform transition-transform ${expandedNodeTables.has(table.name) ? 'rotate-180' : ''}`}
+                      className={`h-5 w-5 text-primary transform transition-transform ${expandedNodeTables.has(table.name) ? 'rotate-180' : ''}`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -123,23 +123,23 @@ export function SchemaViewer({ schema, loading, setQuery }: SchemaViewerProps) {
                 </div>
 
                 {expandedNodeTables.has(table.name) && (
-                  <div className="p-3 bg-white border-t border-gray-300">
-                    <div className="text-sm font-medium text-gray-800 mb-2">Properties:</div>
+                  <div className="p-3 bg-background/50 border-t border-border">
+                    <div className="text-sm font-medium text-foreground mb-2">Properties:</div>
                     <div className="overflow-x-auto">
                       <table className="min-w-full text-sm">
                         <thead>
-                          <tr className="bg-gray-200">
-                            <th className="px-3 py-2 text-left font-semibold text-gray-900">Name</th>
-                            <th className="px-3 py-2 text-left font-semibold text-gray-900">Type</th>
-                            <th className="px-3 py-2 text-left font-semibold text-gray-900">Primary Key</th>
+                          <tr className="bg-secondary/20">
+                            <th className="px-3 py-2 text-left font-semibold text-foreground">Name</th>
+                            <th className="px-3 py-2 text-left font-semibold text-foreground">Type</th>
+                            <th className="px-3 py-2 text-left font-semibold text-foreground">Primary Key</th>
                           </tr>
                         </thead>
                         <tbody>
                           {table.properties.map((prop) => (
-                            <tr key={prop.name} className="border-t border-gray-200 hover:bg-gray-50">
-                              <td className="px-3 py-2 font-medium text-gray-900">{prop.name}</td>
-                              <td className="px-3 py-2 text-gray-800">{prop.type}</td>
-                              <td className="px-3 py-2 text-gray-800">{prop.isPrimaryKey ? '✓' : ''}</td>
+                            <tr key={prop.name} className="border-t border-border hover:bg-secondary/10">
+                              <td className="px-3 py-2 font-medium text-foreground">{prop.name}</td>
+                              <td className="px-3 py-2 text-foreground/80">{prop.type}</td>
+                              <td className="px-3 py-2 text-foreground/80">{prop.isPrimaryKey ? '✓' : ''}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -156,12 +156,12 @@ export function SchemaViewer({ schema, loading, setQuery }: SchemaViewerProps) {
       {/* Relationship Tables Section */}
       <div>
         <div
-          className="flex items-center justify-between cursor-pointer bg-gray-200 p-3 rounded-lg mb-2"
+          className="flex items-center justify-between cursor-pointer bg-secondary/20 p-3 rounded-lg mb-2 border border-border"
           onClick={() => setShowRelTables(!showRelTables)}
         >
-          <h3 className="font-semibold text-gray-900 text-base">Relationship Tables ({schema.relTables.length})</h3>
+          <h3 className="font-semibold text-foreground text-base">Relationship Tables ({schema.relTables.length})</h3>
           <svg
-            className={`h-5 w-5 text-gray-800 transform transition-transform ${showRelTables ? 'rotate-180' : ''}`}
+            className={`h-5 w-5 text-primary transform transition-transform ${showRelTables ? 'rotate-180' : ''}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -173,24 +173,24 @@ export function SchemaViewer({ schema, loading, setQuery }: SchemaViewerProps) {
         {showRelTables && (
           <div className="space-y-2 ml-2">
             {schema.relTables.map((table) => (
-              <div key={table.name} className="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+              <div key={table.name} className="border border-border rounded-lg overflow-hidden shadow-sm">
                 <div
-                  className="flex items-center justify-between cursor-pointer bg-purple-100 p-3 hover:bg-purple-200 border border-purple-300 rounded-t-lg"
+                  className="flex items-center justify-between cursor-pointer bg-secondary/30 p-3 hover:bg-secondary/40 border border-border rounded-t-lg"
                   onClick={() => toggleRelTable(table.name)}
                 >
-                  <div className="font-semibold text-purple-900 text-base">{table.name}</div>
+                  <div className="font-semibold text-foreground text-base">{table.name}</div>
                   <div className="flex items-center">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         generateRelQuery(table.name, table.connectivity);
                       }}
-                      className="text-sm bg-purple-700 text-white px-3 py-1 rounded-md mr-3 hover:bg-purple-800 font-medium"
+                      className="text-sm bg-secondary text-secondary-foreground px-3 py-1 rounded-md mr-3 hover:bg-secondary/80 font-medium"
                     >
                       Query
                     </button>
                     <svg
-                      className={`h-5 w-5 text-purple-800 transform transition-transform ${expandedRelTables.has(table.name) ? 'rotate-180' : ''}`}
+                      className={`h-5 w-5 text-primary transform transition-transform ${expandedRelTables.has(table.name) ? 'rotate-180' : ''}`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -201,23 +201,23 @@ export function SchemaViewer({ schema, loading, setQuery }: SchemaViewerProps) {
                 </div>
 
                 {expandedRelTables.has(table.name) && (
-                  <div className="p-3 bg-white border-t border-gray-300">
+                  <div className="p-3 bg-background/50 border-t border-border">
                     {table.connectivity && table.connectivity.length > 0 && (
                       <div className="mb-4">
-                        <div className="text-sm font-medium text-gray-800 mb-2">Connectivity:</div>
+                        <div className="text-sm font-medium text-foreground mb-2">Connectivity:</div>
                         <div className="overflow-x-auto">
                           <table className="min-w-full text-sm">
                             <thead>
-                              <tr className="bg-gray-200">
-                                <th className="px-3 py-2 text-left font-semibold text-gray-900">Source</th>
-                                <th className="px-3 py-2 text-left font-semibold text-gray-900">Destination</th>
+                              <tr className="bg-secondary/20">
+                                <th className="px-3 py-2 text-left font-semibold text-foreground">Source</th>
+                                <th className="px-3 py-2 text-left font-semibold text-foreground">Destination</th>
                               </tr>
                             </thead>
                             <tbody>
                               {table.connectivity.map((conn, idx) => (
-                                <tr key={idx} className="border-t border-gray-200 hover:bg-gray-50">
-                                  <td className="px-3 py-2 font-medium text-gray-900">{conn.src}</td>
-                                  <td className="px-3 py-2 font-medium text-gray-900">{conn.dst}</td>
+                                <tr key={idx} className="border-t border-border hover:bg-secondary/10">
+                                  <td className="px-3 py-2 font-medium text-foreground">{conn.src}</td>
+                                  <td className="px-3 py-2 font-medium text-foreground">{conn.dst}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -226,20 +226,20 @@ export function SchemaViewer({ schema, loading, setQuery }: SchemaViewerProps) {
                       </div>
                     )}
 
-                    <div className="text-sm font-medium text-gray-800 mb-2">Properties:</div>
+                    <div className="text-sm font-medium text-foreground mb-2">Properties:</div>
                     <div className="overflow-x-auto">
                       <table className="min-w-full text-sm">
                         <thead>
-                          <tr className="bg-gray-200">
-                            <th className="px-3 py-2 text-left font-semibold text-gray-900">Name</th>
-                            <th className="px-3 py-2 text-left font-semibold text-gray-900">Type</th>
+                          <tr className="bg-secondary/20">
+                            <th className="px-3 py-2 text-left font-semibold text-foreground">Name</th>
+                            <th className="px-3 py-2 text-left font-semibold text-foreground">Type</th>
                           </tr>
                         </thead>
                         <tbody>
                           {table.properties.map((prop) => (
-                            <tr key={prop.name} className="border-t border-gray-200 hover:bg-gray-50">
-                              <td className="px-3 py-2 font-medium text-gray-900">{prop.name}</td>
-                              <td className="px-3 py-2 text-gray-800">{prop.type}</td>
+                            <tr key={prop.name} className="border-t border-border hover:bg-secondary/10">
+                              <td className="px-3 py-2 font-medium text-foreground">{prop.name}</td>
+                              <td className="px-3 py-2 text-foreground/80">{prop.type}</td>
                             </tr>
                           ))}
                         </tbody>
