@@ -42,6 +42,11 @@ export function RelationshipPanel({
     }
   };
 
+  console.log("RelationshipPanel rendering with:", {
+    actualRelationships: actualRelationships.length,
+    schemaRelationships: schemaRelationships.length
+  });
+
   return (
     <div className="space-y-4">
       <Accordion type="multiple" defaultValue={["current-relationships", "schema-relationships"]} className="space-y-2">
@@ -56,7 +61,7 @@ export function RelationshipPanel({
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-0">
-            {actualRelationships.length > 0 ? (
+            {actualRelationships && actualRelationships.length > 0 ? (
               <div className="divide-y divide-sidebar-border">
                 {actualRelationships.map((rel, index) => (
                   <div key={`actual-${index}`} className="p-3 hover:bg-secondary/10">
@@ -141,7 +146,7 @@ export function RelationshipPanel({
         </AccordionItem>
 
         {/* Schema Relationships */}
-        {schemaRelationships.length > 0 && (
+        {schemaRelationships && schemaRelationships.length > 0 && (
           <AccordionItem value="schema-relationships" className="border border-sidebar-border rounded-md overflow-hidden">
             <AccordionTrigger className="px-3 py-2 bg-secondary/20 hover:bg-secondary/30 hover:no-underline">
               <div className="flex items-center text-sm font-medium">

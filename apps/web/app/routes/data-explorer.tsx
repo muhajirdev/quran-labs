@@ -50,12 +50,20 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
 
   // Function to expand a node (fetch related nodes)
   const expandNode = async (nodeId: string, relationshipType?: string) => {
+    console.log("expandNode called with:", { nodeId, relationshipType });
+    console.log("Current graph data:", {
+      nodes: graphData.nodes.length,
+      links: graphData.links.length
+    });
+
     // Get the node from the graph data
     const node = graphData.nodes.find(n => n.id === nodeId);
     if (!node) {
       console.error("Node not found in graph data:", nodeId);
       return;
     }
+
+    console.log("Found node to expand:", node.label, node.name);
 
     // Call the utility function to expand the node
     await expandNodeUtil({

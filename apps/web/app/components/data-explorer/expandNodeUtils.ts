@@ -196,10 +196,17 @@ export async function expandNode({
     });
 
     // Update graph data
-    setGraphData({
+    const updatedGraphData = {
       nodes: mergedNodes,
       links: mergedLinks
+    };
+
+    console.log("Updating graph data after expansion:", {
+      nodes: updatedGraphData.nodes.length,
+      links: updatedGraphData.links.length
     });
+
+    setGraphData(updatedGraphData);
 
     // Mark this specific relationship as expanded
     setExpandedRelationships(prev => new Set([...prev, relationshipKey]));

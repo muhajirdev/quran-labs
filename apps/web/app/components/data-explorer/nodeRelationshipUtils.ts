@@ -61,22 +61,29 @@ export function getNodeRelationships({
   // Group links by relationship type and direction
   const relationshipMap = new Map<string, { nodes: GraphNode[], direction: 'incoming' | 'outgoing' | 'both' }>();
 
+  console.log("Getting relationships for node:", node.id, node.label, node.name);
+  console.log("Current graph data links:", graphData.links.length);
+
   graphData.links.forEach(link => {
     // Skip if no type
     if (!link.type) return;
 
     // Check if this link connects to our node
-    if (link.source === node.id || link.target === node.id) {
+    const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+    const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+
+    if (sourceId === node.id || targetId === node.id) {
+      console.log(`Found link connecting to node ${node.id}: ${link.type} (${sourceId} -> ${targetId})`);
       // Determine direction
       let direction: 'incoming' | 'outgoing' | 'both';
-      if (link.source === node.id) {
+      if (sourceId === node.id) {
         direction = 'outgoing'; // Node -> Other
       } else {
         direction = 'incoming'; // Other -> Node
       }
 
       // Get the other node's ID
-      const otherNodeId = link.source === node.id ? link.target : link.source;
+      const otherNodeId = sourceId === node.id ? targetId : sourceId;
 
       // Find the other node
       const otherNode = graphData.nodes.find(n => n.id === otherNodeId);

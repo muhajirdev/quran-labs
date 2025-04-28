@@ -51,12 +51,25 @@ export function DataExplorerSidebar({
     return text.substring(0, maxLength) + '...';
   };
 
-  // Get relationship information for the selected node
-  const { actualRelationships, schemaRelationships } = getNodeRelationships({
-    node: selectedNode,
-    graphData,
-    schema
-  });
+  // State to store relationship data
+  const [relationshipData, setRelationshipData] = React.useState<{
+    actualRelationships: any[];
+    schemaRelationships: any[];
+  }>({ actualRelationships: [], schemaRelationships: [] });
+
+  // Update relationship data when the selected node or graph data changes
+  React.useEffect(() => {
+    console.log("Updating relationship data for node:", selectedNode.id);
+
+    // Get relationship information for the selected node
+    const data = getNodeRelationships({
+      node: selectedNode,
+      graphData,
+      schema
+    });
+
+    setRelationshipData(data);
+  }, [selectedNode.id, graphData, schema]);
 
   return (
     <>
@@ -161,8 +174,8 @@ export function DataExplorerSidebar({
             <h4 className="font-semibold text-sm text-sidebar-foreground mb-2">Relationships:</h4>
 
             <RelationshipPanel
-              actualRelationships={actualRelationships}
-              schemaRelationships={schemaRelationships}
+              actualRelationships={relationshipData.actualRelationships}
+              schemaRelationships={relationshipData.schemaRelationships}
               onExpandRelationship={(relType, direction) => {
                 if (direction === 'outgoing') {
                   expandNode(selectedNode.id, `${relType}>`);
