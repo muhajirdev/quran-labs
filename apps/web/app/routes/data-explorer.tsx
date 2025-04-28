@@ -49,7 +49,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
 
   // Function to expand a node (fetch related nodes)
-  const expandNode = async (nodeId: string) => {
+  const expandNode = async (nodeId: string, relationshipType?: string) => {
     // Get the node from the graph data
     const node = graphData.nodes.find(n => n.id === nodeId);
     if (!node) {
@@ -66,7 +66,8 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
       expandedNodes,
       setExpandedNodes,
       setGraphData,
-      setLoading
+      setLoading,
+      relationshipType // Pass the optional relationship type
     });
   };
 
@@ -457,7 +458,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                                 ctx.fillText(labelText, middleX, middleY);
                               }}
                               nodeRelSize={graphSettings.nodeSize}
-                              // Physics simulation settings
+                              // Physics simulation parameter
                               cooldownTicks={100}
                               nodeCanvasObject={(node: any, ctx, globalScale) => {
                                 // Draw the node circle

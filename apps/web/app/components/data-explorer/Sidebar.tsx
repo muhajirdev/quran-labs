@@ -1,13 +1,13 @@
 import React from 'react';
 import type { GraphData, GraphNode, SchemaData } from './types';
-import { ExpandNodeDropdown } from './ExpandNodeDropdown';
 import { getNodeRelationships } from './nodeRelationshipUtils';
+import { RelationshipExpandDropdown } from './RelationshipExpandDropdown';
 
 interface DataExplorerSidebarProps {
   selectedNode: GraphNode | null;
   setSelectedNode: (node: GraphNode | null) => void;
   setSidebarOpen: (open: boolean) => void;
-  expandNode: (nodeId: string) => void;
+  expandNode: (nodeId: string, relationshipType?: string) => void;
   graphData: GraphData;
   schema: SchemaData | null;
 }
@@ -158,10 +158,43 @@ export function DataExplorerSidebar({
               <div className="bg-gray-100 rounded p-3 border border-gray-300 mb-3">
                 <h5 className="text-xs font-medium text-gray-700 mb-2">Current Connections:</h5>
                 {actualRelationships.map((rel, index) => (
-                  <div key={`actual-${index}`} className="mb-2 last:mb-0">
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-                      <span className="text-sm font-medium text-gray-900">{rel.type}</span>
+                  <div key={`actual-${index}`} className="mb-3 last:mb-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                        <div className="flex items-center">
+                          {/* Show direction indicator */}
+                          {rel.direction === 'incoming' && (
+                            <svg className="w-4 h-4 mr-1 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                          )}
+                          <span className="text-sm font-medium text-gray-900">{rel.type}</span>
+                          {rel.direction === 'outgoing' && (
+                            <svg className="w-4 h-4 ml-1 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                          )}
+                          {rel.direction === 'both' && (
+                            <svg className="w-4 h-4 ml-1 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18m-7 4l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                      <RelationshipExpandDropdown
+                        relationshipType={rel.type}
+                        direction={rel.direction}
+                        onExpand={(relType, direction) => {
+                          if (direction === 'outgoing') {
+                            expandNode(selectedNode.id, `${relType}>`);
+                          } else if (direction === 'incoming') {
+                            expandNode(selectedNode.id, `<${relType}`);
+                          } else {
+                            expandNode(selectedNode.id, relType);
+                          }
+                        }}
+                      />
                     </div>
                     <div className="ml-4 mt-1">
                       <span className="text-xs text-gray-600">Connected to {rel.connectedNodes.length} node(s):</span>
@@ -186,10 +219,43 @@ export function DataExplorerSidebar({
               <div className="bg-gray-100 rounded p-3 border border-gray-300">
                 <h5 className="text-xs font-medium text-gray-700 mb-2">Available in Schema:</h5>
                 {schemaRelationships.map((rel, index) => (
-                  <div key={`schema-${index}`} className="mb-2 last:mb-0">
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                      <span className="text-sm font-medium text-gray-900">{rel.type}</span>
+                  <div key={`schema-${index}`} className="mb-3 last:mb-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                        <div className="flex items-center">
+                          {/* Show direction indicator */}
+                          {rel.direction === 'incoming' && (
+                            <svg className="w-4 h-4 mr-1 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                          )}
+                          <span className="text-sm font-medium text-gray-900">{rel.type}</span>
+                          {rel.direction === 'outgoing' && (
+                            <svg className="w-4 h-4 ml-1 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                          )}
+                          {rel.direction === 'both' && (
+                            <svg className="w-4 h-4 ml-1 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18m-7 4l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                      <RelationshipExpandDropdown
+                        relationshipType={rel.type}
+                        direction={rel.direction}
+                        onExpand={(relType, direction) => {
+                          if (direction === 'outgoing') {
+                            expandNode(selectedNode.id, `${relType}>`);
+                          } else if (direction === 'incoming') {
+                            expandNode(selectedNode.id, `<${relType}`);
+                          } else {
+                            expandNode(selectedNode.id, relType);
+                          }
+                        }}
+                      />
                     </div>
                     <div className="ml-4 mt-1">
                       <span className="text-xs text-gray-600">Can connect to:</span>
@@ -217,10 +283,23 @@ export function DataExplorerSidebar({
             >
               Close
             </button>
-            <ExpandNodeDropdown
-              selectedNode={selectedNode}
-              expandNode={expandNode}
-            />
+            <div className="relative">
+              <RelationshipExpandDropdown
+                relationshipType="ALL"
+                direction="both"
+                onExpand={(_, direction) => {
+                  // For the "Expand All" button, we ignore the relationship type
+                  // and just use the direction
+                  if (direction === 'outgoing') {
+                    expandNode(selectedNode.id, 'ALL>');
+                  } else if (direction === 'incoming') {
+                    expandNode(selectedNode.id, '<ALL');
+                  } else {
+                    expandNode(selectedNode.id);
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

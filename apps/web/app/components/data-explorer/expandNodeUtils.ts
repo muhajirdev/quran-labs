@@ -12,7 +12,8 @@ export async function expandNode({
   expandedNodes,
   setExpandedNodes,
   setGraphData,
-  setLoading
+  setLoading,
+  relationshipType
 }: {
   nodeId: string;
   node: GraphNode;
@@ -22,8 +23,9 @@ export async function expandNode({
   setExpandedNodes: (callback: (prev: Set<string>) => Set<string>) => void;
   setGraphData: (data: GraphData) => void;
   setLoading: (loading: boolean) => void;
+  relationshipType?: string;
 }): Promise<void> {
-  console.log("expandNode called with:", { nodeId });
+  console.log("expandNode called with:", { nodeId, relationshipType });
   console.log("Current expandedNodes:", Array.from(expandedNodes));
 
   // Check if node is already expanded
@@ -74,7 +76,64 @@ export async function expandNode({
     pkValue = `"${pkValue}"`;
   }
 
-  const expansionQuery = `MATCH (n:${node.label})-[r]-(m) WHERE n.${primaryKeyProp.name} = ${pkValue} RETURN n, r, m LIMIT 20`;
+  // Build the expansion query based on whether a specific relationship type is provided
+  let expansionQuery = '';
+
+  if (relationshipType) {
+    // Parse the relationship type to extract direction information
+    // Format could be: "REL_TYPE" (bidirectional), "REL_TYPE>" (outgoing), or "<REL_TYPE" (incoming)
+    let direction = 'both';
+    let relType = relationshipType;
+
+    if (relationshipType.endsWith('>')) {
+      direction = 'outgoing';
+      relType = relationshipType.slice(0, -1);
+    } else if (relationshipType.startsWith('<')) {
+      direction = 'incoming';
+      relType = relationshipType.slice(1);
+    }
+
+    // Check if this is a special "ALL" relationship type
+    const isAllRelationships = relType === 'ALL';
+
+    // Build the query based on the direction and relationship type
+    if (direction === 'outgoing') {
+      if (isAllRelationships) {
+        // Expand all outgoing relationships
+        expansionQuery = `MATCH (n:${node.label})-[r]->(m) WHERE n.${primaryKeyProp.name} = ${pkValue} RETURN n, r, m LIMIT 20`;
+        console.log(`Expanding all outgoing relationships`);
+      } else {
+        // Expand specific outgoing relationship
+        expansionQuery = `MATCH (n:${node.label})-[r:${relType}]->(m) WHERE n.${primaryKeyProp.name} = ${pkValue} RETURN n, r, m LIMIT 20`;
+        console.log(`Expanding outgoing ${relType} relationships`);
+      }
+    } else if (direction === 'incoming') {
+      if (isAllRelationships) {
+        // Expand all incoming relationships
+        expansionQuery = `MATCH (n:${node.label})<-[r]-(m) WHERE n.${primaryKeyProp.name} = ${pkValue} RETURN n, r, m LIMIT 20`;
+        console.log(`Expanding all incoming relationships`);
+      } else {
+        // Expand specific incoming relationship
+        expansionQuery = `MATCH (n:${node.label})<-[r:${relType}]-(m) WHERE n.${primaryKeyProp.name} = ${pkValue} RETURN n, r, m LIMIT 20`;
+        console.log(`Expanding incoming ${relType} relationships`);
+      }
+    } else {
+      // Bidirectional
+      if (isAllRelationships) {
+        // Expand all relationships in both directions
+        expansionQuery = `MATCH (n:${node.label})-[r]-(m) WHERE n.${primaryKeyProp.name} = ${pkValue} RETURN n, r, m LIMIT 20`;
+        console.log(`Expanding all relationships in both directions`);
+      } else {
+        // Expand specific relationship in both directions
+        expansionQuery = `MATCH (n:${node.label})-[r:${relType}]-(m) WHERE n.${primaryKeyProp.name} = ${pkValue} RETURN n, r, m LIMIT 20`;
+        console.log(`Expanding bidirectional ${relType} relationships`);
+      }
+    }
+  } else {
+    // No relationship type specified, expand all relationships in both directions
+    expansionQuery = `MATCH (n:${node.label})-[r]-(m) WHERE n.${primaryKeyProp.name} = ${pkValue} RETURN n, r, m LIMIT 20`;
+    console.log(`Expanding all relationships in both directions`);
+  }
 
   console.log(`Executing expansion query:`, expansionQuery);
 
