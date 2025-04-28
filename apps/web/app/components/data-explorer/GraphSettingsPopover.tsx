@@ -201,7 +201,7 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
               const currentProperty = localSettings.nodeLabelProperty[nodeType] || 'default';
 
               return (
-                <div key={nodeType} className="border border-border rounded-lg p-3 bg-secondary/10">
+                <div key={nodeType} className="rounded-lg">
                   <h4 className="font-medium text-foreground mb-2">{nodeType}</h4>
                   <select
                     value={currentProperty}
@@ -239,7 +239,7 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
               const currentProperty = localSettings.relationshipLabelProperty[relType] || 'default';
 
               return (
-                <div key={relType} className="border border-border rounded-lg p-3 bg-secondary/10">
+                <div key={relType} className="rounded-lg ">
                   <h4 className="font-medium text-foreground mb-2">{relType}</h4>
                   <select
                     value={currentProperty}

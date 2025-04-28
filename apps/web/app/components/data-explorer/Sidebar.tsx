@@ -1,7 +1,7 @@
 import React from 'react';
 import type { GraphData, GraphNode, SchemaData } from './types';
 import { getNodeRelationships } from './nodeRelationshipUtils';
-import { RelationshipExpandDropdown } from './RelationshipExpandDropdown';
+import { RelationshipPanel } from './RelationshipPanel';
 import { Button } from '~/components/ui/button';
 import { X as XIcon } from 'lucide-react';
 
@@ -160,127 +160,22 @@ export function DataExplorerSidebar({
           <div className="mt-4">
             <h4 className="font-semibold text-sm text-sidebar-foreground mb-2">Relationships:</h4>
 
-            {/* Actual relationships in the current graph */}
-            {actualRelationships.length > 0 ? (
-              <div className="bg-secondary/20 rounded p-3 border border-sidebar-border mb-3">
-                <h5 className="text-xs font-medium text-sidebar-foreground mb-2">Current Connections:</h5>
-                {actualRelationships.map((rel, index) => (
-                  <div key={`actual-${index}`} className="mb-3 last:mb-0">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-primary mr-2"></div>
-                        <div className="flex items-center">
-                          {/* Show direction indicator */}
-                          {rel.direction === 'incoming' && (
-                            <svg className="w-4 h-4 mr-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                          )}
-                          <span className="text-sm font-medium text-sidebar-foreground">{rel.type}</span>
-                          {rel.direction === 'outgoing' && (
-                            <svg className="w-4 h-4 ml-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                          )}
-                          {rel.direction === 'both' && (
-                            <svg className="w-4 h-4 ml-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18m-7 4l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                          )}
-                        </div>
-                      </div>
-                      <RelationshipExpandDropdown
-                        relationshipType={rel.type}
-                        direction={rel.direction}
-                        onExpand={(relType, direction) => {
-                          if (direction === 'outgoing') {
-                            expandNode(selectedNode.id, `${relType}>`);
-                          } else if (direction === 'incoming') {
-                            expandNode(selectedNode.id, `<${relType}`);
-                          } else {
-                            expandNode(selectedNode.id, relType);
-                          }
-                        }}
-                      />
-                    </div>
-                    <div className="ml-4 mt-1">
-                      <span className="text-xs text-sidebar-foreground/70">Connected to {rel.connectedNodes.length} node(s):</span>
-                      <ul className="ml-2 mt-1 text-xs text-sidebar-foreground">
-                        {rel.connectedNodes.slice(0, 3).map((node, idx) => (
-                          <li key={idx} className="truncate">• {node.label}: {node.name}</li>
-                        ))}
-                        {rel.connectedNodes.length > 3 && (
-                          <li className="text-sidebar-foreground/50">• ...and {rel.connectedNodes.length - 3} more</li>
-                        )}
-                      </ul>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-sidebar-foreground/70 mb-3">No connections in current graph view.</div>
-            )}
-
-            {/* Potential relationships from schema */}
-            {schemaRelationships.length > 0 && (
-              <div className="bg-secondary/20 rounded p-3 border border-sidebar-border">
-                <h5 className="text-xs font-medium text-sidebar-foreground mb-2">Available in Schema:</h5>
-                {schemaRelationships.map((rel, index) => (
-                  <div key={`schema-${index}`} className="mb-3 last:mb-0">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-accent mr-2"></div>
-                        <div className="flex items-center">
-                          {/* Show direction indicator */}
-                          {rel.direction === 'incoming' && (
-                            <svg className="w-4 h-4 mr-1 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                          )}
-                          <span className="text-sm font-medium text-sidebar-foreground">{rel.type}</span>
-                          {rel.direction === 'outgoing' && (
-                            <svg className="w-4 h-4 ml-1 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                          )}
-                          {rel.direction === 'both' && (
-                            <svg className="w-4 h-4 ml-1 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18m-7 4l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                          )}
-                        </div>
-                      </div>
-                      <RelationshipExpandDropdown
-                        relationshipType={rel.type}
-                        direction={rel.direction}
-                        onExpand={(relType, direction) => {
-                          if (direction === 'outgoing') {
-                            expandNode(selectedNode.id, `${relType}>`);
-                          } else if (direction === 'incoming') {
-                            expandNode(selectedNode.id, `<${relType}`);
-                          } else {
-                            expandNode(selectedNode.id, relType);
-                          }
-                        }}
-                      />
-                    </div>
-                    <div className="ml-4 mt-1">
-                      <span className="text-xs text-sidebar-foreground/70">Can connect to:</span>
-                      <div className="ml-2 mt-1 text-xs text-sidebar-foreground">
-                        {rel.connectedNodeTypes.map((type, idx) => (
-                          <span key={idx} className="inline-block bg-secondary/30 rounded-full px-2 py-1 text-xs font-medium text-sidebar-foreground mr-1 mb-1 border border-sidebar-border">
-                            {type}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <RelationshipPanel
+              actualRelationships={actualRelationships}
+              schemaRelationships={schemaRelationships}
+              onExpandRelationship={(relType, direction) => {
+                if (direction === 'outgoing') {
+                  expandNode(selectedNode.id, `${relType}>`);
+                } else if (direction === 'incoming') {
+                  expandNode(selectedNode.id, `<${relType}`);
+                } else {
+                  expandNode(selectedNode.id, relType);
+                }
+              }}
+            />
           </div>
 
-          <div className="mt-4 pt-4 border-t border-sidebar-border flex justify-between">
+          <div className="mt-4 pt-4 border-t border-sidebar-border flex justify-center">
             <Button
               variant="secondary"
               onClick={() => {
@@ -290,23 +185,6 @@ export function DataExplorerSidebar({
             >
               Close
             </Button>
-            <div className="relative">
-              <RelationshipExpandDropdown
-                relationshipType="ALL"
-                direction="both"
-                onExpand={(_, direction) => {
-                  // For the "Expand All" button, we ignore the relationship type
-                  // and just use the direction
-                  if (direction === 'outgoing') {
-                    expandNode(selectedNode.id, 'ALL>');
-                  } else if (direction === 'incoming') {
-                    expandNode(selectedNode.id, '<ALL');
-                  } else {
-                    expandNode(selectedNode.id);
-                  }
-                }}
-              />
-            </div>
           </div>
         </div>
       </div>
