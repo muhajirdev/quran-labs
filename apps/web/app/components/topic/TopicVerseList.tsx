@@ -14,14 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+
 import { Link } from "react-router";
 import { BookOpen, ChevronRight, Filter, SlidersHorizontal } from "lucide-react";
 
@@ -137,16 +130,16 @@ interface VerseCardProps {
 
 function VerseCard({ verse }: VerseCardProps) {
   return (
-    <Card className="overflow-hidden hover:border-primary/30 transition-colors">
-      <CardHeader className="bg-muted/10 py-3">
+    <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden hover:border-primary/30 transition-colors">
+      <div className="bg-muted/10 p-3">
         <div className="flex justify-between items-center">
           <Link to={`/verse/${verse.verse_key}`} className="hover:text-primary transition-colors">
-            <CardTitle className="text-base flex items-center gap-1.5">
+            <div className="text-base flex items-center gap-1.5 font-medium">
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                 {verse.verse_key}
               </Badge>
               {verse.surah_name && <span className="text-sm font-normal text-muted-foreground">Surah {verse.surah_name}</span>}
-            </CardTitle>
+            </div>
           </Link>
 
           <TooltipProvider>
@@ -164,12 +157,12 @@ function VerseCard({ verse }: VerseCardProps) {
             </Tooltip>
           </TooltipProvider>
         </div>
-      </CardHeader>
-      <CardContent className="py-3">
+      </div>
+      <div className="p-3">
         <p className="text-sm leading-relaxed">{verse.text}</p>
-      </CardContent>
+      </div>
       {verse.relevance !== undefined && (
-        <CardFooter className="py-2 bg-muted/5 border-t border-border/30 flex justify-between">
+        <div className="py-2 px-3 bg-muted/5 border-t border-border/30 flex justify-between">
           <div className="text-xs text-muted-foreground">
             Relevance:
             <span className="ml-1 text-primary font-medium">
@@ -196,8 +189,8 @@ function VerseCard({ verse }: VerseCardProps) {
               )}
             </div>
           )}
-        </CardFooter>
+        </div>
       )}
-    </Card>
+    </div>
   );
 }

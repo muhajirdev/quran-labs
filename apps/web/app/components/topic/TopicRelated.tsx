@@ -1,27 +1,20 @@
 import React, { useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "~/components/ui/hover-card";
 import { Link } from "react-router";
-import { Tag, Network, Info, ExternalLink } from "lucide-react";
+import { Tag, Info, ExternalLink } from "lucide-react";
 
 interface RelatedTopic {
   topic_id: number;
@@ -37,7 +30,8 @@ interface TopicRelatedProps {
 }
 
 export function TopicRelated({ topics, currentTopicName }: TopicRelatedProps) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
+  const [isOpen, setIsOpen] = useState(true);
 
   // Group topics by relevance
   const highRelevance = topics.filter(t => t.relevance && t.relevance > 0.7);
@@ -51,104 +45,104 @@ export function TopicRelated({ topics, currentTopicName }: TopicRelatedProps) {
   const displayTopics = expanded ? topics : topics.slice(0, 8);
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="bg-muted/10 py-3">
-        <div className="flex items-center gap-2">
-          <Tag className="h-5 w-5 text-primary" />
-          <CardTitle className="text-base">Related Topics</CardTitle>
-          <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 text-[10px]">
-            DEMO DATA
-          </Badge>
-        </div>
-        <CardDescription>
-          Topics related to {currentTopicName}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="pt-4 pb-2">
-        {hasRelevanceData ? (
-          <div className="space-y-4">
-            {highRelevance.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-primary"></span>
-                  Strong Relationship
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {highRelevance.map((topic) => (
-                    <TopicBadge key={topic.topic_id} topic={topic} />
-                  ))}
-                </div>
+    <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden">
+      <Accordion
+        type="single"
+        collapsible
+        value={isOpen ? "related" : ""}
+        onValueChange={(value) => setIsOpen(value === "related")}
+      >
+        <AccordionItem value="related" className="border-0">
+          <AccordionTrigger className="px-4 py-3 hover:no-underline data-[state=open]:border-b data-[state=open]:border-border/30 bg-muted/10">
+            <div className="flex items-center gap-2">
+              <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+                <Tag className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <h3 className="font-medium">Related Topics</h3>
+            </div>
+            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-xs font-normal ml-auto mr-4">
+              {currentTopicName}
+            </Badge>
+          </AccordionTrigger>
+          <AccordionContent className="pt-4 pb-2 px-4">
+            {hasRelevanceData ? (
+              <div className="space-y-4">
+                {highRelevance.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-primary"></span>
+                      Strong Relationship
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {highRelevance.map((topic) => (
+                        <TopicBadge key={topic.topic_id} topic={topic} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {mediumRelevance.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-primary/60"></span>
+                      Moderate Relationship
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {mediumRelevance.map((topic) => (
+                        <TopicBadge key={topic.topic_id} topic={topic} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {lowRelevance.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-primary/30"></span>
+                      Weak Relationship
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {lowRelevance.map((topic) => (
+                        <TopicBadge key={topic.topic_id} topic={topic} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {displayTopics.map((topic) => (
+                  <TopicBadge key={topic.topic_id} topic={topic} />
+                ))}
               </div>
             )}
 
-            {mediumRelevance.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-primary/60"></span>
-                  Moderate Relationship
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {mediumRelevance.map((topic) => (
-                    <TopicBadge key={topic.topic_id} topic={topic} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {lowRelevance.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-primary/30"></span>
-                  Weak Relationship
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {lowRelevance.map((topic) => (
-                    <TopicBadge key={topic.topic_id} topic={topic} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {displayTopics.map((topic) => (
-              <TopicBadge key={topic.topic_id} topic={topic} />
-            ))}
-          </div>
-        )}
-
-        {topics.length > 8 && !expanded && !hasRelevanceData && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setExpanded(true)}
-            className="mt-3 text-xs h-7 w-full"
-          >
-            Show {topics.length - 8} more topics
-          </Button>
-        )}
-      </CardContent>
-      <CardFooter className="bg-muted/5 border-t border-border/30 py-2">
-        <div className="flex items-center text-xs text-muted-foreground">
-          <Info className="h-3 w-3 mr-1" />
-          <span>Hover over topics to see details</span>
-        </div>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-xs h-7 gap-1.5 ml-auto">
-                <ExternalLink className="h-3.5 w-3.5" />
-                Explore All
+            {topics.length > 8 && !expanded && !hasRelevanceData && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setExpanded(true)}
+                className="mt-3 text-xs h-7 w-full"
+              >
+                Show {topics.length - 8} more topics
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Explore all related topics in the graph explorer</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </CardFooter>
-    </Card>
+            )}
+
+            <div className="flex justify-between mt-6">
+              <div className="flex items-center text-xs text-muted-foreground">
+                <Info className="h-3 w-3 mr-1" />
+                <span>Hover over topics to see details</span>
+              </div>
+
+              <Button variant="default" size="sm" className="text-xs h-7 gap-1.5">
+                <ExternalLink className="h-3.5 w-3.5" />
+                Explore All Topics
+              </Button>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
   );
 }
 
