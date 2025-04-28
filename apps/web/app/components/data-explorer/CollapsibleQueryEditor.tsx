@@ -23,7 +23,7 @@ export function CollapsibleQueryEditor({
         <div className="flex items-center">
           <h2 className="text-lg font-semibold text-foreground">Cypher Query</h2>
           <Button
-            variant="ghost"
+            variant="link"
             size="sm"
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="ml-2 h-8 w-8 p-0"
@@ -61,7 +61,7 @@ export function CollapsibleQueryEditor({
           )}
         </Button>
       </div>
-      
+
       {!isCollapsed && (
         <div className="p-4">
           <textarea
