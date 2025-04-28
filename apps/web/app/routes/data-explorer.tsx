@@ -29,7 +29,9 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
   const [showGraph, setShowGraph] = useState(false);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+  // State for tracking expanded node-relationship pairs
+  // Format: "nodeId:relationshipType:direction"
+  const [expandedRelationships, setExpandedRelationships] = useState<Set<string>>(new Set());
   const [sidebarOpen, setSidebarOpen] = useState(false); // Used when a node is clicked
   const [schema, setSchema] = useState<SchemaData | null>(null);
   const [schemaLoading, setSchemaLoading] = useState(false);
@@ -63,8 +65,8 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
       node,
       graphData,
       schema,
-      expandedNodes,
-      setExpandedNodes,
+      expandedRelationships,
+      setExpandedRelationships,
       setGraphData,
       setLoading,
       relationshipType // Pass the optional relationship type
@@ -475,7 +477,12 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                                 const nodeR = Math.sqrt((node.val || 1) * (graphSettings.nodeSize / 6) * 25 / Math.PI);
 
                                 // Draw a slightly larger circle for expanded nodes
-                                if (expandedNodes.has(node.id)) {
+                                // Check if this node has any expanded relationships
+                                const hasExpandedRelationships = Array.from(expandedRelationships).some(
+                                  key => key.startsWith(`${node.id}:`)
+                                );
+
+                                if (hasExpandedRelationships) {
                                   ctx.beginPath();
                                   ctx.arc(node.x || 0, node.y || 0, nodeR + 2, 0, 2 * Math.PI);
                                   ctx.fillStyle = graphSettings.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';

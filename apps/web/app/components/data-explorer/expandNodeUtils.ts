@@ -9,8 +9,8 @@ export async function expandNode({
   node,
   graphData,
   schema,
-  expandedNodes,
-  setExpandedNodes,
+  expandedRelationships,
+  setExpandedRelationships,
   setGraphData,
   setLoading,
   relationshipType
@@ -19,18 +19,33 @@ export async function expandNode({
   node: GraphNode;
   graphData: GraphData;
   schema: SchemaData | null;
-  expandedNodes: Set<string>;
-  setExpandedNodes: (callback: (prev: Set<string>) => Set<string>) => void;
+  expandedRelationships: Set<string>;
+  setExpandedRelationships: (callback: (prev: Set<string>) => Set<string>) => void;
   setGraphData: (data: GraphData) => void;
   setLoading: (loading: boolean) => void;
   relationshipType?: string;
 }): Promise<void> {
   console.log("expandNode called with:", { nodeId, relationshipType });
-  console.log("Current expandedNodes:", Array.from(expandedNodes));
+  console.log("Current expandedRelationships:", Array.from(expandedRelationships));
 
-  // Check if node is already expanded
-  if (expandedNodes.has(nodeId)) {
-    console.log(`Node ${nodeId} is already expanded`);
+  // Parse the relationship type to extract direction information
+  let direction = 'both';
+  let relType = relationshipType || 'ALL';
+
+  if (relType.endsWith('>')) {
+    direction = 'outgoing';
+    relType = relType.slice(0, -1);
+  } else if (relType.startsWith('<')) {
+    direction = 'incoming';
+    relType = relType.slice(1);
+  }
+
+  // Create a unique key for this node-relationship-direction combination
+  const relationshipKey = `${nodeId}:${relType}:${direction}`;
+
+  // Check if this specific relationship is already expanded
+  if (expandedRelationships.has(relationshipKey)) {
+    console.log(`Relationship ${relationshipKey} is already expanded`);
     return;
   }
 
@@ -186,8 +201,8 @@ export async function expandNode({
       links: mergedLinks
     });
 
-    // Mark node as expanded
-    setExpandedNodes(prev => new Set([...prev, nodeId]));
+    // Mark this specific relationship as expanded
+    setExpandedRelationships(prev => new Set([...prev, relationshipKey]));
   } catch (err) {
     console.error('Error expanding node:', err);
   } finally {
