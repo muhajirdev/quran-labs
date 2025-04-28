@@ -36,6 +36,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   const [graphSettings, setGraphSettings] = useState({
     showRelationshipLabels: true,
     showNodeLabels: true,
+    showRelationshipDirections: true,
     use3D: false,
     darkMode: true, // Set dark mode to true by default to match the Figma design
     nodeSize: 6,

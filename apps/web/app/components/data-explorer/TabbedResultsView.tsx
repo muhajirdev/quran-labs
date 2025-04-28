@@ -187,12 +187,9 @@ export function TabbedResultsView({
                       }}
                       linkWidth={graphSettings.linkWidth}
                       linkColor={() => graphSettings.darkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'}
-                      linkCanvasObjectMode={() => graphSettings.showRelationshipLabels ? 'after' : 'none'}
+                      linkCanvasObjectMode={() => (graphSettings.showRelationshipLabels || graphSettings.showRelationshipDirections) ? 'after' : 'none'}
                       linkCanvasObject={(link: any, ctx, globalScale) => {
-                        // Skip if no type is defined or relationship labels are disabled
-                        if (!link.type || !graphSettings.showRelationshipLabels) return;
-
-                        // Calculate the position for the label
+                        // Calculate the position for the link
                         const start = link.source;
                         const end = link.target;
 
@@ -206,37 +203,73 @@ export function TabbedResultsView({
                         // Set font size based on zoom level
                         const fontSize = 10 / globalScale;
 
-                        // Get the label text to display
-                        let labelText = link.type;
+                        // Draw relationship labels if enabled
+                        if (graphSettings.showRelationshipLabels && link.type) {
+                          // Get the label text to display
+                          let labelText = link.type;
 
-                        // Check if a custom property is configured for this relationship type
-                        const customProperty = graphSettings.relationshipLabelProperty[link.type];
-                        if (customProperty && customProperty !== 'default' && link.properties && link.properties[customProperty] !== undefined) {
-                          // Convert to string in case it's a number or other type
-                          labelText = String(link.properties[customProperty]);
+                          // Check if a custom property is configured for this relationship type
+                          const customProperty = graphSettings.relationshipLabelProperty[link.type];
+                          if (customProperty && customProperty !== 'default' && link.properties && link.properties[customProperty] !== undefined) {
+                            // Convert to string in case it's a number or other type
+                            labelText = String(link.properties[customProperty]);
+                          }
+
+                          // Draw the relationship label
+                          ctx.font = `${fontSize}px Sans-Serif`;
+                          ctx.textAlign = 'center';
+                          ctx.textBaseline = 'middle';
+
+                          // Add a background for better readability
+                          const textWidth = ctx.measureText(labelText).width;
+                          const backgroundHeight = fontSize;
+                          const backgroundWidth = textWidth + fontSize * 0.8;
+
+                          ctx.fillStyle = graphSettings.darkMode ? 'rgba(17, 24, 39, 0.8)' : 'rgba(255, 255, 255, 0.8)';
+                          ctx.fillRect(
+                            middleX - backgroundWidth / 2,
+                            middleY - backgroundHeight / 2,
+                            backgroundWidth,
+                            backgroundHeight
+                          );
+
+                          // Draw the text
+                          ctx.fillStyle = graphSettings.darkMode ? '#D1D5DB' : '#4B5563';
+                          ctx.fillText(labelText, middleX, middleY);
                         }
 
-                        // Draw the relationship label
-                        ctx.font = `${fontSize}px Sans-Serif`;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
+                        // Draw directional arrows if enabled
+                        if (graphSettings.showRelationshipDirections) {
+                          // Calculate the angle of the link
+                          const angle = Math.atan2(end.y - start.y, end.x - start.x);
 
-                        // Add a background for better readability
-                        const textWidth = ctx.measureText(labelText).width;
-                        const backgroundHeight = fontSize;
-                        const backgroundWidth = textWidth + fontSize * 0.8;
+                          // Calculate the position for the arrow (near the target node)
+                          const nodeRadius = Math.sqrt((end.val || 1) * (graphSettings.nodeSize / 6) * 25 / Math.PI);
+                          const distance = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+                          const arrowPosition = distance > nodeRadius * 2 ? 0.9 : 0.7; // Adjust based on distance
 
-                        ctx.fillStyle = graphSettings.darkMode ? 'rgba(17, 24, 39, 0.8)' : 'rgba(255, 255, 255, 0.8)';
-                        ctx.fillRect(
-                          middleX - backgroundWidth / 2,
-                          middleY - backgroundHeight / 2,
-                          backgroundWidth,
-                          backgroundHeight
-                        );
+                          const arrowX = start.x + (end.x - start.x) * arrowPosition;
+                          const arrowY = start.y + (end.y - start.y) * arrowPosition;
 
-                        // Draw the text
-                        ctx.fillStyle = graphSettings.darkMode ? '#D1D5DB' : '#4B5563';
-                        ctx.fillText(labelText, middleX, middleY);
+                          // Arrow size based on zoom level
+                          const arrowSize = 2.5 / globalScale;
+
+                          // Draw the arrow
+                          ctx.save();
+                          ctx.translate(arrowX, arrowY);
+                          ctx.rotate(angle);
+
+                          ctx.beginPath();
+                          ctx.moveTo(0, 0);
+                          ctx.lineTo(-arrowSize * 2, -arrowSize);
+                          ctx.lineTo(-arrowSize * 2, arrowSize);
+                          ctx.closePath();
+
+                          ctx.fillStyle = graphSettings.darkMode ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)';
+                          ctx.fill();
+
+                          ctx.restore();
+                        }
                       }}
                       nodeRelSize={graphSettings.nodeSize}
                       // Physics simulation parameter

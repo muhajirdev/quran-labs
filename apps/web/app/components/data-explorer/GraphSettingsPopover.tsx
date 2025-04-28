@@ -14,6 +14,7 @@ export interface GraphSettingsProps {
   settings: {
     showRelationshipLabels: boolean;
     showNodeLabels: boolean;
+    showRelationshipDirections: boolean;
     use3D: boolean;
     darkMode: boolean;
     nodeSize: number;
@@ -121,6 +122,23 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
                 />
                 <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showRelationshipLabels ? 'bg-primary' : 'bg-secondary'}`}></div>
                 <div className={`absolute left-1 top-1 bg-background w-4 h-4 rounded-full transition-transform transform ${localSettings.showRelationshipLabels ? 'translate-x-4' : ''}`}></div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label htmlFor="showRelationshipDirections" className="text-sm font-medium text-foreground">
+                Show Relationship Directions
+              </label>
+              <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                <input
+                  type="checkbox"
+                  id="showRelationshipDirections"
+                  checked={localSettings.showRelationshipDirections}
+                  onChange={(e) => handleChange('showRelationshipDirections', e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showRelationshipDirections ? 'bg-primary' : 'bg-secondary'}`}></div>
+                <div className={`absolute left-1 top-1 bg-background w-4 h-4 rounded-full transition-transform transform ${localSettings.showRelationshipDirections ? 'translate-x-4' : ''}`}></div>
               </div>
             </div>
 
