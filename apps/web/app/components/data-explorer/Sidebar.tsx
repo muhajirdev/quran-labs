@@ -1,7 +1,7 @@
 import React from 'react';
 import type { GraphData, GraphNode, SchemaData } from './types';
 import { getNodeRelationships } from './nodeRelationshipUtils';
-import { RelationshipPanel } from './RelationshipPanel';
+import { MergedRelationshipPanel } from './MergedRelationshipPanel';
 import { Button } from '~/components/ui/button';
 import { X as XIcon } from 'lucide-react';
 
@@ -173,10 +173,10 @@ export function DataExplorerSidebar({
           <div className="mt-4">
             <h4 className="font-semibold text-sm text-sidebar-foreground mb-2">Relationships:</h4>
 
-            <RelationshipPanel
+            <MergedRelationshipPanel
               actualRelationships={relationshipData.actualRelationships}
               schemaRelationships={relationshipData.schemaRelationships}
-              onExpandRelationship={(relType, direction) => {
+              onExpandRelationship={(relType: string, direction: string) => {
                 if (direction === 'outgoing') {
                   expandNode(selectedNode.id, `${relType}>`);
                 } else if (direction === 'incoming') {
