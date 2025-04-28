@@ -4,13 +4,13 @@ import { DataExplorerSidebar } from '~/components/data-explorer/Sidebar';
 import { ExampleQueries } from '~/components/data-explorer/ExampleQueries';
 import { SchemaViewer } from '~/components/data-explorer/SchemaViewer';
 import { GraphSettingsPopover } from '~/components/data-explorer/GraphSettingsPopover';
+import { CollapsibleQueryEditor } from '~/components/data-explorer/CollapsibleQueryEditor';
 import type { GraphData, GraphNode, SchemaData, NodeTable, RelationshipTable } from '~/components/data-explorer/types';
 import {
   convertToGraphData,
   renderCellValue
 } from '~/components/data-explorer/simpleGraphUtils';
 import { expandNode as expandNodeUtil } from '~/components/data-explorer/expandNodeUtils';
-import { Button } from '~/components/ui/button';
 
 const ForceGraph2D = lazy(() => import('react-force-graph-2d'));
 
@@ -287,45 +287,10 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 flex-grow">
+      <div className={`container mx-auto px-4 py-6 flex-grow ${sidebarOpen ? 'pr-[384px] md:pr-[384px]' : ''} transition-all duration-300`}>
         <div className="lg:grid lg:grid-cols-12 lg:gap-6">
-          {/* Left column - Query and Examples */}
+          {/* Left column - Examples and Schema */}
           <div className="lg:col-span-4 space-y-6">
-            {/* Query Input */}
-            <div className="bg-card p-6 rounded-xl shadow-lg border border-border backdrop-blur-xl">
-              <div className="flex justify-between items-center mb-3">
-                <label htmlFor="query" className="text-lg font-semibold text-foreground">
-                  Cypher Query
-                </label>
-                <Button
-                  onClick={executeQuery}
-                  disabled={loading}
-                  variant="secondary"
-                >
-                  {loading ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-secondary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Executing...
-                    </>
-                  ) : (
-                    'Execute Query'
-                  )}
-                </Button>
-              </div>
-              <div className="relative">
-                <textarea
-                  id="query"
-                  className="w-full h-48 p-4 border border-border rounded-md font-mono text-foreground bg-background/50"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Enter your Cypher query here..."
-                />
-              </div>
-            </div>
-
             {/* Example Queries */}
             <ExampleQueries setQuery={setQuery} />
 
@@ -333,8 +298,15 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
             <SchemaViewer schema={schema} loading={schemaLoading} setQuery={setQuery} />
           </div>
 
-          {/* Right column - Results */}
+          {/* Right column - Query Editor and Results */}
           <div className="lg:col-span-8 space-y-6 mt-6 lg:mt-0">
+            {/* Collapsible Query Editor */}
+            <CollapsibleQueryEditor
+              query={query}
+              setQuery={setQuery}
+              executeQuery={executeQuery}
+              loading={loading}
+            />
             {error && (
               <div className="p-4 bg-destructive/20 border border-destructive text-destructive rounded-xl">
                 <h2 className="text-lg font-semibold mb-2">Error</h2>

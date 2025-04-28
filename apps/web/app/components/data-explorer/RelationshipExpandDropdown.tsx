@@ -38,7 +38,7 @@ export function RelationshipExpandDropdown({
             onClick={() => onExpand(relationshipType, 'outgoing')}
             className="text-xs flex items-center gap-2"
           >
-            <ArrowRightIcon className="h-3 w-3 text-sidebar-primary" />
+            <ArrowRightIcon className="h-3 w-3 text-primary" />
             <span>Outgoing</span>
           </DropdownMenuItem>
         )}
@@ -48,7 +48,7 @@ export function RelationshipExpandDropdown({
             onClick={() => onExpand(relationshipType, 'incoming')}
             className="text-xs flex items-center gap-2"
           >
-            <ArrowLeftIcon className="h-3 w-3 text-sidebar-primary" />
+            <ArrowLeftIcon className="h-3 w-3 text-primary" />
             <span>Incoming</span>
           </DropdownMenuItem>
         )}
@@ -57,7 +57,7 @@ export function RelationshipExpandDropdown({
           onClick={() => onExpand(relationshipType, 'both')}
           className="text-xs flex items-center gap-2"
         >
-          <ArrowLeftRightIcon className="h-3 w-3 text-sidebar-primary" />
+          <ArrowLeftRightIcon className="h-3 w-3 text-primary" />
           <span>Both Directions</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

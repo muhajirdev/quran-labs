@@ -61,7 +61,7 @@ export function DataExplorerSidebar({
   return (
     <>
       {/* Node Details Sidebar */}
-      <div className={`fixed top-0 right-0 h-full bg-sidebar shadow-xl w-80 transform transition-transform duration-300 ease-in-out z-40 border-l border-sidebar-border backdrop-blur-xl ${selectedNode ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed top-0 right-0 h-full bg-sidebar shadow-xl w-96 transform transition-transform duration-300 ease-in-out z-40 border-l border-sidebar-border backdrop-blur-xl ${selectedNode ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="bg-secondary/20 text-sidebar-foreground px-4 py-3 flex justify-between items-center border-b border-sidebar-border">
           <h3 className="font-bold text-lg truncate">{selectedNode.name}</h3>
           <Button
