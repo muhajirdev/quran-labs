@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { SchemaData } from '~/components/data-explorer/types';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+import { Switch } from '~/components/ui/switch';
+import { Label } from '~/components/ui/label';
 
 export interface NodeLabelConfig {
   [nodeType: string]: string; // Maps node type to property name to display
@@ -109,78 +111,54 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
           <div className="space-y-4">
             {/* Toggle switches */}
             <div className="flex items-center justify-between">
-              <label htmlFor="showRelationshipLabels" className="text-sm font-medium text-foreground">
+              <Label htmlFor="showRelationshipLabels" className="text-sm font-medium text-foreground">
                 Show Relationship Labels
-              </label>
-              <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                <input
-                  type="checkbox"
-                  id="showRelationshipLabels"
-                  checked={localSettings.showRelationshipLabels}
-                  onChange={(e) => handleChange('showRelationshipLabels', e.target.checked)}
-                  className="sr-only"
-                />
-                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showRelationshipLabels ? 'bg-primary' : 'bg-secondary'}`}></div>
-                <div className={`absolute left-1 top-1 bg-background w-4 h-4 rounded-full transition-transform transform ${localSettings.showRelationshipLabels ? 'translate-x-4' : ''}`}></div>
-              </div>
+              </Label>
+              <Switch
+                id="showRelationshipLabels"
+                checked={localSettings.showRelationshipLabels}
+                onCheckedChange={(checked) => handleChange('showRelationshipLabels', checked)}
+              />
             </div>
 
             <div className="flex items-center justify-between">
-              <label htmlFor="showRelationshipDirections" className="text-sm font-medium text-foreground">
+              <Label htmlFor="showRelationshipDirections" className="text-sm font-medium text-foreground">
                 Show Relationship Directions
-              </label>
-              <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                <input
-                  type="checkbox"
-                  id="showRelationshipDirections"
-                  checked={localSettings.showRelationshipDirections}
-                  onChange={(e) => handleChange('showRelationshipDirections', e.target.checked)}
-                  className="sr-only"
-                />
-                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showRelationshipDirections ? 'bg-primary' : 'bg-secondary'}`}></div>
-                <div className={`absolute left-1 top-1 bg-background w-4 h-4 rounded-full transition-transform transform ${localSettings.showRelationshipDirections ? 'translate-x-4' : ''}`}></div>
-              </div>
+              </Label>
+              <Switch
+                id="showRelationshipDirections"
+                checked={localSettings.showRelationshipDirections}
+                onCheckedChange={(checked) => handleChange('showRelationshipDirections', checked)}
+              />
             </div>
 
             <div className="flex items-center justify-between">
-              <label htmlFor="showNodeLabels" className="text-sm font-medium text-foreground">
+              <Label htmlFor="showNodeLabels" className="text-sm font-medium text-foreground">
                 Show Node Labels
-              </label>
-              <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                <input
-                  type="checkbox"
-                  id="showNodeLabels"
-                  checked={localSettings.showNodeLabels}
-                  onChange={(e) => handleChange('showNodeLabels', e.target.checked)}
-                  className="sr-only"
-                />
-                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.showNodeLabels ? 'bg-primary' : 'bg-secondary'}`}></div>
-                <div className={`absolute left-1 top-1 bg-background w-4 h-4 rounded-full transition-transform transform ${localSettings.showNodeLabels ? 'translate-x-4' : ''}`}></div>
-              </div>
+              </Label>
+              <Switch
+                id="showNodeLabels"
+                checked={localSettings.showNodeLabels}
+                onCheckedChange={(checked) => handleChange('showNodeLabels', checked)}
+              />
             </div>
 
             <div className="flex items-center justify-between">
-              <label htmlFor="darkMode" className="text-sm font-medium text-foreground">
+              <Label htmlFor="darkMode" className="text-sm font-medium text-foreground">
                 Dark Mode
-              </label>
-              <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                <input
-                  type="checkbox"
-                  id="darkMode"
-                  checked={localSettings.darkMode}
-                  onChange={(e) => handleChange('darkMode', e.target.checked)}
-                  className="sr-only"
-                />
-                <div className={`block w-10 h-6 rounded-full transition-colors ${localSettings.darkMode ? 'bg-primary' : 'bg-secondary'}`}></div>
-                <div className={`absolute left-1 top-1 bg-background w-4 h-4 rounded-full transition-transform transform ${localSettings.darkMode ? 'translate-x-4' : ''}`}></div>
-              </div>
+              </Label>
+              <Switch
+                id="darkMode"
+                checked={localSettings.darkMode}
+                onCheckedChange={(checked) => handleChange('darkMode', checked)}
+              />
             </div>
 
             {/* Sliders */}
             <div className="space-y-2">
-              <label htmlFor="nodeSize" className="text-sm font-medium text-foreground block">
+              <Label htmlFor="nodeSize" className="text-sm font-medium text-foreground block">
                 Node Size: {localSettings.nodeSize}
-              </label>
+              </Label>
               <input
                 type="range"
                 id="nodeSize"
@@ -194,9 +172,9 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="linkWidth" className="text-sm font-medium text-foreground block">
+              <Label htmlFor="linkWidth" className="text-sm font-medium text-foreground block">
                 Link Width: {localSettings.linkWidth}
-              </label>
+              </Label>
               <input
                 type="range"
                 id="linkWidth"
