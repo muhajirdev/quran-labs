@@ -15,6 +15,14 @@ import {
   HoverCardContent,
   HoverCardTrigger
 } from "~/components/ui/hover-card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from "~/components/ui/accordion";
+import { TafsirCard } from "~/components/tafsir/TafsirCard";
+import { TafsirExplorer } from "~/components/tafsir/TafsirExplorer";
 
 interface VerseData {
   id: number;
@@ -650,7 +658,7 @@ export default function VerseDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column - Translations and Tafsir */}
               <div className="lg:col-span-2 space-y-8">
-                {/* Translations Card - With explorative elements */}
+                {/* Translations Card - With collapsible sections */}
                 {verseData.translations && verseData.translations.length > 1 && (
                   <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 bg-muted/10">
@@ -700,12 +708,16 @@ export default function VerseDetailPage() {
                       </div>
                     </div>
 
-                    {/* Collapsible translations section */}
-                    <div className="divide-y divide-border/30">
-                      {verseData.translations.slice(1).map((translation, index) => (
-                        <div key={index} className="group">
-                          <div className="p-4 hover:bg-muted/10 transition-colors">
-                            <div className="flex items-center justify-between mb-2">
+                    {/* Collapsible translations with Accordion */}
+                    <div className="p-2">
+                      <Accordion type="multiple" defaultValue={["translation-0"]} className="w-full">
+                        {verseData.translations.slice(1).map((translation, index) => (
+                          <AccordionItem
+                            key={index}
+                            value={`translation-${index}`}
+                            className="border-b border-border/30 last:border-0 overflow-hidden rounded-md mb-1 data-[state=open]:bg-muted/5"
+                          >
+                            <AccordionTrigger className="px-3 py-2 hover:no-underline hover:bg-muted/10 group">
                               <div className="flex items-center gap-2">
                                 <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
                                   <span className="text-xs font-medium text-primary">{translation.translator.charAt(0).toUpperCase()}</span>
@@ -717,42 +729,47 @@ export default function VerseDetailPage() {
                                   </span>
                                 </div>
                               </div>
-
-                              {/* Interactive comparison button */}
-                              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div className="relative group/tooltip">
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6" />
-                                      <path d="M12 14H8" />
-                                      <path d="M12 10H8" />
-                                      <path d="M12 6H8" />
-                                      <path d="M17 18h.01" />
-                                      <path d="M17 14h.01" />
-                                      <path d="M13 18h.01" />
-                                    </svg>
-                                  </Button>
-                                  <span className="absolute right-0 top-full mt-1 w-32 px-2 py-1 bg-popover rounded-md text-xs font-normal text-popover-foreground shadow-md opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-50">
-                                    Compare translations
+                            </AccordionTrigger>
+                            <AccordionContent className="px-4 pb-3">
+                              {/* Interactive text with word highlighting */}
+                              <div className="text-base leading-relaxed">
+                                {translation.text.split(' ').map((word, wordIndex) => (
+                                  <span
+                                    key={wordIndex}
+                                    className="inline mx-0.5 hover:text-primary hover:underline decoration-primary/30 cursor-pointer transition-colors"
+                                  >
+                                    {word}
                                   </span>
-                                </div>
+                                ))}
                               </div>
-                            </div>
 
-                            {/* Interactive text with word highlighting */}
-                            <p className="text-base leading-relaxed">
-                              {translation.text.split(' ').map((word, wordIndex) => (
-                                <span
-                                  key={wordIndex}
-                                  className="inline mx-0.5 hover:text-primary hover:underline decoration-primary/30 cursor-pointer transition-colors"
-                                >
-                                  {word}
-                                </span>
-                              ))}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                              {/* Translation actions */}
+                              <div className="flex justify-end mt-3 pt-2 border-t border-border/20">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="ghost" size="sm" className="h-7 w-7 rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <path d="M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6" />
+                                          <path d="M12 14H8" />
+                                          <path d="M12 10H8" />
+                                          <path d="M12 6H8" />
+                                          <path d="M17 18h.01" />
+                                          <path d="M17 14h.01" />
+                                          <path d="M13 18h.01" />
+                                        </svg>
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">
+                                      <p>Compare translations</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
                     </div>
 
                     {/* Exploration footer */}
@@ -763,164 +780,25 @@ export default function VerseDetailPage() {
                           <line x1="12" y1="16" x2="12" y2="12" />
                           <line x1="12" y1="8" x2="12.01" y2="8" />
                         </svg>
-                        <span>Click on words to explore their meaning across translations</span>
+                        <span>Click on section headers to expand/collapse translations</span>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Commentary Card - With interactive exploration elements */}
+                {/* Commentary Card - Using the refactored TafsirCard component */}
                 {verseData.tafsirs && verseData.tafsirs.length > 0 && (
-                  <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 bg-muted/10">
-                      <div className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                          <MessageSquare className="h-3.5 w-3.5 text-primary" />
-                        </div>
-                        <div className="relative group">
-                          <h3 className="font-medium">Commentary</h3>
-                          <div className="absolute -bottom-20 left-0 w-64 p-3 bg-popover rounded-md text-xs font-normal text-popover-foreground shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                            <p className="font-medium mb-1">Scholarly Commentary (Tafsir)</p>
-                            <p className="text-muted-foreground">Explanations and interpretations of the verse by Islamic scholars</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Interactive controls */}
-                      <div className="flex items-center gap-2">
-                        <div className="relative group">
-                          <Button variant="outline" size="sm" className="h-7 gap-1 text-xs">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M12 3v12" />
-                              <path d="M6 9h12" />
-                            </svg>
-                            <span>Expand All</span>
-                          </Button>
-                          <span className="absolute right-0 top-full mt-1 w-32 px-2 py-1 bg-popover rounded-md text-xs font-normal text-popover-foreground shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                            Show all commentaries
-                          </span>
-                        </div>
-
-                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-xs font-normal">
-                          {verseData.tafsirs.length} sources
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Collapsible commentaries with interactive elements */}
-                    <div className="divide-y divide-border/30">
-                      {verseData.tafsirs.map((tafsir, index) => (
-                        <div key={index} className="group">
-                          <div className="p-5">
-                            {/* Author header with interactive elements */}
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/20 transition-colors">
-                                  <span className="text-sm font-medium text-primary">{tafsir.author.charAt(0).toUpperCase()}</span>
-                                </div>
-                                <div className="flex flex-col">
-                                  <div className="relative group/author">
-                                    <span className="text-sm font-medium group-hover:text-primary transition-colors">{tafsir.author}</span>
-                                    <div className="absolute -bottom-20 left-0 w-48 p-2 bg-popover rounded-md text-xs font-normal text-popover-foreground shadow-lg opacity-0 group-hover/author:opacity-100 transition-opacity pointer-events-none z-50">
-                                      <p className="font-medium mb-1">About {tafsir.author}</p>
-                                      <p className="text-muted-foreground">Click to explore more commentaries by this scholar</p>
-                                    </div>
-                                  </div>
-                                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="m5 8 6 6 6-6" />
-                                    </svg>
-                                    <span className="relative group/lang">
-                                      {tafsir.language}
-                                      <div className="absolute -bottom-12 left-0 w-32 p-2 bg-popover rounded-md text-xs font-normal text-popover-foreground shadow-lg opacity-0 group-hover/lang:opacity-100 transition-opacity pointer-events-none z-50">
-                                        <p className="text-muted-foreground">Filter by {tafsir.language} language</p>
-                                      </div>
-                                    </span>
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Interactive controls */}
-                              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                                <div className="relative group/tooltip">
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="M12 20v-6m0 0V4m0 10h6m-6 0H6" />
-                                    </svg>
-                                  </Button>
-                                  <span className="absolute right-0 top-full mt-1 w-24 px-2 py-1 bg-popover rounded-md text-xs font-normal text-popover-foreground shadow-md opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-50">
-                                    Expand view
-                                  </span>
-                                </div>
-                                <div className="relative group/tooltip">
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
-                                      <path d="M10 2c1 .5 2 2 2 5" />
-                                    </svg>
-                                  </Button>
-                                  <span className="absolute right-0 top-full mt-1 w-24 px-2 py-1 bg-popover rounded-md text-xs font-normal text-popover-foreground shadow-md opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-50">
-                                    Save for later
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Interactive content with highlights */}
-                            <div className="bg-muted/10 p-4 rounded-lg border border-border/30 group-hover:border-primary/20 transition-colors">
-                              <div
-                                className="prose prose-sm dark:prose-invert max-w-none prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-headings:text-foreground"
-                                dangerouslySetInnerHTML={{ __html: tafsir.text }}
-                              />
-
-                              {/* Interactive exploration footer */}
-                              <div className="mt-3 pt-3 border-t border-border/20 flex items-center justify-between">
-                                <div className="text-xs text-muted-foreground">
-                                  Source: <span className="text-primary hover:underline cursor-pointer">{tafsir.author} Collection</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                      <polyline points="7 10 12 15 17 10" />
-                                      <line x1="12" y1="15" x2="12" y2="3" />
-                                    </svg>
-                                    Download
-                                  </Button>
-                                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                                      <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" />
-                                      <path d="M18 13V3" />
-                                      <path d="M12 9 18 3" />
-                                      <path d="M7 13h11" />
-                                    </svg>
-                                    Cite
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Exploration footer */}
-                    <div className="p-3 bg-muted/10 border-t border-border/30 flex items-center justify-center">
-                      <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10" />
-                          <line x1="12" y1="16" x2="12" y2="12" />
-                          <line x1="12" y1="8" x2="12.01" y2="8" />
-                        </svg>
-                        <span>Explore different scholarly interpretations of this verse</span>
-                      </div>
-                    </div>
-                  </div>
+                  <TafsirCard tafsirs={verseData.tafsirs} />
                 )}
               </div>
 
               {/* Right Column - Inspired by Raycast's sidebar design */}
               <div className="space-y-6">
+                {/* Tafsir Explorer Component */}
+                {verseData.verse_key && (
+                  <TafsirExplorer verseKey={verseData.verse_key} />
+                )}
+
                 {/* Topics Panel - Inspired by Linear's tag design */}
                 {verseData.topics && verseData.topics.length > 0 && (
                   <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden">
