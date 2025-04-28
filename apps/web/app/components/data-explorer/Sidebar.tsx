@@ -171,8 +171,6 @@ export function DataExplorerSidebar({
 
           {/* Relationship Information */}
           <div className="mt-4">
-            <h4 className="font-semibold text-sm text-sidebar-foreground mb-2">Relationships:</h4>
-
             <MergedRelationshipPanel
               actualRelationships={relationshipData.actualRelationships}
               schemaRelationships={relationshipData.schemaRelationships}

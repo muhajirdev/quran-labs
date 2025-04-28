@@ -98,7 +98,7 @@ body {
   --card-foreground: #EEEEEE;
   --popover: rgba(25, 25, 25, 0.9);
   --popover-foreground: #B3B3B3;
-  --primary: #B3B3B3; /* Primary color from Figma */
+  --primary: #eee; /* Primary color from Figma */
   --primary-foreground: #191919;
   --secondary: #3A3A3A; /* Secondary color from Figma */
   --secondary-foreground: #B3B3B3;
