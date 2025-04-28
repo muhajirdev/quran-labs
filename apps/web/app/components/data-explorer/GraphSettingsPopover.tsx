@@ -3,6 +3,9 @@ import type { SchemaData } from '~/components/data-explorer/types';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import { Switch } from '~/components/ui/switch';
 import { Label } from '~/components/ui/label';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '~/components/ui/accordion';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { Slider } from '~/components/ui/slider';
 
 export interface NodeLabelConfig {
   [nodeType: string]: string; // Maps node type to property name to display
@@ -23,6 +26,7 @@ export interface GraphSettingsProps {
     linkWidth: number;
     nodeLabelProperty: NodeLabelConfig;
     relationshipLabelProperty: RelationshipLabelConfig;
+    backgroundColor: string;
   };
   schema: SchemaData | null;
   onSettingsChange: (settings: any) => void;
@@ -154,37 +158,91 @@ export function GraphSettingsPopover({ settings, schema, onSettingsChange }: Gra
               />
             </div>
 
-            {/* Sliders */}
-            <div className="space-y-2">
-              <Label htmlFor="nodeSize" className="text-sm font-medium text-foreground block">
-                Node Size: {localSettings.nodeSize}
-              </Label>
-              <input
-                type="range"
-                id="nodeSize"
-                min="1"
-                max="10"
-                step="1"
-                value={localSettings.nodeSize}
-                onChange={(e) => handleChange('nodeSize', parseInt(e.target.value))}
-                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
-              />
+            {/* Advanced Settings Accordion */}
+            <div className="mt-6">
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="advanced-settings" className="border-0">
+                  <AccordionTrigger className="py-2 px-0">
+                    <span className="text-sm font-medium">Advanced Settings</span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-4 space-y-4">
+                    {/* Background Color */}
+                    <div className="space-y-2">
+                      <Label htmlFor="backgroundColor" className="text-sm font-medium text-foreground block mb-2">
+                        Background Color
+                      </Label>
+                      <Select
+                        value={localSettings.backgroundColor}
+                        onValueChange={(value) => handleChange('backgroundColor', value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a background color" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="#121212">Dark Gray (Default)</SelectItem>
+                          <SelectItem value="#111827">Dark Blue</SelectItem>
+                          <SelectItem value="#0f172a">Navy Blue</SelectItem>
+                          <SelectItem value="#1e293b">Slate Blue</SelectItem>
+                          <SelectItem value="#1a1a2e">Deep Navy</SelectItem>
+                          <SelectItem value="#18181b">Zinc</SelectItem>
+                          <SelectItem value="#171717">Neutral</SelectItem>
+                          <SelectItem value="#0c0a09">Dark Brown</SelectItem>
+                          <SelectItem value="#1c1917">Dark Stone</SelectItem>
+                          <SelectItem value="#020617">Dark Indigo</SelectItem>
+                          <SelectItem value="#FFFFFF">White</SelectItem>
+                          <SelectItem value="#f8fafc">Light Gray</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="mt-2 flex items-center gap-2">
+                        <div
+                          className="w-6 h-6 rounded border border-border"
+                          style={{ backgroundColor: localSettings.backgroundColor }}
+                        ></div>
+                        <span className="text-xs text-muted-foreground">{localSettings.backgroundColor}</span>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="linkWidth" className="text-sm font-medium text-foreground block">
-                Link Width: {localSettings.linkWidth}
-              </Label>
-              <input
-                type="range"
-                id="linkWidth"
-                min="0.5"
-                max="3"
-                step="0.5"
-                value={localSettings.linkWidth}
-                onChange={(e) => handleChange('linkWidth', parseFloat(e.target.value))}
-                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
-              />
+            {/* Sliders */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label htmlFor="nodeSize" className="text-sm font-medium text-foreground">
+                    Node Size
+                  </Label>
+                  <span className="text-sm text-muted-foreground">{localSettings.nodeSize}</span>
+                </div>
+                <Slider
+                  id="nodeSize"
+                  min={1}
+                  max={10}
+                  step={1}
+                  value={[localSettings.nodeSize]}
+                  onValueChange={(values) => handleChange('nodeSize', values[0])}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label htmlFor="linkWidth" className="text-sm font-medium text-foreground">
+                    Link Width
+                  </Label>
+                  <span className="text-sm text-muted-foreground">{localSettings.linkWidth}</span>
+                </div>
+                <Slider
+                  id="linkWidth"
+                  min={0.5}
+                  max={3}
+                  step={0.5}
+                  value={[localSettings.linkWidth]}
+                  onValueChange={(values) => handleChange('linkWidth', values[0])}
+                  className="w-full"
+                />
+              </div>
             </div>
           </div>
         )}

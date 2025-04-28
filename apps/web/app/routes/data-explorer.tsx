@@ -41,6 +41,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
     darkMode: true, // Set dark mode to true by default to match the Figma design
     nodeSize: 6,
     linkWidth: 1.5,
+    backgroundColor: "#121212", // Dark gray background by default
     nodeLabelProperty: {} as Record<string, string>,
     relationshipLabelProperty: {} as Record<string, string>
   });

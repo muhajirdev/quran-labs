@@ -158,7 +158,7 @@ export function TabbedResultsView({
                       graphData={graphData}
                       width={dimensions.width}
                       height={dimensions.height}
-                      backgroundColor={graphSettings.darkMode ? "#111827" : "#FFFFFF"}
+                      backgroundColor={graphSettings.backgroundColor || (graphSettings.darkMode ? "#111827" : "#FFFFFF")}
                       onEngineStop={() => {
                         // Recalculate dimensions when the graph is initialized
                         console.log("Graph engine initialized, recalculating dimensions");
