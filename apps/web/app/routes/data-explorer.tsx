@@ -48,7 +48,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
   });
   const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   // Function to expand a node (fetch related nodes)
   const expandNode = async (nodeId: string, relationshipType?: string) => {
@@ -182,26 +182,50 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
     return () => clearTimeout(timer);
   }, []);
 
+  // Function to update dimensions
+  const updateDimensions = () => {
+    if (containerRef.current) {
+      setDimensions({
+        width: containerRef.current.offsetWidth,
+        height: 600, // Increased height for better visualization
+      });
+    }
+  };
+
   // Update dimensions when the window is resized
   useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        setDimensions({
-          width: containerRef.current.offsetWidth,
-          height: 500, // Fixed height or adjust as needed
-        });
-      }
-    };
-
     // Initial dimensions
     updateDimensions();
+
+    // Add a setTimeout to recalculate dimensions after the initial render
+    // This ensures the container has its correct width
+    const timer = setTimeout(() => {
+      console.log("Recalculating graph dimensions after initial render");
+      updateDimensions();
+    }, 500);
 
     // Add event listener for window resize
     window.addEventListener("resize", updateDimensions);
 
     // Clean up
-    return () => window.removeEventListener("resize", updateDimensions);
+    return () => {
+      window.removeEventListener("resize", updateDimensions);
+      clearTimeout(timer);
+    };
   }, []);
+
+  // Recalculate dimensions when graph data changes or becomes visible
+  useEffect(() => {
+    if (showGraph && graphData.nodes.length > 0) {
+      // Add a small delay to ensure the container is rendered
+      const timer = setTimeout(() => {
+        console.log("Recalculating graph dimensions after data change");
+        updateDimensions();
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showGraph, graphData]);
 
   const executeQuery = async () => {
     setLoading(true);
@@ -367,10 +391,10 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                             <span>Click a node to view details. Double-click to expand connections.</span>
                           </div>
                         </div>
-                        <div ref={containerRef} className="border border-border rounded-xl overflow-hidden bg-background shadow-lg relative">
+                        <div ref={containerRef} className="border border-border rounded-xl overflow-hidden bg-background shadow-lg relative w-full">
 
                           <Suspense fallback={
-                            <div className="flex items-center justify-center h-[500px] bg-background">
+                            <div className="flex items-center justify-center h-[600px] bg-background">
                               <div className="text-center">
                                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
                                 <p className="text-primary font-medium">Loading visualization...</p>
@@ -383,6 +407,11 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                               width={dimensions.width}
                               height={dimensions.height}
                               backgroundColor={graphSettings.darkMode ? "#111827" : "#FFFFFF"}
+                              onEngineStop={() => {
+                                // Recalculate dimensions when the graph is initialized
+                                console.log("Graph engine initialized, recalculating dimensions");
+                                updateDimensions();
+                              }}
                               nodeLabel={(node: any) => {
                                 // Get custom property if configured
                                 const customProperty = graphSettings.nodeLabelProperty[node.label];
@@ -625,7 +654,7 @@ export function HydrateFallback() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="border border-border rounded-xl overflow-hidden bg-card shadow-lg backdrop-blur-xl">
-          <div className="flex items-center justify-center h-[600px]">
+          <div className="flex items-center justify-center h-[600px] w-full">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
               <p className="text-foreground font-medium">Loading data explorer...</p>
