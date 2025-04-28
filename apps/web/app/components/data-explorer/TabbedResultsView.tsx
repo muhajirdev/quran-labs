@@ -339,7 +339,7 @@ export function TabbedResultsView({
                         console.log("Time since last click:", now - lastClick);
 
                         if (now - lastClick < 300) {
-                          // Double click - expand node
+                          // Double click - expand node connections
                           console.log("Double click detected, expanding node:", node.id);
                           expandNode(node.id);
                         } else {

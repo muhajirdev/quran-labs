@@ -5,4 +5,6 @@ export default [
   route("graph", "routes/graph.tsx"),
   route("explore", "routes/explore.tsx"),
   route("data-explorer", "routes/data-explorer.tsx"),
+  route("verse/:verse_key", "routes/verse/$verse_key.tsx"),
+  route("topic/:topic_id", "routes/topic/$topic_id.tsx"),
 ] satisfies RouteConfig;

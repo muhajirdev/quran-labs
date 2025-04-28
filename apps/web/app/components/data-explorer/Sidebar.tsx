@@ -1,9 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router';
 import type { GraphData, GraphNode, SchemaData } from './types';
 import { getNodeRelationships } from './nodeRelationshipUtils';
 import { MergedRelationshipPanel } from './MergedRelationshipPanel';
 import { Button } from '~/components/ui/button';
-import { X as XIcon } from 'lucide-react';
+import { X as XIcon, ExternalLink } from 'lucide-react';
 
 interface DataExplorerSidebarProps {
   selectedNode: GraphNode | null;
@@ -91,13 +92,37 @@ export function DataExplorerSidebar({
           </Button>
         </div>
         <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 56px)' }}>
-          <div className="flex items-center mb-4">
-            <div
-              className="w-6 h-6 rounded-full mr-2 border border-sidebar-border"
-              style={{ backgroundColor: selectedNode.color || '#4B5563' }}
-            ></div>
-            <span className="font-medium text-sidebar-foreground">Type: {selectedNode.label}</span>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <div
+                className="w-6 h-6 rounded-full mr-2 border border-sidebar-border"
+                style={{ backgroundColor: selectedNode.color || '#4B5563' }}
+              ></div>
+              <span className="font-medium text-sidebar-foreground">Type: {selectedNode.label}</span>
+            </div>
           </div>
+
+          {/* Detail Page Links */}
+          {(selectedNode.label === 'Verse' && selectedNode.properties && selectedNode.properties.verse_key) && (
+            <div className="mb-4">
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <Link to={`/verse/${selectedNode.properties.verse_key}`}>
+                  <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+                  <span className="text-xs">View Verse Detail Page</span>
+                </Link>
+              </Button>
+            </div>
+          )}
+          {(selectedNode.label === 'Topic' && selectedNode.properties && selectedNode.properties.topic_id) && (
+            <div className="mb-4">
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <Link to={`/topic/${selectedNode.properties.topic_id}`}>
+                  <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+                  <span className="text-xs">View Topic Detail Page</span>
+                </Link>
+              </Button>
+            </div>
+          )}
 
           {selectedNode.properties && (
             <div className="mt-2">
