@@ -2,6 +2,8 @@ import React from 'react';
 import type { GraphData, GraphNode, SchemaData } from './types';
 import { getNodeRelationships } from './nodeRelationshipUtils';
 import { RelationshipExpandDropdown } from './RelationshipExpandDropdown';
+import { Button } from '~/components/ui/button';
+import { X as XIcon } from 'lucide-react';
 
 interface DataExplorerSidebarProps {
   selectedNode: GraphNode | null;
@@ -62,17 +64,18 @@ export function DataExplorerSidebar({
       <div className={`fixed top-0 right-0 h-full bg-sidebar shadow-xl w-80 transform transition-transform duration-300 ease-in-out z-40 border-l border-sidebar-border backdrop-blur-xl ${selectedNode ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="bg-secondary/20 text-sidebar-foreground px-4 py-3 flex justify-between items-center border-b border-sidebar-border">
           <h3 className="font-bold text-lg truncate">{selectedNode.name}</h3>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => {
               setSelectedNode(null);
               setSidebarOpen(false);
             }}
-            className="text-sidebar-foreground hover:text-sidebar-primary"
+            className="h-8 w-8 text-sidebar-foreground hover:text-sidebar-primary"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+            <XIcon className="h-5 w-5" />
+            <span className="sr-only">Close</span>
+          </Button>
         </div>
         <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 56px)' }}>
           <div className="flex items-center mb-4">
@@ -99,7 +102,9 @@ export function DataExplorerSidebar({
                   const allExpanded = longProps.every(key => expandedProps.has(key));
 
                   return (
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => {
                         if (allExpanded) {
                           setExpandedProps(new Set());
@@ -107,10 +112,10 @@ export function DataExplorerSidebar({
                           setExpandedProps(new Set(longProps));
                         }
                       }}
-                      className="text-xs text-sidebar-primary hover:text-sidebar-primary/80 font-medium"
+                      className="h-6 px-2 text-xs text-sidebar-primary hover:text-sidebar-primary/80 font-medium"
                     >
                       {allExpanded ? 'Collapse All' : 'Expand All'}
-                    </button>
+                    </Button>
                   );
                 })()}
               </div>
@@ -133,12 +138,14 @@ export function DataExplorerSidebar({
                             <span className="text-sidebar-foreground break-words">{displayValue}</span>
 
                             {isLongText && (
-                              <button
+                              <Button
+                                variant="link"
+                                size="sm"
                                 onClick={() => togglePropertyExpansion(key)}
-                                className="ml-1 text-xs text-sidebar-primary hover:text-sidebar-primary/80 font-medium"
+                                className="h-5 p-0 ml-1 text-xs text-sidebar-primary hover:text-sidebar-primary/80 font-medium"
                               >
                                 {isExpanded ? 'Show less' : 'Read more'}
-                              </button>
+                              </Button>
                             )}
                           </div>
                         </div>
@@ -274,15 +281,15 @@ export function DataExplorerSidebar({
           </div>
 
           <div className="mt-4 pt-4 border-t border-sidebar-border flex justify-between">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => {
                 setSelectedNode(null);
                 setSidebarOpen(false);
               }}
-              className="bg-secondary hover:bg-secondary/80 text-sidebar-foreground px-4 py-2 rounded-md text-sm font-medium"
             >
               Close
-            </button>
+            </Button>
             <div className="relative">
               <RelationshipExpandDropdown
                 relationshipType="ALL"

@@ -10,6 +10,7 @@ import {
   renderCellValue
 } from '~/components/data-explorer/simpleGraphUtils';
 import { expandNode as expandNodeUtil } from '~/components/data-explorer/expandNodeUtils';
+import { Button } from '~/components/ui/button';
 
 const ForceGraph2D = lazy(() => import('react-force-graph-2d'));
 
@@ -296,10 +297,10 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                 <label htmlFor="query" className="text-lg font-semibold text-foreground">
                   Cypher Query
                 </label>
-                <button
+                <Button
                   onClick={executeQuery}
                   disabled={loading}
-                  className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 disabled:opacity-50 font-medium flex items-center"
+                  variant="secondary"
                 >
                   {loading ? (
                     <>
@@ -312,7 +313,7 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
                   ) : (
                     'Execute Query'
                   )}
-                </button>
+                </Button>
               </div>
               <div className="relative">
                 <textarea
