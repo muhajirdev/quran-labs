@@ -23,6 +23,8 @@ import {
 } from "~/components/ui/accordion";
 import { TafsirCard } from "~/components/tafsir/TafsirCard";
 import { TafsirExplorer } from "~/components/tafsir/TafsirExplorer";
+import { TranslationCard } from "~/components/translation/TranslationCard";
+import { TranslationExplorer } from "~/components/translation/TranslationExplorer";
 
 interface VerseData {
   id: number;
@@ -658,132 +660,16 @@ export default function VerseDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column - Translations and Tafsir */}
               <div className="lg:col-span-2 space-y-8">
-                {/* Translations Card - With collapsible sections */}
+                {/* Translations Card - Using the refactored TranslationCard component */}
                 {verseData.translations && verseData.translations.length > 1 && (
-                  <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 bg-muted/10">
-                      <div className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
-                            <path d="m5 8 6 6 6-6" />
-                            <path d="M5 16h12c.6 0 1-.4 1-1V5c0-.6-.4-1-1-1H5a1 1 0 0 0-1 1v10c0 .6.4 1 1 1z" />
-                          </svg>
-                        </div>
-                        <h3 className="font-medium">Translations</h3>
-                      </div>
-
-                      {/* Interactive filter controls */}
-                      <div className="flex items-center gap-2">
-                        <div className="relative group">
-                          <Button variant="outline" size="sm" className="h-7 gap-1 text-xs">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                            </svg>
-                            <span>Filter</span>
-                          </Button>
-                          <div className="absolute right-0 top-full mt-1 w-48 p-2 bg-popover rounded-md text-xs font-normal text-popover-foreground shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                            <p className="font-medium mb-1">Filter translations by:</p>
-                            <ul className="space-y-1 text-muted-foreground">
-                              <li className="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="9 11 12 14 22 4" />
-                                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                                </svg>
-                                Language
-                              </li>
-                              <li className="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="9 11 12 14 22 4" />
-                                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                                </svg>
-                                Translator
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-
-                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-xs font-normal">
-                          {verseData.translations.length - 1} translations
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Collapsible translations with Accordion */}
-                    <div className="p-2">
-                      <Accordion type="multiple" defaultValue={["translation-0"]} className="w-full">
-                        {verseData.translations.slice(1).map((translation, index) => (
-                          <AccordionItem
-                            key={index}
-                            value={`translation-${index}`}
-                            className="border-b border-border/30 last:border-0 overflow-hidden rounded-md mb-1 data-[state=open]:bg-muted/5"
-                          >
-                            <AccordionTrigger className="px-3 py-2 hover:no-underline hover:bg-muted/10 group">
-                              <div className="flex items-center gap-2">
-                                <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                                  <span className="text-xs font-medium text-primary">{translation.translator.charAt(0).toUpperCase()}</span>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                  <span className="text-sm font-medium group-hover:text-primary transition-colors">{translation.translator}</span>
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-xs font-normal bg-primary/5 text-primary border border-primary/10">
-                                    {translation.language}
-                                  </span>
-                                </div>
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="px-4 pb-3">
-                              {/* Interactive text with word highlighting */}
-                              <div className="text-base leading-relaxed">
-                                {translation.text.split(' ').map((word, wordIndex) => (
-                                  <span
-                                    key={wordIndex}
-                                    className="inline mx-0.5 hover:text-primary hover:underline decoration-primary/30 cursor-pointer transition-colors"
-                                  >
-                                    {word}
-                                  </span>
-                                ))}
-                              </div>
-
-                              {/* Translation actions */}
-                              <div className="flex justify-end mt-3 pt-2 border-t border-border/20">
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button variant="ghost" size="sm" className="h-7 w-7 rounded-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                          <path d="M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6" />
-                                          <path d="M12 14H8" />
-                                          <path d="M12 10H8" />
-                                          <path d="M12 6H8" />
-                                          <path d="M17 18h.01" />
-                                          <path d="M17 14h.01" />
-                                          <path d="M13 18h.01" />
-                                        </svg>
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="bottom">
-                                      <p>Compare translations</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </div>
-
-                    {/* Exploration footer */}
-                    <div className="p-3 bg-muted/10 border-t border-border/30 flex items-center justify-center">
-                      <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10" />
-                          <line x1="12" y1="16" x2="12" y2="12" />
-                          <line x1="12" y1="8" x2="12.01" y2="8" />
-                        </svg>
-                        <span>Click on section headers to expand/collapse translations</span>
-                      </div>
-                    </div>
-                  </div>
+                  <TranslationCard
+                    translations={verseData.translations}
+                    verseKey={verseData.verse_key}
+                    onCompare={(ids) => {
+                      console.log("Compare translations:", ids);
+                      // Handle comparison logic here
+                    }}
+                  />
                 )}
 
                 {/* Commentary Card - Using the refactored TafsirCard component */}
@@ -794,6 +680,11 @@ export default function VerseDetailPage() {
 
               {/* Right Column - Inspired by Raycast's sidebar design */}
               <div className="space-y-6">
+                {/* Translation Explorer Component */}
+                {verseData.verse_key && (
+                  <TranslationExplorer verseKey={verseData.verse_key} />
+                )}
+
                 {/* Tafsir Explorer Component */}
                 {verseData.verse_key && (
                   <TafsirExplorer verseKey={verseData.verse_key} />

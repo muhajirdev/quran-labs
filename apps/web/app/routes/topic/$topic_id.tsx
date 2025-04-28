@@ -1,10 +1,15 @@
 import { useParams, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
 import { Skeleton } from "~/components/ui/skeleton";
-import { ArrowLeft, BookOpen, Hash, Tag, BookMarked } from "lucide-react";
+import { ArrowLeft, BookOpen, Tag, Network } from "lucide-react";
+
+// Import our new components
+import { TopicOverview } from "~/components/topic/TopicOverview";
+import { TopicHierarchy } from "~/components/topic/TopicHierarchy";
+import { TopicRelated } from "~/components/topic/TopicRelated";
+import { TopicVerseList } from "~/components/topic/TopicVerseList";
+import { TopicExplorer } from "~/components/topic/TopicExplorer";
 
 interface TopicData {
   topic_id: number;
@@ -27,8 +32,16 @@ interface TopicData {
   related_topics?: {
     topic_id: number;
     name: string;
+    description?: string;
+    relevance?: number;
+  }[];
+  siblings?: {
+    topic_id: number;
+    name: string;
   }[];
 }
+
+
 
 export default function TopicDetailPage() {
   const { topic_id } = useParams();
@@ -37,7 +50,7 @@ export default function TopicDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchTopicData() {
+    async function fetchData() {
       setLoading(true);
       setError(null);
 
@@ -45,15 +58,24 @@ export default function TopicDetailPage() {
         // Construct a Cypher query to get topic details and related data
         const query = `
           MATCH (t:Topic {topic_id: ${topic_id}})
-          OPTIONAL MATCH (v:Verse)-[r:HAS_TOPIC]->(t)
-          OPTIONAL MATCH (t)-[p:PARENT_TOPIC]->(parent:Topic)
-          OPTIONAL MATCH (child:Topic)-[c:PARENT_TOPIC]->(t)
-          OPTIONAL MATCH (t)-[rt:RELATED_TO]->(related:Topic)
+          OPTIONAL MATCH (v:Verse)-[:HAS_TOPIC]->(t)
+          OPTIONAL MATCH (t)-[:PARENT_TOPIC]->(parent:Topic)
+          OPTIONAL MATCH (child:Topic)-[:PARENT_TOPIC]->(t)
+
+          // Find all topics directly connected to this topic
+          OPTIONAL MATCH (t)--(other:Topic)
+          WHERE t.topic_id <> other.topic_id
+
+          // Find sibling topics
+          OPTIONAL MATCH (sibling:Topic)-[:PARENT_TOPIC]->(parent)
+          WHERE sibling.topic_id <> t.topic_id
+
           RETURN t,
                  collect(distinct v) as verses,
                  collect(distinct parent) as parents,
                  collect(distinct child) as children,
-                 collect(distinct related) as related_topics
+                 collect(distinct other) as related_topics,
+                 collect(distinct sibling) as siblings
         `;
 
         const response = await fetch('https://kuzu-api.fly.dev/query', {
@@ -68,15 +90,16 @@ export default function TopicDetailPage() {
           throw new Error('Failed to fetch topic data');
         }
 
-        const data = await response.json();
+        const data = await response.json() as any;
         console.log("API response:", data);
 
         if (data.data && data.data.length > 0) {
           const topicNode = data.data[0].t;
-          const verseNodes = data.data[0].verses.filter((v: any) => v !== null);
-          const parentNodes = data.data[0].parents.filter((p: any) => p !== null);
-          const childNodes = data.data[0].children.filter((c: any) => c !== null);
-          const relatedTopicNodes = data.data[0].related_topics.filter((r: any) => r !== null);
+          const verseNodes = (data.data[0].verses || []).filter((v: any) => v !== null);
+          const parentNodes = (data.data[0].parents || []).filter((p: any) => p !== null);
+          const childNodes = (data.data[0].children || []).filter((c: any) => c !== null);
+          const relatedTopicNodes = (data.data[0].related_topics || []).filter((r: any) => r !== null);
+          const siblingNodes = (data.data[0].siblings || []).filter((s: any) => s !== null);
 
           // Process the topic data
           const processedData: TopicData = {
@@ -99,7 +122,14 @@ export default function TopicDetailPage() {
             })),
             related_topics: relatedTopicNodes.map((r: any) => ({
               topic_id: r.topic_id,
-              name: r.name
+              name: r.name,
+              description: r.description,
+              // WARNING: DUMMY DATA - Replace with actual relevance scores in production
+              relevance: Math.random() // Mock relevance score
+            })),
+            siblings: siblingNodes.map((s: any) => ({
+              topic_id: s.topic_id,
+              name: s.name
             }))
           };
 
@@ -116,12 +146,13 @@ export default function TopicDetailPage() {
     }
 
     if (topic_id) {
-      fetchTopicData();
+      fetchData();
     }
   }, [topic_id]);
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Header */}
       <div className="bg-card backdrop-blur-xl border-b border-border shadow-lg py-6">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-2">
@@ -140,13 +171,10 @@ export default function TopicDetailPage() {
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         {loading ? (
-          <div className="space-y-4">
-            <Skeleton className="h-12 w-full bg-muted" />
-            <Skeleton className="h-32 w-full bg-muted" />
-            <Skeleton className="h-24 w-full bg-muted" />
-          </div>
+          <TopicSkeleton />
         ) : error ? (
           <div className="p-4 bg-destructive/20 border border-destructive text-destructive rounded-xl">
             <h2 className="text-lg font-semibold mb-2">Error</h2>
@@ -154,150 +182,87 @@ export default function TopicDetailPage() {
           </div>
         ) : topicData ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column (2/3 width on large screens) */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Topic Overview Card */}
-              <Card className="overflow-hidden">
-                <CardHeader className="bg-muted/50">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-xl">Topic Overview</CardTitle>
-                    <Badge variant="outline" className="text-sm">
-                      <Hash className="h-3 w-3 mr-1" />
-                      ID: {topicData.topic_id}
-                    </Badge>
-                  </div>
-                  {topicData.arabic_name && (
-                    <CardDescription>
-                      Arabic: {topicData.arabic_name}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent className="pt-6">
-                  {topicData.description ? (
-                    <div className="prose dark:prose-invert max-w-none">
-                      <p>{topicData.description}</p>
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground italic">No description available</p>
-                  )}
-                </CardContent>
-              </Card>
+              {/* Topic Overview */}
+              <TopicOverview
+                topic={{
+                  ...topicData,
+                  verses_count: topicData.verses?.length,
+                  related_topics_count: topicData.related_topics?.length
+                }}
+              />
 
-              {/* Verses Card */}
+              {/* Verses List */}
               {topicData.verses && topicData.verses.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <BookMarked className="h-5 w-5 text-primary" />
-                      <CardTitle>Related Verses</CardTitle>
-                    </div>
-                    <CardDescription>
-                      Verses that address this topic
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {topicData.verses.slice(0, 10).map((verse, index) => (
-                        <div key={index} className="border-l-2 border-primary/50 pl-4 py-1">
-                          <Link to={`/verse/${verse.verse_key}`} className="hover:underline">
-                            <h3 className="font-medium text-lg">{verse.verse_key}</h3>
-                          </Link>
-                          <p className="mt-1 text-sm line-clamp-2">{verse.text}</p>
-                        </div>
-                      ))}
-                      {topicData.verses.length > 10 && (
-                        <div className="text-center mt-4">
-                          <Button variant="outline" asChild>
-                            <Link to={`/data-explorer?query=MATCH (v:Verse)-[:HAS_TOPIC]->(t:Topic {topic_id: ${topic_id}}) RETURN v, t LIMIT 50`}>
-                              View All {topicData.verses.length} Verses
-                            </Link>
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                <TopicVerseList
+                  verses={topicData.verses.map(v => ({
+                    verse_key: v.verse_key,
+                    text: v.text,
+                    // WARNING: DUMMY DATA - Replace with actual relevance scores in production
+                    relevance: Math.random() // Mock relevance score
+                  }))}
+                  topicId={topicData.topic_id}
+                  topicName={topicData.name}
+                />
               )}
             </div>
 
+            {/* Right Column (1/3 width on large screens) */}
             <div className="space-y-6">
-              {/* Hierarchy Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Topic Hierarchy</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {topicData.parent && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Parent Topic:</h3>
-                      <Link to={`/topic/${topicData.parent.topic_id}`}>
-                        <Badge variant="outline" className="px-3 py-1 hover:bg-secondary/80">
-                          {topicData.parent.name}
-                        </Badge>
-                      </Link>
-                    </div>
-                  )}
+              {/* Topic Explorer */}
+              <TopicExplorer
+                topicId={topicData.topic_id}
+                topicName={topicData.name}
+              />
 
-                  {topicData.children && topicData.children.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Child Topics:</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {topicData.children.map((child, index) => (
-                          <Link key={index} to={`/topic/${child.topic_id}`}>
-                            <Badge variant="secondary" className="px-3 py-1 hover:bg-secondary/80">
-                              {child.name}
-                            </Badge>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+              {/* Topic Hierarchy */}
+              <TopicHierarchy
+                parent={topicData.parent}
+                children={topicData.children}
+                siblings={topicData.siblings}
+                currentTopic={{
+                  topic_id: topicData.topic_id,
+                  name: topicData.name
+                }}
+              />
 
-                  {(!topicData.parent && (!topicData.children || topicData.children.length === 0)) && (
-                    <p className="text-muted-foreground italic">No hierarchy information available</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Related Topics Card */}
+              {/* Related Topics */}
               {topicData.related_topics && topicData.related_topics.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <Tag className="h-5 w-5 text-primary" />
-                      <CardTitle>Related Topics</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {topicData.related_topics.map((topic, index) => (
-                        <Link key={index} to={`/topic/${topic.topic_id}`}>
-                          <Badge variant="secondary" className="px-3 py-1 hover:bg-secondary/80">
-                            {topic.name}
-                          </Badge>
-                        </Link>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                <TopicRelated
+                  topics={topicData.related_topics.map(t => ({
+                    ...t,
+                    // WARNING: DUMMY DATA - Replace with actual verse counts in production
+                    verses_count: Math.floor(Math.random() * 50) + 1 // Mock verse count
+                  }))}
+                  currentTopicName={topicData.name}
+                />
               )}
 
-              {/* Actions Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button variant="outline" className="w-full" asChild>
+              {/* Actions */}
+              <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden p-4">
+                <h3 className="text-base font-medium mb-3">Actions</h3>
+                <div className="space-y-2">
+                  <Button variant="outline" className="w-full justify-start" asChild>
                     <Link to={`/data-explorer?query=MATCH (t:Topic {topic_id: ${topic_id}})-[r]-(n) RETURN t, r, n LIMIT 20`}>
-                      <BookOpen className="h-4 w-4 mr-2" />
+                      <Network className="h-4 w-4 mr-2" />
                       Explore in Graph
                     </Link>
                   </Button>
-                </CardContent>
-                <CardFooter className="text-xs text-muted-foreground">
-                  Data from Quran Knowledge Graph
-                </CardFooter>
-              </Card>
+                  <Button variant="outline" className="w-full justify-start" asChild>
+                    <Link to={`/data-explorer?query=MATCH (v:Verse)-[:HAS_TOPIC]->(t:Topic {topic_id: ${topic_id}}) RETURN v, t LIMIT 50`}>
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      View All Verses
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start" asChild>
+                    <Link to={`/data-explorer?query=MATCH (t:Topic {topic_id: ${topic_id}})--(related:Topic) WHERE t.topic_id <> related.topic_id RETURN t, related LIMIT 50`}>
+                      <Tag className="h-4 w-4 mr-2" />
+                      View Related Topics
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         ) : null}
@@ -306,6 +271,26 @@ export default function TopicDetailPage() {
   );
 }
 
+// Skeleton component for loading state
+function TopicSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <Skeleton className="h-64 w-full bg-muted rounded-xl" />
+          <Skeleton className="h-96 w-full bg-muted rounded-xl" />
+        </div>
+        <div className="space-y-6">
+          <Skeleton className="h-64 w-full bg-muted rounded-xl" />
+          <Skeleton className="h-48 w-full bg-muted rounded-xl" />
+          <Skeleton className="h-48 w-full bg-muted rounded-xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Meta function for page metadata
 export function meta() {
   return [
     { title: "Topic Detail | Quran Knowledge Graph" },
@@ -313,6 +298,7 @@ export function meta() {
   ];
 }
 
+// HydrateFallback for React Router v7
 export function HydrateFallback() {
   return (
     <div className="min-h-screen bg-background">

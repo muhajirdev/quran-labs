@@ -11,15 +11,26 @@ import { expandNode as expandNodeUtil } from '~/components/data-explorer/expandN
 const ForceGraph2D = lazy(() => import('react-force-graph-2d'));
 
 // Define the client loader to handle client-side data fetching
-export async function clientLoader() {
-  return { initialQuery: 'MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic) WHERE v.verse_key = "99:7" RETURN v, h, t' };
+export async function clientLoader({ request }: { request: Request }) {
+  // Get the query parameter from the URL
+  const url = new URL(request.url);
+  const queryParam = url.searchParams.get('query');
+
+  // Default query if none is provided
+  const defaultQuery = 'MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic) WHERE v.verse_key = "99:7" RETURN v, h, t';
+
+  return {
+    initialQuery: queryParam ? decodeURIComponent(queryParam) : defaultQuery
+  };
 }
 
 // Set hydrate property to true to enable client-side hydration
 clientLoader.hydrate = true as const;
 
 export default function DataExplorer({ loaderData }: { loaderData?: { initialQuery: string } } = {}) {
-  const [query, setQuery] = useState(loaderData?.initialQuery || 'MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic) WHERE v.verse_key = "99:7" RETURN v, h, t');
+  // Use the query from URL or fall back to default
+  const defaultQuery = 'MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic) WHERE v.verse_key = "99:7" RETURN v, h, t';
+  const [query, setQuery] = useState(loaderData?.initialQuery || defaultQuery);
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -241,6 +252,11 @@ export default function DataExplorer({ loaderData }: { loaderData?: { initialQue
 
     try {
       console.log('Executing query:', query);
+
+      // Update the URL with the current query for sharing
+      const url = new URL(window.location.href);
+      url.searchParams.set('query', encodeURIComponent(query));
+      window.history.replaceState({}, '', url.toString());
 
       const response = await fetch('https://kuzu-api.fly.dev/query', {
         method: 'POST',
