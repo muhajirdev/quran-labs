@@ -538,7 +538,7 @@ export default function VerseDetailPage() {
                   {/* Interactive Arabic text with word-by-word exploration */}
                   <div className="px-8 py-10 md:py-12 bg-gradient-to-b from-background/50 to-background/20">
                     <div className="w-full text-center">
-                      <p className="text-3xl md:text-4xl text-center font-arabic leading-loose tracking-wide">
+                      <p className="text-3xl md:text-4xl text-center font-arabic leading-loose tracking-wide" dir="rtl" lang="ar">
                         {/* Split text into words for interactive exploration */}
                         {verseData.text.split(' ').map((word, index) => (
                           <span
@@ -546,7 +546,7 @@ export default function VerseDetailPage() {
                             className="inline-block mx-1 relative group cursor-pointer hover:text-primary transition-colors"
                           >
                             {word}
-                            <span className="absolute left-0 bottom-0 w-full h-0.5 bg-primary/30 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                            <span className="absolute right-0 bottom-0 w-full h-0.5 bg-primary/30 scale-x-0 group-hover:scale-x-100 transition-transform origin-right"></span>
 
                             {/* Word exploration tooltip */}
                             <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-48 p-3 bg-popover backdrop-blur-2xl rounded-md text-sm font-normal text-popover-foreground shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 ">

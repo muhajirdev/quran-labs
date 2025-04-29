@@ -14,12 +14,19 @@ import { ChevronRight, ChevronDown, Tag, Network, ArrowUpRight } from "lucide-re
 interface TopicNode {
   topic_id: number;
   name: string;
+  type?: "regular" | "thematic" | "ontology";
 }
 
+interface TopicRelation {
+  topic: TopicNode;
+  type: "regular" | "thematic" | "ontology";
+}
+
+// Props can accept either format
 interface TopicHierarchyProps {
-  parent?: TopicNode;
-  children?: TopicNode[];
-  siblings?: TopicNode[];
+  parent?: TopicNode | TopicRelation;
+  children?: (TopicNode | TopicRelation)[];
+  siblings?: (TopicNode | TopicRelation)[];
   currentTopic: {
     topic_id: number;
     name: string;
@@ -29,6 +36,38 @@ interface TopicHierarchyProps {
 export function TopicHierarchy({ parent, children, siblings, currentTopic }: TopicHierarchyProps) {
   const [showSiblings, setShowSiblings] = useState(true);
   const [isOpen, setIsOpen] = useState(true);
+
+  // Helper function to check if an object is a TopicRelation
+  const isTopicRelation = (obj: any): obj is TopicRelation => {
+    return obj && 'topic' in obj && 'type' in obj;
+  };
+
+  // Helper function to get the topic_id regardless of format
+  const getTopicId = (obj: TopicNode | TopicRelation): number => {
+    return isTopicRelation(obj) ? obj.topic.topic_id : obj.topic_id;
+  };
+
+  // Helper function to get the name regardless of format
+  const getTopicName = (obj: TopicNode | TopicRelation): string => {
+    return isTopicRelation(obj) ? obj.topic.name : obj.name;
+  };
+
+  // Helper function to get the type regardless of format
+  const getTopicType = (obj: TopicNode | TopicRelation): "regular" | "thematic" | "ontology" => {
+    return isTopicRelation(obj) ? obj.type : (obj.type || "regular");
+  };
+
+  // Helper function to get badge styling based on relation type
+  const getRelationStyles = (type: "regular" | "thematic" | "ontology") => {
+    switch (type) {
+      case "thematic":
+        return "bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20";
+      case "ontology":
+        return "bg-purple-500/10 text-purple-500 border-purple-500/20 hover:bg-purple-500/20";
+      default:
+        return "hover:bg-muted/20";
+    }
+  };
 
   return (
     <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden">
@@ -59,12 +98,17 @@ export function TopicHierarchy({ parent, children, siblings, currentTopic }: Top
                   Parent Topic:
                 </h3>
                 <div className="pl-2 border-l-2 border-primary/20">
-                  <Link to={`/topic/${parent.topic_id}`}>
+                  <Link to={`/topic/${getTopicId(parent)}`}>
                     <Badge
                       variant="outline"
-                      className="px-3 py-1.5 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer"
+                      className={`px-3 py-1.5 transition-colors cursor-pointer ${getRelationStyles(getTopicType(parent))}`}
                     >
-                      {parent.name}
+                      {getTopicType(parent) !== "regular" && (
+                        <span className="mr-1.5 text-[10px] uppercase font-medium">
+                          {getTopicType(parent)}:
+                        </span>
+                      )}
+                      {getTopicName(parent)}
                     </Badge>
                   </Link>
                 </div>
@@ -107,12 +151,17 @@ export function TopicHierarchy({ parent, children, siblings, currentTopic }: Top
                 {showSiblings && (
                   <div className="pl-2 border-l-2 border-primary/20 flex flex-wrap gap-1.5">
                     {siblings.map((sibling) => (
-                      <Link key={sibling.topic_id} to={`/topic/${sibling.topic_id}`}>
+                      <Link key={getTopicId(sibling)} to={`/topic/${getTopicId(sibling)}`}>
                         <Badge
                           variant="outline"
-                          className="px-2 py-1 hover:bg-muted/20 transition-colors cursor-pointer"
+                          className={`px-2 py-1 transition-colors cursor-pointer ${getRelationStyles(getTopicType(sibling))}`}
                         >
-                          {sibling.name}
+                          {getTopicType(sibling) !== "regular" && (
+                            <span className="mr-1 text-[10px] uppercase font-medium">
+                              {getTopicType(sibling).charAt(0)}:
+                            </span>
+                          )}
+                          {getTopicName(sibling)}
                         </Badge>
                       </Link>
                     ))}
@@ -130,12 +179,18 @@ export function TopicHierarchy({ parent, children, siblings, currentTopic }: Top
                 </h3>
                 <div className="pl-2 border-l-2 border-primary/20 flex flex-wrap gap-1.5">
                   {children.map((child) => (
-                    <Link key={child.topic_id} to={`/topic/${child.topic_id}`}>
+                    <Link key={getTopicId(child)} to={`/topic/${getTopicId(child)}`}>
                       <Badge
-                        variant="secondary"
-                        className="px-2 py-1 hover:bg-secondary/80 transition-colors cursor-pointer"
+                        variant={getTopicType(child) === "regular" ? "secondary" : "outline"}
+                        className={`px-2 py-1 transition-colors cursor-pointer ${getTopicType(child) === "regular" ? "hover:bg-secondary/80" : getRelationStyles(getTopicType(child))
+                          }`}
                       >
-                        {child.name}
+                        {getTopicType(child) !== "regular" && (
+                          <span className="mr-1 text-[10px] uppercase font-medium">
+                            {getTopicType(child).charAt(0)}:
+                          </span>
+                        )}
+                        {getTopicName(child)}
                       </Badge>
                     </Link>
                   ))}
