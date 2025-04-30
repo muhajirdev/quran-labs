@@ -10,7 +10,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+playground/lib/
 lib64/
 parts/
 sdist/
