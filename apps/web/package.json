@@ -6,10 +6,10 @@
 	"scripts": {
 		"build": "react-router build",
 		"cf-typegen": "wrangler types",
-		"deploy": "pnpm run build && wrangler deploy",
+		"deploy": "yarn run build && wrangler deploy",
 		"dev": "react-router dev",
-		"preview": "pnpm run build && vite preview",
-		"typecheck": "npm run cf-typegen && react-router typegen && tsc -b"
+		"preview": "yarn run build && vite preview",
+		"typecheck": "yarn run cf-typegen && react-router typegen && tsc -b"
 	},
 	"dependencies": {
 		"@heroicons/react": "^2.2.0",

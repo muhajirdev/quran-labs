@@ -1,10 +1,10 @@
-import type { Route } from "./+types/ai-assistant";
 import { ChatInterface } from "~/components/ai/ChatInterface";
 import { Button } from "~/components/ui/button";
 import { ArrowLeft, BrainCircuit } from "lucide-react";
 import { Link } from "react-router";
+import type { Route } from "./+types/ai-assistant";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "AI Assistant - Quran Knowledge Graph" },
     { name: "description", content: "Ask questions about the Quran and get AI-powered answers" },
