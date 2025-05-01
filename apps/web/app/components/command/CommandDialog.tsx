@@ -54,21 +54,23 @@ export function CommandDialog() {
           <CommandItem
             onSelect={() => runCommand(() => navigate("/search"))}
           >
-            <SearchIcon className="mr-2 h-4 w-4" />
+            <SearchIcon className="mr-2 h-4 w-4 group-data-[selected=true]:text-accent-foreground" />
             <span>Search</span>
             <CommandShortcut>⌘ S</CommandShortcut>
           </CommandItem>
           <CommandItem
             onSelect={() => runCommand(() => navigate("/data-explorer"))}
+            className="group"
           >
-            <GraphIcon className="mr-2 h-4 w-4" />
+            <GraphIcon className="mr-2 h-4 w-4 group-data-[selected=true]:text-accent-foreground" />
             <span>Graph Explorer</span>
             <CommandShortcut>⌘ G</CommandShortcut>
           </CommandItem>
           <CommandItem
             onSelect={() => runCommand(() => navigate("/topic"))}
+            className="group"
           >
-            <LayoutGridIcon className="mr-2 h-4 w-4" />
+            <LayoutGridIcon className="mr-2 h-4 w-4 group-data-[selected=true]:text-accent-foreground" />
             <span>Topic Explorer</span>
             <CommandShortcut>⌘ T</CommandShortcut>
           </CommandItem>
@@ -76,22 +78,25 @@ export function CommandDialog() {
         <CommandGroup heading="Content">
           <CommandItem
             onSelect={() => runCommand(() => navigate("/verse"))}
+            className="group"
           >
-            <BookIcon className="mr-2 h-4 w-4" />
+            <BookIcon className="mr-2 h-4 w-4 group-data-[selected=true]:text-accent-foreground" />
             <span>Browse Verses</span>
             <CommandShortcut>⌘ V</CommandShortcut>
           </CommandItem>
           <CommandItem
             onSelect={() => runCommand(() => navigate("/translations"))}
+            className="group"
           >
-            <LayersIcon className="mr-2 h-4 w-4" />
+            <LayersIcon className="mr-2 h-4 w-4 group-data-[selected=true]:text-accent-foreground" />
             <span>Explore Translations</span>
             <CommandShortcut>⌘ E</CommandShortcut>
           </CommandItem>
           <CommandItem
             onSelect={() => runCommand(() => navigate("/tafsir"))}
+            className="group"
           >
-            <BookMarkedIcon className="mr-2 h-4 w-4" />
+            <BookMarkedIcon className="mr-2 h-4 w-4 group-data-[selected=true]:text-accent-foreground" />
             <span>Explore Tafsir</span>
             <CommandShortcut>⌘ I</CommandShortcut>
           </CommandItem>
@@ -99,15 +104,17 @@ export function CommandDialog() {
         <CommandGroup heading="Advanced">
           <CommandItem
             onSelect={() => runCommand(() => navigate("/schema"))}
+            className="group"
           >
-            <NetworkIcon className="mr-2 h-4 w-4" />
+            <NetworkIcon className="mr-2 h-4 w-4 group-data-[selected=true]:text-accent-foreground" />
             <span>Schema Viewer</span>
             <CommandShortcut>⌘ M</CommandShortcut>
           </CommandItem>
           <CommandItem
             onSelect={() => runCommand(() => navigate("/ai-assistant"))}
+            className="group"
           >
-            <BrainCircuit className="mr-2 h-4 w-4" />
+            <BrainCircuit className="mr-2 h-4 w-4 group-data-[selected=true]:text-accent-foreground" />
             <span>AI Assistant</span>
             <CommandShortcut>⌘ A</CommandShortcut>
           </CommandItem>
