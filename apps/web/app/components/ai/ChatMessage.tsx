@@ -35,7 +35,7 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
       {isUser ? (
         <div className="flex justify-end mb-4">
           <div className="bg-white/[0.04] backdrop-blur-md border border-white/[0.06] rounded-lg py-3 px-4 max-w-[85%]">
-            <p className="text-xs text-white/80 leading-relaxed">{message.content}</p>
+            <p className="text-base text-white/90 leading-relaxed">{message.content}</p>
           </div>
         </div>
       ) : (
@@ -44,12 +44,12 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
             <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center">
               <SparklesIcon className="h-3 w-3 text-accent" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 ">
               {isLoading ? (
                 <LoadingDots />
               ) : (
-                <div>
-                  <p className="text-xs text-white/80 leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                <div className="prose prose-invert prose-lg max-w-none">
+                  <p className="text-base text-white/90 leading-relaxed whitespace-pre-wrap">{message.content}</p>
                 </div>
               )}
             </div>
@@ -62,10 +62,10 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
 
 function LoadingDots() {
   return (
-    <div className="flex items-center space-x-1 py-1">
-      <div className="h-1 w-1 animate-pulse rounded-full bg-accent/60" style={{ animationDelay: "0ms", animationDuration: "1.2s" }}></div>
-      <div className="h-1 w-1 animate-pulse rounded-full bg-accent/60" style={{ animationDelay: "160ms", animationDuration: "1.2s" }}></div>
-      <div className="h-1 w-1 animate-pulse rounded-full bg-accent/60" style={{ animationDelay: "320ms", animationDuration: "1.2s" }}></div>
+    <div className="flex items-center space-x-1.5 min-h-[25px]">
+      <div className="h-1.5 w-1.5 animate-[pulse_1.2s_ease-in-out_0ms_infinite] rounded-full bg-accent/70"></div>
+      <div className="h-1.5 w-1.5 animate-[pulse_1.2s_ease-in-out_160ms_infinite] rounded-full bg-accent/70"></div>
+      <div className="h-1.5 w-1.5 animate-[pulse_1.2s_ease-in-out_320ms_infinite] rounded-full bg-accent/70"></div>
     </div>
   )
 }

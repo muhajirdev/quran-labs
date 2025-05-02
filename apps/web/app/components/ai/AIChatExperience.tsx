@@ -15,9 +15,15 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { HomeCommandDialog } from "~/components/command/HomeCommandDialog"
-import { useNavigate, useLocation } from "react-router"
+import { useLocation } from "react-router"
 import { ChatMessage } from "./ChatMessage"
 import { createChatCompletion } from "~/lib/openrouter"
+import {
+  getOrCreateThread,
+  updateThread,
+  setCurrentThread,
+  type Message as ThreadMessage
+} from "~/lib/thread-manager"
 
 // Suggestion chips for the homepage
 const SUGGESTIONS = [
@@ -29,54 +35,39 @@ const SUGGESTIONS = [
   { text: "Show me connections between mercy and forgiveness", icon: <NetworkIcon className="h-3 w-3" /> },
 ];
 
-interface Message {
-  role: "user" | "assistant" | "system"
-  content: string
-}
-
-const INITIAL_MESSAGES: Message[] = [
-  {
-    role: "system",
-    content: "You are a helpful AI assistant specialized in the Quran and Islamic knowledge."
-  },
-  {
-    role: "assistant",
-    content: "I'm your Quran AI Assistant. Ask me anything about the Quran, its verses, chapters, themes, or interpretations."
-  }
-]
-
 export function AIChatExperience() {
-  const [commandDialogOpen, setCommandDialogOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [chatActive, setChatActive] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
-  const [isLoading, setIsLoading] = useState(false);
+  // Initialize component state
+  const initializeState = () => {
+    const location = window.location;
+    const urlParams = new URLSearchParams(location.search);
+    const urlQuery = urlParams.get('q');
+    const threadParam = urlParams.get('thread');
 
+    // Get or create thread
+    const thread = getOrCreateThread(threadParam);
+
+    // Set initial state based on URL parameters
+    return {
+      commandDialogOpen: false,
+      query: urlQuery || "",
+      chatActive: Boolean(urlQuery || threadParam),
+      messages: thread.messages,
+      isLoading: false,
+      threadId: thread.id
+    };
+  };
+
+  // State using the initializer function
+  const [state, setState] = useState(initializeState);
+
+  // Destructure state for easier access
+  const { commandDialogOpen, query, chatActive, messages, isLoading, threadId } = state;
+
+  // Refs
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  // Check if there's a query parameter in the URL
-  useEffect(() => {
-    const urlQuery = new URLSearchParams(location.search).get('q');
-    const aiMode = new URLSearchParams(location.search).get('ai');
-
-    if (urlQuery) {
-      setQuery(urlQuery);
-      setChatActive(true);
-      // Submit the query automatically
-      handleQuerySubmission(urlQuery);
-    } else if (aiMode === 'true') {
-      // Just activate the chat interface without a query
-      setChatActive(true);
-    } else {
-      // Ensure chat is not active when no parameters are present
-      setChatActive(false);
-    }
-  }, [location.search]);
-
-  // Focus the input field when the page loads
+  // Focus input on mount
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -85,23 +76,36 @@ export function AIChatExperience() {
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // State updater functions
+  const updateState = (updates: Partial<typeof state>) => {
+    setState(prev => ({ ...prev, ...updates }));
   };
+
+  const setCommandDialogOpen = (open: boolean) => updateState({ commandDialogOpen: open });
+  const setQuery = (newQuery: string) => updateState({ query: newQuery });
+  const setChatActive = (active: boolean) => updateState({ chatActive: active });
+  const setMessages = (newMessages: ThreadMessage[]) => updateState({ messages: newMessages });
+  const setIsLoading = (loading: boolean) => updateState({ isLoading: loading });
+  const setThreadId = (id: string) => updateState({ threadId: id });
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
+      // Activate chat immediately
       if (!chatActive) {
-        // First query - update URL and activate chat
-        navigate(`/?q=${encodeURIComponent(query.trim())}`);
-        setChatActive(true);
+        updateState({ chatActive: true });
       }
-      handleQuerySubmission(query);
+
+      // Clear input immediately
+      const trimmedQuery = query.trim();
+      updateState({ query: "" });
+
+      // Process the query
+      handleQuerySubmission(trimmedQuery);
     }
   };
 
@@ -109,65 +113,151 @@ export function AIChatExperience() {
   const handleQuerySubmission = async (queryText: string) => {
     if (!queryText.trim() || isLoading) return;
 
-    const userMessage: Message = {
+    // Create user message
+    const userMessage: ThreadMessage = {
       role: "user",
       content: queryText
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setQuery("");
-    setIsLoading(true);
+    // Get or create thread
+    let currentThreadId = threadId;
+    if (!currentThreadId) {
+      const newThread = getOrCreateThread(null);
+      currentThreadId = newThread.id;
+      updateState({ threadId: newThread.id });
+    }
+
+    // Update messages and set loading state
+    const updatedMessages = [...messages, userMessage];
+    updateState({
+      messages: updatedMessages,
+      isLoading: true
+    });
 
     try {
-      // Add a placeholder message for the loading state
-      setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+      // Add placeholder for loading state
+      updateState({
+        messages: [...updatedMessages, { role: "assistant" as const, content: "" }]
+      });
 
+      // Save to thread storage
+      if (currentThreadId) {
+        updateThread(currentThreadId, updatedMessages);
+      }
+
+      // Get AI response
       const response = await createChatCompletion({
-        messages: [...messages, userMessage],
+        messages: updatedMessages,
         temperature: 0.7,
         max_tokens: 500
       });
 
-      // Replace the placeholder with the actual response
-      setMessages(prev => [
-        ...prev.slice(0, prev.length - 1),
-        response.choices[0].message
-      ]);
+      // Get response message
+      const assistantMessage = response.choices[0].message;
+
+      // Update messages with response
+      const finalMessages = [...updatedMessages, assistantMessage];
+      updateState({ messages: finalMessages });
+
+      // Save updated thread
+      if (currentThreadId) {
+        updateThread(currentThreadId, finalMessages);
+        setCurrentThread(currentThreadId);
+
+        // Update URL without causing reload
+        const url = new URL(window.location.href);
+        url.searchParams.set('thread', currentThreadId);
+        window.history.replaceState({}, '', url.toString());
+      }
     } catch (error) {
       console.error("Error getting AI response:", error);
-      // Replace the placeholder with an error message
-      setMessages(prev => [
-        ...prev.slice(0, prev.length - 1),
-        { role: "assistant", content: "Sorry, I encountered an error. Please try again." }
-      ]);
+
+      // Create error message
+      const errorMessage: ThreadMessage = {
+        role: "assistant",
+        content: "Sorry, I encountered an error. Please try again."
+      };
+
+      // Update messages with error
+      const messagesWithError = [...updatedMessages, errorMessage];
+      updateState({ messages: messagesWithError });
+
+      // Save thread with error
+      if (currentThreadId) {
+        updateThread(currentThreadId, messagesWithError);
+        setCurrentThread(currentThreadId);
+
+        // Update URL without causing reload
+        const url = new URL(window.location.href);
+        url.searchParams.set('thread', currentThreadId);
+        window.history.replaceState({}, '', url.toString());
+      }
     } finally {
-      setIsLoading(false);
+      updateState({ isLoading: false });
     }
   };
 
   // Handle suggestion click
   const handleSuggestionClick = (suggestion: string) => {
-    setQuery(suggestion);
-    // Focus the input after setting the suggestion
+    updateState({ query: suggestion });
+
+    // Focus input after setting suggestion
     if (inputRef.current) {
       inputRef.current.focus();
     }
   };
 
+  // Create new chat
+  const handleNewChat = () => {
+    // Create new thread
+    const newThread = getOrCreateThread(null);
+
+    // Update state
+    updateState({
+      threadId: newThread.id,
+      messages: newThread.messages,
+      chatActive: true,
+      query: ""
+    });
+
+    // Update URL without causing reload
+    const url = new URL(window.location.href);
+    url.searchParams.set('thread', newThread.id);
+
+    // Remove any query parameter
+    url.searchParams.delete('q');
+
+    window.history.replaceState({}, '', url.toString());
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-black">
-      {/* Header - Fixed position with consistent blur */}
-      <header className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between py-3 px-6 bg-black/80 backdrop-blur-lg">
+    <div className="flex flex-col min-h-screen bg-[#0A0A0A]">
+      {/* Header - Fixed position with consistent blur and transition */}
+      <header className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between py-3 px-6 bg-[#0A0A0A]/90 backdrop-blur-lg transition-all duration-300">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-sm tracking-wide text-white">Quran AI</span>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="font-medium text-sm tracking-wide text-white hover:text-accent transition-colors flex items-center"
+          >
+            <SparklesIcon className="h-4 w-4 mr-1.5" />
+            Quran AI
+          </button>
+          {threadId && (
+            <div className="flex items-center">
+              <span className="text-xs text-white/40 ml-2">•</span>
+              <span className="text-xs text-white/40 ml-2">Thread {threadId.split('-')[0]}</span>
+            </div>
+          )}
+
         </div>
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="sm"
             className="text-white/50 hover:text-white text-xs h-7 px-2"
+            onClick={handleNewChat}
           >
-            <span>Explore</span>
+            <span>New Chat</span>
           </Button>
           <Button
             variant="ghost"
@@ -187,11 +277,11 @@ export function AIChatExperience() {
         {/* Logo and title - Only visible when chat is not active */}
         <div className={`flex flex-col items-center transition-all duration-500 ease-in-out px-6 ${chatActive && messages.length > 2 ? "opacity-0 max-h-0 overflow-hidden" : "opacity-100 mb-16"
           }`}>
-          {/* Raycast-inspired logo with enhanced glow effect */}
+          {/* Raycast-inspired logo with enhanced glow effect and subtle animation */}
           <div className="mb-10 relative">
-            <div className="absolute inset-0 bg-accent/30 blur-2xl rounded-full transform scale-110 opacity-40"></div>
-            <div className="relative bg-gradient-to-br from-accent to-accent/80 p-5 rounded-full shadow-lg">
-              <SparklesIcon className="h-10 w-10 text-white" />
+            <div className="absolute inset-0 bg-accent/30 blur-2xl rounded-full transform scale-110 opacity-40 animate-pulse"></div>
+            <div className="relative bg-gradient-to-br from-accent to-accent/80 p-5 rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
+              <SparklesIcon className="h-10 w-10 text-white animate-[spin_20s_linear_infinite]" />
             </div>
           </div>
 
@@ -217,9 +307,16 @@ export function AIChatExperience() {
           </div>
         </div>
 
-        {/* Chat Messages - Centered container */}
-        <div className={`w-full max-w-3xl mx-auto transition-all duration-500 ease-in-out px-6 ${chatActive && messages.length > 2 ? "opacity-100 flex-1 overflow-y-auto" : "opacity-0 max-h-0"
+        {/* Chat Messages - Centered container with scroll indicator */}
+        <div className={`w-full max-w-3xl mx-auto transition-all duration-500 ease-in-out px-6 relative ${chatActive && messages.length > 2 ? "opacity-100 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" : "opacity-0 max-h-0"
           }`}>
+          {/* Subtle scroll indicator */}
+          {messages.length > 4 && (
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-6 flex justify-center items-center pointer-events-none opacity-30 animate-bounce">
+              <div className="w-1 h-3 bg-white/20 rounded-full"></div>
+            </div>
+          )}
+
           <div className="space-y-8 py-6">
             {messages.slice(2).map((message, index) => (
               <ChatMessage
@@ -232,8 +329,8 @@ export function AIChatExperience() {
           </div>
         </div>
 
-        {/* Input area - Fixed at bottom with consistent blur */}
-        <div className="fixed bottom-0 left-0 right-0 z-10 w-full px-6 py-4 bg-black/80 backdrop-blur-lg">
+        {/* Input area - Fixed at bottom with consistent blur and transition */}
+        <div className="fixed bottom-0 left-0 right-0 z-10 w-full px-6 py-4 bg-[#0A0A0A]/90 backdrop-blur-lg transition-all duration-300">
           <div className="max-w-xl mx-auto">
             {/* Input form - Matching screenshot */}
             <div className="relative rounded-lg overflow-hidden bg-white/[0.04] backdrop-blur-md border border-white/[0.06]">
@@ -243,17 +340,17 @@ export function AIChatExperience() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Ask about the Quran..."
-                  className="border-0 bg-transparent text-white py-3 px-4 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-white/30"
+                  className="border-0 bg-transparent text-white py-3 px-4 text-sm focus-visible:ring-1 focus-visible:ring-accent/30 focus-visible:ring-offset-0 placeholder:text-white/30 transition-all duration-200"
                 />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
                   <Button
                     type="submit"
                     size="icon"
                     variant="ghost"
-                    className="h-6 w-6 rounded-full bg-accent/10 hover:bg-accent/20 transition-colors"
+                    className="h-6 w-6 rounded-full bg-accent/10 hover:bg-accent/20 transition-all duration-200 hover:scale-110"
                     disabled={!query.trim() || isLoading}
                   >
-                    <SendIcon className="h-3 w-3 text-accent" />
+                    <SendIcon className="h-3 w-3 text-accent group-hover:text-accent-foreground transition-colors" />
                     <span className="sr-only">Send</span>
                   </Button>
                 </div>
