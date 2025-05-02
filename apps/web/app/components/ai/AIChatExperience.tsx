@@ -9,7 +9,9 @@ import {
   LayersIcon,
   BookMarkedIcon,
   NetworkIcon,
-  SparklesIcon
+  SparklesIcon,
+  MenuIcon,
+  XIcon
 } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { Button } from "~/components/ui/button"
@@ -26,6 +28,7 @@ import {
   INITIAL_MESSAGES,
   type Message as ThreadMessage
 } from "~/lib/thread-manager"
+import { cn } from "~/lib/utils"
 
 // Suggestion chips for the homepage
 const SUGGESTIONS = [
@@ -45,6 +48,7 @@ export function AIChatExperience() {
   const [isLoading, setIsLoading] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [chatActive, setChatActive] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
@@ -207,18 +211,15 @@ export function AIChatExperience() {
   return (
     <div className="flex flex-col min-h-screen bg-[#0A0A0A] relative">
       {/* Animated Geometric Pattern Background */}
-      <GeometricDecoration variant="animated" className="opacity-5" />
+      <GeometricDecoration variant="animated" />
 
       {/* Header - Fixed position with consistent blur and transition */}
-      <header className="fixed top-0 left-0 right-0 z-10 bg-[#0A0A0A]/90 backdrop-blur-lg transition-all duration-300">
-        {/* Animated geometric pattern in header */}
-        <div className="absolute inset-0 opacity-5" style={{
-          backgroundImage: `url(/images/geometric-pattern-animated.svg)`,
-          backgroundSize: '400px',
-          backgroundPosition: 'center',
-        }}></div>
-        <div className="flex items-center justify-between py-3 px-6 relative z-10">
-          <div className="flex items-center gap-2">
+      <header className={cn("fixed top-0 left-0 right-0 z-10 transition-all duration-300", mobileMenuOpen && "backdrop-blur-md")}>
+
+        {/* Desktop and Mobile Header Layout */}
+        <div className="flex items-center justify-between py-3 px-3 sm:px-6 relative z-10">
+          {/* Logo and Thread ID */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => window.location.href = '/'}
               className="font-medium text-sm tracking-wide text-white hover:text-accent transition-all duration-300 flex items-center group"
@@ -229,27 +230,26 @@ export function AIChatExperience() {
               </span>
               <span className="group-hover:tracking-wider transition-all duration-300">Quran AI</span>
             </button>
+
+            {/* Thread ID - Hidden on very small screens */}
             {threadId && (
-              <div className="flex items-center">
+              <div className="hidden sm:flex items-center">
                 <span className="text-xs text-white/40 ml-2">•</span>
-                <span className="text-xs text-white/40 ml-2">Thread {threadId.split('-')[0]}</span>
+                <span className="text-xs text-white/40 ml-2 truncate max-w-[80px] md:max-w-none">
+                  Thread {threadId.split('-')[0]}
+                </span>
               </div>
             )}
-
           </div>
-          <div className="flex items-center gap-4">
+
+          {/* Desktop Navigation */}
+          <div className="hidden sm:flex items-center gap-4">
             <Button
               variant="ghost"
               size="sm"
               className="text-white/50 hover:text-white text-xs h-7 px-3 relative overflow-hidden group border-0 hover:bg-white/5"
               onClick={handleNewChat}
             >
-              {/* Button background pattern */}
-              <span className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300" style={{
-                backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
-                backgroundSize: '200%',
-                backgroundPosition: 'center',
-              }}></span>
               <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">New Chat</span>
             </Button>
 
@@ -259,12 +259,52 @@ export function AIChatExperience() {
               className="text-white/50 hover:text-white text-xs h-7 px-3 relative overflow-hidden group border-0 hover:bg-white/5"
               onClick={() => setCommandDialogOpen(true)}
             >
-              {/* Button background pattern */}
-              <span className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300" style={{
-                backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
-                backgroundSize: '200%',
-                backgroundPosition: 'center',
-              }}></span>
+              <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">Commands</span>
+              <kbd className="ml-1.5 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium relative z-10 group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-300">⌘ K</kbd>
+            </Button>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <div className="sm:hidden flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full relative overflow-hidden border-0 hover:bg-white/5"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <XIcon className="h-4 w-4 text-white/70" />
+              ) : (
+                <MenuIcon className="h-4 w-4 text-white/70" />
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Menu - Collapsible */}
+        <div className={`sm:hidden overflow-hidden transition-all duration-300 ${mobileMenuOpen ? 'max-h-24 opacity-100 border-b border-white/5' : 'max-h-0 opacity-0'}`}>
+          <div className="px-3 py-2 flex flex-col gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/50 hover:text-white text-xs h-8 px-3 justify-start relative overflow-hidden group border-0 hover:bg-white/5 w-full"
+              onClick={() => {
+                handleNewChat();
+                setMobileMenuOpen(false);
+              }}
+            >
+              <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">New Chat</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/50 hover:text-white text-xs h-8 px-3 justify-start relative overflow-hidden group border-0 hover:bg-white/5 w-full"
+              onClick={() => {
+                setCommandDialogOpen(true);
+                setMobileMenuOpen(false);
+              }}
+            >
               <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">Commands</span>
               <kbd className="ml-1.5 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium relative z-10 group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-300">⌘ K</kbd>
             </Button>
@@ -272,11 +312,11 @@ export function AIChatExperience() {
         </div>
       </header>
 
-      {/* Main content - Centered when empty with padding for fixed header */}
-      <main className={`flex-1 flex flex-col ${!chatActive || messages.length <= 2 ? "justify-center" : "justify-start pt-10"
-        } overflow-hidden pt-12 pb-24`}>
-        {/* Logo and title - Only visible when chat is not active */}
-        <div className={`flex flex-col items-center transition-all duration-500 ease-in-out px-6 ${chatActive && messages.length > 2 ? "opacity-0 max-h-0 overflow-hidden" : "opacity-100 mb-16"
+      {/* Main content - Centered when empty with padding for fixed header - Mobile friendly */}
+      <main className={`flex-1 flex flex-col ${!chatActive || messages.length <= 2 ? "justify-center" : "justify-start pt-8 sm:pt-10"
+        } overflow-hidden pt-12 pb-20 sm:pb-24`}>
+        {/* Logo and title - Only visible when chat is not active - Mobile friendly */}
+        <div className={`flex flex-col items-center transition-all duration-500 ease-in-out px-3 sm:px-6 ${chatActive && messages.length > 2 ? "opacity-0 max-h-0 overflow-hidden" : "opacity-100 mb-10 sm:mb-16"
           }`}>
           {/* Enhanced logo with detailed geometric pattern and animations */}
           <div className="mb-10 relative">
@@ -286,8 +326,8 @@ export function AIChatExperience() {
             {/* Secondary glow with offset animation */}
             <div className="absolute inset-0 bg-accent/20 blur-xl rounded-full transform scale-125 opacity-30 animate-[pulse_6s_ease-in-out_infinite_1s]"></div>
 
-            {/* Main logo container with hover effect */}
-            <div className="relative bg-gradient-to-br from-accent to-accent/80 p-5 rounded-full shadow-lg hover:scale-105 transition-all duration-300 overflow-hidden group">
+            {/* Main logo container with hover effect - Mobile friendly */}
+            <div className="relative bg-gradient-to-br from-accent to-accent/80 p-4 sm:p-5 rounded-full shadow-lg hover:scale-105 transition-all duration-300 overflow-hidden group">
               {/* Custom logo pattern */}
               <div className="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity duration-500" style={{
                 backgroundImage: `url(/images/logo-pattern.svg)`,
@@ -295,24 +335,17 @@ export function AIChatExperience() {
                 backgroundPosition: 'center',
               }}></div>
 
-              {/* Animated geometric pattern underneath */}
-              <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500" style={{
-                backgroundImage: `url(/images/geometric-pattern-animated.svg)`,
-                backgroundSize: '200%',
-                backgroundPosition: 'center',
-              }}></div>
-
-              {/* Icon with enhanced animation */}
-              <SparklesIcon className="h-10 w-10 text-white relative z-10 group-hover:scale-110 transition-transform duration-300 animate-[spin_20s_linear_infinite]" />
+              {/* Icon with enhanced animation - Mobile friendly */}
+              <SparklesIcon className="h-8 w-8 sm:h-10 sm:w-10 text-white relative z-10 group-hover:scale-110 transition-transform duration-300 animate-[spin_20s_linear_infinite]" />
             </div>
           </div>
 
           <div className="relative mb-3">
-            <h1 className="text-4xl font-bold tracking-tight text-white relative z-10">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white relative z-10">
               Quran AI
             </h1>
             {/* Title decoration */}
-            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-64 h-8 opacity-60" style={{
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 sm:w-64 h-8 opacity-60" style={{
               backgroundImage: `url(/images/title-decoration.svg)`,
               backgroundSize: 'contain',
               backgroundPosition: 'center',
@@ -320,7 +353,7 @@ export function AIChatExperience() {
             }}></div>
           </div>
 
-          <p className="text-white/70 text-base max-w-lg text-center mb-12 leading-relaxed relative">
+          <p className="text-white/70 text-sm sm:text-base max-w-lg text-center mb-8 sm:mb-12 leading-relaxed relative">
             <span className="relative inline-block">
               Explore the Quran through an interactive AI assistant.
               <span className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent"></span>
@@ -328,27 +361,21 @@ export function AIChatExperience() {
             <span className="block mt-1">Ask questions, discover connections, and gain deeper insights.</span>
           </p>
 
-          {/* Enhanced suggestion cards with animations and hover effects */}
-          <div className="grid grid-cols-2 gap-3 w-full max-w-xl mb-14">
+          {/* Enhanced suggestion cards with animations and hover effects - Mobile friendly */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full max-w-xl mb-10 sm:mb-14">
             {SUGGESTIONS.slice(0, 4).map((suggestion, index) => (
               <button
                 key={index}
-                className="group flex items-center text-left py-3 px-4 rounded-lg bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.08] hover:border-accent/20 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all duration-300 relative overflow-hidden"
+                className="group flex items-center text-left py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.08] hover:border-accent/20 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all duration-300 relative overflow-hidden"
                 onClick={() => handleSuggestionClick(suggestion.text)}
               >
                 {/* Animated geometric pattern in suggestion cards */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500" style={{
                   backgroundImage: `url(/images/geometric-pattern-animated.svg)`,
                   backgroundSize: '200%',
                   backgroundPosition: 'center',
                 }}></div>
 
-                {/* Base geometric pattern */}
-                <div className="absolute inset-0 opacity-5 group-hover:opacity-8 transition-opacity duration-300" style={{
-                  backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
-                  backgroundSize: '200%',
-                  backgroundPosition: 'center',
-                }}></div>
 
                 {/* Icon with enhanced hover effect */}
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/10 group-hover:bg-accent/20 flex items-center justify-center mr-3 relative z-10 transition-all duration-300 group-hover:scale-110">
@@ -362,8 +389,8 @@ export function AIChatExperience() {
           </div>
         </div>
 
-        {/* Chat Messages - Centered container with scroll indicator */}
-        <div className={`w-full max-w-3xl mx-auto transition-all duration-500 ease-in-out px-6 relative ${chatActive && messages.length > 2 ? "opacity-100 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" : "opacity-0 max-h-0"
+        {/* Chat Messages - Centered container with scroll indicator - Mobile friendly */}
+        <div className={`w-full max-w-3xl mx-auto transition-all duration-500 ease-in-out px-3 sm:px-6 relative ${chatActive && messages.length > 2 ? "opacity-100 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" : "opacity-0 max-h-0"
           }`}>
           {/* Subtle scroll indicator */}
           {messages.length > 4 && (
@@ -385,30 +412,14 @@ export function AIChatExperience() {
         </div>
 
         {/* Input area - Fixed at bottom with consistent blur and transition */}
-        <div className="fixed bottom-0 left-0 right-0 z-10 w-full px-6 py-4 bg-[#0A0A0A]/90 backdrop-blur-lg transition-all duration-300">
-          {/* Elegant geometric pattern in the input area */}
-          <div className="absolute inset-0 opacity-5" style={{
-            backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
-            backgroundSize: '400px',
-            backgroundPosition: 'center',
-          }}></div>
+        <div className="fixed bottom-0 left-0 right-0 z-10 w-full px-3 sm:px-6 py-3 sm:py-4 transition-all duration-300">
+          <div className="absolute inset-0 blur-layer"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
 
           <div className="max-w-xl mx-auto relative z-10">
             {/* Enhanced input form with animations and improved hover effects */}
-            <div className="relative rounded-lg overflow-hidden bg-white/[0.04] backdrop-blur-md border border-white/[0.06] focus-within:border-accent/20 focus-within:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all duration-300 group">
-              {/* Animated pattern that appears on focus */}
-              <div className="absolute inset-0 opacity-0 group-focus-within:opacity-10 transition-opacity duration-500" style={{
-                backgroundImage: `url(/images/geometric-pattern-animated.svg)`,
-                backgroundSize: '200%',
-                backgroundPosition: 'center',
-              }}></div>
+            <div className="relative rounded-lg overflow-hidden bg-white/[0.02] backdrop-blur-md border border-white/[0.06] focus-within:border-accent/20 focus-within:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all duration-300 group">
 
-              {/* Base elegant pattern */}
-              <div className="absolute inset-0 opacity-5 group-focus-within:opacity-8 transition-opacity duration-300" style={{
-                backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
-                backgroundSize: '200%',
-                backgroundPosition: 'center',
-              }}></div>
 
               <form onSubmit={handleSubmit} className="w-full relative z-10">
                 <Input
@@ -416,7 +427,7 @@ export function AIChatExperience() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Ask about the Quran..."
-                  className="border-0 bg-transparent text-white py-3 px-4 text-sm focus-visible:ring-1 focus-visible:ring-accent/30 focus-visible:ring-offset-0 placeholder:text-white/30 transition-all duration-300 focus:placeholder:text-white/50"
+                  className="border-0 bg-transparent text-white py-2.5 sm:py-3 px-3 sm:px-4 text-sm focus-visible:ring-1 focus-visible:ring-accent/30 focus-visible:ring-offset-0 placeholder:text-white/30 transition-all duration-300 focus:placeholder:text-white/50"
                 />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
                   <Button
@@ -433,18 +444,18 @@ export function AIChatExperience() {
               </form>
             </div>
 
-            {/* Enhanced experimental warning message with elegant styling */}
-            <div className="flex items-center justify-center mt-4 relative">
+            {/* Enhanced experimental warning message with elegant styling - Mobile friendly */}
+            <div className="flex items-center justify-center mt-3 sm:mt-4 relative">
               {/* Subtle decorative elements */}
-              <div className="absolute left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+              <div className="absolute left-1/2 -translate-x-1/2 w-24 sm:w-32 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
-              <div className="px-4 py-2 relative">
-                <p className="text-[10px] text-white/30 text-center flex items-center gap-1.5 group">
-                  <span className="inline-block w-3 h-px bg-white/20 group-hover:w-5 transition-all duration-500"></span>
-                  <span className="group-hover:text-white/40 transition-colors duration-300">
+              <div className="px-2 sm:px-4 py-1 sm:py-2 relative">
+                <p className="text-[9px] sm:text-[10px] text-white/30 text-center flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 group">
+                  <span className="hidden sm:inline-block w-3 h-px bg-white/20 group-hover:w-5 transition-all duration-500"></span>
+                  <span className="group-hover:text-white/40 transition-colors duration-300 text-center">
                     Experimental research preview - Please verify information for accuracy
                   </span>
-                  <span className="inline-block w-3 h-px bg-white/20 group-hover:w-5 transition-all duration-500"></span>
+                  <span className="hidden sm:inline-block w-3 h-px bg-white/20 group-hover:w-5 transition-all duration-500"></span>
                 </p>
               </div>
             </div>
