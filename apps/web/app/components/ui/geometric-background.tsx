@@ -3,7 +3,7 @@ import { cn } from "~/lib/utils";
 
 interface GeometricBackgroundProps {
   className?: string;
-  variant?: "default" | "subtle" | "elegant";
+  variant?: "default" | "subtle" | "elegant" | "animated";
   children?: React.ReactNode;
 }
 
@@ -42,7 +42,9 @@ export function GeometricDecoration({
     ? 0.15
     : variant === "elegant"
       ? 0.2
-      : 0.08;
+      : variant === "animated"
+        ? 0.25
+        : 0.08;
 
   return (
     <div
@@ -62,12 +64,14 @@ export function GeometricDecoration({
 }
 
 // Helper function to get the pattern URL based on variant
-function getPatternUrl(variant: "default" | "subtle" | "elegant") {
+function getPatternUrl(variant: "default" | "subtle" | "elegant" | "animated") {
   switch (variant) {
     case "default":
       return "/images/geometric-pattern.svg";
     case "elegant":
       return "/images/geometric-pattern-elegant.svg";
+    case "animated":
+      return "/images/geometric-pattern-animated.svg";
     case "subtle":
     default:
       return "/images/geometric-pattern-subtle.svg";

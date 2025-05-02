@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="logo-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.25)" />
+      <stop offset="70%" stop-color="rgba(255, 255, 255, 0.15)" />
+      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.05)" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Central star pattern -->
+  <path fill="none" stroke="url(#logo-gradient)" stroke-width="1" d="
+    M 100,20 L 115,50 L 150,50 L 125,75 L 140,110 L 100,90 L 60,110 L 75,75 L 50,50 L 85,50 Z
+  " />
+  
+  <!-- Outer circle -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8" />
+  
+  <!-- Inner geometric details -->
+  <path fill="none" stroke="rgba(255, 255, 255, 0.2)" stroke-width="0.6" d="
+    M 100,40 L 100,160
+    M 40,100 L 160,100
+    M 58.6,58.6 L 141.4,141.4
+    M 58.6,141.4 L 141.4,58.6
+  " />
+  
+  <!-- Decorative dots at intersections -->
+  <circle cx="100" cy="100" r="3" fill="rgba(255, 255, 255, 0.3)" />
+  <circle cx="100" cy="40" r="1.5" fill="rgba(255, 255, 255, 0.2)" />
+  <circle cx="100" cy="160" r="1.5" fill="rgba(255, 255, 255, 0.2)" />
+  <circle cx="40" cy="100" r="1.5" fill="rgba(255, 255, 255, 0.2)" />
+  <circle cx="160" cy="100" r="1.5" fill="rgba(255, 255, 255, 0.2)" />
+  <circle cx="58.6" cy="58.6" r="1.5" fill="rgba(255, 255, 255, 0.2)" />
+  <circle cx="141.4" cy="141.4" r="1.5" fill="rgba(255, 255, 255, 0.2)" />
+  <circle cx="58.6" cy="141.4" r="1.5" fill="rgba(255, 255, 255, 0.2)" />
+  <circle cx="141.4" cy="58.6" r="1.5" fill="rgba(255, 255, 255, 0.2)" />
+  
+  <!-- Subtle accent dots -->
+  <circle cx="100" cy="70" r="1" fill="rgba(255, 255, 255, 0.15)" />
+  <circle cx="100" cy="130" r="1" fill="rgba(255, 255, 255, 0.15)" />
+  <circle cx="70" cy="100" r="1" fill="rgba(255, 255, 255, 0.15)" />
+  <circle cx="130" cy="100" r="1" fill="rgba(255, 255, 255, 0.15)" />
+</svg>

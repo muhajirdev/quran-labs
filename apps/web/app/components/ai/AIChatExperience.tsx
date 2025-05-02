@@ -206,14 +206,14 @@ export function AIChatExperience() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0A0A0A] relative">
-      {/* Geometric Pattern Background */}
-      <GeometricDecoration variant="elegant" className="opacity-5" />
+      {/* Animated Geometric Pattern Background */}
+      <GeometricDecoration variant="animated" className="opacity-5" />
 
       {/* Header - Fixed position with consistent blur and transition */}
       <header className="fixed top-0 left-0 right-0 z-10 bg-[#0A0A0A]/90 backdrop-blur-lg transition-all duration-300">
-        {/* Elegant geometric pattern in header */}
+        {/* Animated geometric pattern in header */}
         <div className="absolute inset-0 opacity-5" style={{
-          backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
+          backgroundImage: `url(/images/geometric-pattern-animated.svg)`,
           backgroundSize: '400px',
           backgroundPosition: 'center',
         }}></div>
@@ -221,10 +221,13 @@ export function AIChatExperience() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => window.location.href = '/'}
-              className="font-medium text-sm tracking-wide text-white hover:text-accent transition-colors flex items-center"
+              className="font-medium text-sm tracking-wide text-white hover:text-accent transition-all duration-300 flex items-center group"
             >
-              <SparklesIcon className="h-4 w-4 mr-1.5" />
-              Quran AI
+              <span className="relative">
+                <SparklesIcon className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-300" />
+                <span className="absolute inset-0 bg-accent/20 rounded-full blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300"></span>
+              </span>
+              <span className="group-hover:tracking-wider transition-all duration-300">Quran AI</span>
             </button>
             {threadId && (
               <div className="flex items-center">
@@ -238,19 +241,32 @@ export function AIChatExperience() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-white/50 hover:text-white text-xs h-7 px-2"
+              className="text-white/50 hover:text-white text-xs h-7 px-3 relative overflow-hidden group border-0 hover:bg-white/5"
               onClick={handleNewChat}
             >
-              <span>New Chat</span>
+              {/* Button background pattern */}
+              <span className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300" style={{
+                backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
+                backgroundSize: '200%',
+                backgroundPosition: 'center',
+              }}></span>
+              <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">New Chat</span>
             </Button>
+
             <Button
               variant="ghost"
               size="sm"
-              className="text-white/50 hover:text-white text-xs h-7 px-2"
+              className="text-white/50 hover:text-white text-xs h-7 px-3 relative overflow-hidden group border-0 hover:bg-white/5"
               onClick={() => setCommandDialogOpen(true)}
             >
-              <span>Commands</span>
-              <kbd className="ml-1.5 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium">⌘ K</kbd>
+              {/* Button background pattern */}
+              <span className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300" style={{
+                backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
+                backgroundSize: '200%',
+                backgroundPosition: 'center',
+              }}></span>
+              <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">Commands</span>
+              <kbd className="ml-1.5 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium relative z-10 group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-300">⌘ K</kbd>
             </Button>
           </div>
         </div>
@@ -262,43 +278,85 @@ export function AIChatExperience() {
         {/* Logo and title - Only visible when chat is not active */}
         <div className={`flex flex-col items-center transition-all duration-500 ease-in-out px-6 ${chatActive && messages.length > 2 ? "opacity-0 max-h-0 overflow-hidden" : "opacity-100 mb-16"
           }`}>
-          {/* Raycast-inspired logo with enhanced glow effect and subtle animation */}
+          {/* Enhanced logo with detailed geometric pattern and animations */}
           <div className="mb-10 relative">
-            <div className="absolute inset-0 bg-accent/30 blur-2xl rounded-full transform scale-110 opacity-40 animate-pulse"></div>
-            <div className="relative bg-gradient-to-br from-accent to-accent/80 p-5 rounded-full shadow-lg hover:scale-105 transition-transform duration-300 overflow-hidden">
-              {/* Elegant geometric pattern inside the logo */}
-              <div className="absolute inset-0 opacity-30" style={{
-                backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
+            {/* Outer glow effect with enhanced animation */}
+            <div className="absolute inset-0 bg-accent/30 blur-2xl rounded-full transform scale-110 opacity-40 animate-[pulse_4s_ease-in-out_infinite]"></div>
+
+            {/* Secondary glow with offset animation */}
+            <div className="absolute inset-0 bg-accent/20 blur-xl rounded-full transform scale-125 opacity-30 animate-[pulse_6s_ease-in-out_infinite_1s]"></div>
+
+            {/* Main logo container with hover effect */}
+            <div className="relative bg-gradient-to-br from-accent to-accent/80 p-5 rounded-full shadow-lg hover:scale-105 transition-all duration-300 overflow-hidden group">
+              {/* Custom logo pattern */}
+              <div className="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity duration-500" style={{
+                backgroundImage: `url(/images/logo-pattern.svg)`,
+                backgroundSize: '100%',
+                backgroundPosition: 'center',
+              }}></div>
+
+              {/* Animated geometric pattern underneath */}
+              <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500" style={{
+                backgroundImage: `url(/images/geometric-pattern-animated.svg)`,
                 backgroundSize: '200%',
                 backgroundPosition: 'center',
               }}></div>
-              <SparklesIcon className="h-10 w-10 text-white animate-[spin_20s_linear_infinite] relative z-10" />
+
+              {/* Icon with enhanced animation */}
+              <SparklesIcon className="h-10 w-10 text-white relative z-10 group-hover:scale-110 transition-transform duration-300 animate-[spin_20s_linear_infinite]" />
             </div>
           </div>
 
-          <h1 className="text-4xl font-bold mb-3 tracking-tight text-white">Quran AI</h1>
-          <p className="text-white/70 text-base max-w-lg text-center mb-12 leading-relaxed">
-            Explore the Quran through an interactive AI assistant. Ask questions, discover connections, and gain deeper insights.
+          <div className="relative mb-3">
+            <h1 className="text-4xl font-bold tracking-tight text-white relative z-10">
+              Quran AI
+            </h1>
+            {/* Title decoration */}
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-64 h-8 opacity-60" style={{
+              backgroundImage: `url(/images/title-decoration.svg)`,
+              backgroundSize: 'contain',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}></div>
+          </div>
+
+          <p className="text-white/70 text-base max-w-lg text-center mb-12 leading-relaxed relative">
+            <span className="relative inline-block">
+              Explore the Quran through an interactive AI assistant.
+              <span className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent"></span>
+            </span>
+            <span className="block mt-1">Ask questions, discover connections, and gain deeper insights.</span>
           </p>
 
-          {/* Raycast-inspired suggestion cards - Refined to match screenshot */}
+          {/* Enhanced suggestion cards with animations and hover effects */}
           <div className="grid grid-cols-2 gap-3 w-full max-w-xl mb-14">
             {SUGGESTIONS.slice(0, 4).map((suggestion, index) => (
               <button
                 key={index}
-                className="group flex items-center text-left py-3 px-4 rounded-lg bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.08] transition-colors relative overflow-hidden"
+                className="group flex items-center text-left py-3 px-4 rounded-lg bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.08] hover:border-accent/20 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all duration-300 relative overflow-hidden"
                 onClick={() => handleSuggestionClick(suggestion.text)}
               >
-                {/* Elegant geometric pattern in suggestion cards */}
-                <div className="absolute inset-0 opacity-5" style={{
+                {/* Animated geometric pattern in suggestion cards */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{
+                  backgroundImage: `url(/images/geometric-pattern-animated.svg)`,
+                  backgroundSize: '200%',
+                  backgroundPosition: 'center',
+                }}></div>
+
+                {/* Base geometric pattern */}
+                <div className="absolute inset-0 opacity-5 group-hover:opacity-8 transition-opacity duration-300" style={{
                   backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
                   backgroundSize: '200%',
                   backgroundPosition: 'center',
                 }}></div>
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center mr-3 relative z-10">
-                  <SparklesIcon className="h-3 w-3 text-accent" />
+
+                {/* Icon with enhanced hover effect */}
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/10 group-hover:bg-accent/20 flex items-center justify-center mr-3 relative z-10 transition-all duration-300 group-hover:scale-110">
+                  <SparklesIcon className="h-3 w-3 text-accent group-hover:text-accent/90" />
                 </div>
-                <span className="text-xs text-white/80 font-medium truncate relative z-10">{suggestion.text}</span>
+
+                {/* Text with subtle hover effect */}
+                <span className="text-xs text-white/80 group-hover:text-white font-medium truncate relative z-10 transition-colors duration-300">{suggestion.text}</span>
               </button>
             ))}
           </div>
@@ -336,36 +394,59 @@ export function AIChatExperience() {
           }}></div>
 
           <div className="max-w-xl mx-auto relative z-10">
-            {/* Input form - Matching screenshot */}
-            <div className="relative rounded-lg overflow-hidden bg-white/[0.04] backdrop-blur-md border border-white/[0.06]">
-              <form onSubmit={handleSubmit} className="w-full">
+            {/* Enhanced input form with animations and improved hover effects */}
+            <div className="relative rounded-lg overflow-hidden bg-white/[0.04] backdrop-blur-md border border-white/[0.06] focus-within:border-accent/20 focus-within:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all duration-300 group">
+              {/* Animated pattern that appears on focus */}
+              <div className="absolute inset-0 opacity-0 group-focus-within:opacity-10 transition-opacity duration-500" style={{
+                backgroundImage: `url(/images/geometric-pattern-animated.svg)`,
+                backgroundSize: '200%',
+                backgroundPosition: 'center',
+              }}></div>
+
+              {/* Base elegant pattern */}
+              <div className="absolute inset-0 opacity-5 group-focus-within:opacity-8 transition-opacity duration-300" style={{
+                backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
+                backgroundSize: '200%',
+                backgroundPosition: 'center',
+              }}></div>
+
+              <form onSubmit={handleSubmit} className="w-full relative z-10">
                 <Input
                   ref={inputRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Ask about the Quran..."
-                  className="border-0 bg-transparent text-white py-3 px-4 text-sm focus-visible:ring-1 focus-visible:ring-accent/30 focus-visible:ring-offset-0 placeholder:text-white/30 transition-all duration-200"
+                  className="border-0 bg-transparent text-white py-3 px-4 text-sm focus-visible:ring-1 focus-visible:ring-accent/30 focus-visible:ring-offset-0 placeholder:text-white/30 transition-all duration-300 focus:placeholder:text-white/50"
                 />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
                   <Button
                     type="submit"
                     size="icon"
                     variant="ghost"
-                    className="h-6 w-6 rounded-full bg-accent/10 hover:bg-accent/20 transition-all duration-200 hover:scale-110"
+                    className={`h-6 w-6 rounded-full transition-all duration-300 ${!query.trim() || isLoading ? 'bg-white/5 text-white/20' : 'bg-accent/10 hover:bg-accent/20 hover:scale-110 text-accent'}`}
                     disabled={!query.trim() || isLoading}
                   >
-                    <SendIcon className="h-3 w-3 text-accent group-hover:text-accent-foreground transition-colors" />
+                    <SendIcon className="h-3 w-3 transition-colors" />
                     <span className="sr-only">Send</span>
                   </Button>
                 </div>
               </form>
             </div>
 
-            {/* Experimental warning message with accuracy disclaimer */}
-            <div className="flex items-center justify-center mt-4">
-              <p className="text-[10px] text-white/30 italic text-center">
-                ✧ Experimental research preview - Please verify information for accuracy
-              </p>
+            {/* Enhanced experimental warning message with elegant styling */}
+            <div className="flex items-center justify-center mt-4 relative">
+              {/* Subtle decorative elements */}
+              <div className="absolute left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+              <div className="px-4 py-2 relative">
+                <p className="text-[10px] text-white/30 text-center flex items-center gap-1.5 group">
+                  <span className="inline-block w-3 h-px bg-white/20 group-hover:w-5 transition-all duration-500"></span>
+                  <span className="group-hover:text-white/40 transition-colors duration-300">
+                    Experimental research preview - Please verify information for accuracy
+                  </span>
+                  <span className="inline-block w-3 h-px bg-white/20 group-hover:w-5 transition-all duration-500"></span>
+                </p>
+              </div>
             </div>
           </div>
         </div>

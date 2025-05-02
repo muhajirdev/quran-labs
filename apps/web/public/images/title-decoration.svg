@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="100" viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="title-gradient" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="rgba(255, 255, 255, 0)"/>
+      <stop offset="20%" stop-color="rgba(255, 255, 255, 0.1)"/>
+      <stop offset="50%" stop-color="rgba(255, 255, 255, 0.15)"/>
+      <stop offset="80%" stop-color="rgba(255, 255, 255, 0.1)"/>
+      <stop offset="100%" stop-color="rgba(255, 255, 255, 0)"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Central line -->
+  <line x1="0" y1="50" x2="600" y2="50" stroke="url(#title-gradient)" stroke-width="1" />
+  
+  <!-- Decorative elements -->
+  <g opacity="0.8">
+    <!-- Left side decorative elements -->
+    <path d="M 150,50 L 170,30 L 190,50 L 170,70 Z" fill="none" stroke="rgba(255, 255, 255, 0.2)" stroke-width="0.5" />
+    <circle cx="150" cy="50" r="2" fill="rgba(255, 255, 255, 0.3)" />
+    <circle cx="190" cy="50" r="2" fill="rgba(255, 255, 255, 0.3)" />
+    <line x1="120" y1="50" x2="150" y2="50" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.5" />
+    
+    <!-- Right side decorative elements (mirrored) -->
+    <path d="M 450,50 L 430,30 L 410,50 L 430,70 Z" fill="none" stroke="rgba(255, 255, 255, 0.2)" stroke-width="0.5" />
+    <circle cx="450" cy="50" r="2" fill="rgba(255, 255, 255, 0.3)" />
+    <circle cx="410" cy="50" r="2" fill="rgba(255, 255, 255, 0.3)" />
+    <line x1="480" y1="50" x2="450" y2="50" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.5" />
+  </g>
+  
+  <!-- Subtle dots along the line -->
+  <g opacity="0.6">
+    <circle cx="200" cy="50" r="1" fill="rgba(255, 255, 255, 0.4)" />
+    <circle cx="220" cy="50" r="1" fill="rgba(255, 255, 255, 0.3)" />
+    <circle cx="240" cy="50" r="1" fill="rgba(255, 255, 255, 0.2)" />
+    <circle cx="260" cy="50" r="1" fill="rgba(255, 255, 255, 0.3)" />
+    <circle cx="280" cy="50" r="1.5" fill="rgba(255, 255, 255, 0.4)" />
+    <circle cx="300" cy="50" r="2" fill="rgba(255, 255, 255, 0.5)" />
+    <circle cx="320" cy="50" r="1.5" fill="rgba(255, 255, 255, 0.4)" />
+    <circle cx="340" cy="50" r="1" fill="rgba(255, 255, 255, 0.3)" />
+    <circle cx="360" cy="50" r="1" fill="rgba(255, 255, 255, 0.2)" />
+    <circle cx="380" cy="50" r="1" fill="rgba(255, 255, 255, 0.3)" />
+    <circle cx="400" cy="50" r="1" fill="rgba(255, 255, 255, 0.4)" />
+  </g>
+</svg>
