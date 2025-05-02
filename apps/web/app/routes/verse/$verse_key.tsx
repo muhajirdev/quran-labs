@@ -3,7 +3,19 @@ import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { Skeleton } from "~/components/ui/skeleton";
-import { ArrowLeft, MessageSquare, Tag, MenuIcon, XIcon, SparklesIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  Tag,
+  MenuIcon,
+  XIcon,
+  SparklesIcon,
+  BookIcon,
+  SearchIcon,
+  BookMarkedIcon,
+  BrainCircuitIcon,
+  LayersIcon,
+  NetworkIcon
+} from "lucide-react";
 import { cn } from "~/lib/utils";
 import {
   Tooltip,
@@ -27,9 +39,7 @@ import { TafsirExplorer } from "~/components/tafsir/TafsirExplorer";
 import { TranslationCard } from "~/components/translation/TranslationCard";
 import { TranslationExplorer } from "~/components/translation/TranslationExplorer";
 import { GeometricDecoration } from "~/components/ui/geometric-background";
-
-// Add blur-layer styles
-import "~/styles/blur-layer.css";
+import { FloatingChatInterface } from "~/components/ai/FloatingChatInterface";
 
 interface VerseData {
   id: number;
@@ -58,6 +68,16 @@ interface VerseData {
     description?: string;
   }[];
 }
+
+// Verse-specific suggestion chips
+const VERSE_SUGGESTIONS = [
+  { text: "What is the context of this verse?", icon: <BookIcon className="h-3 w-3" /> },
+  { text: "Show me related verses", icon: <SearchIcon className="h-3 w-3" /> },
+  { text: "Explain the meaning of this verse", icon: <BookMarkedIcon className="h-3 w-3" /> },
+  { text: "What do scholars say about this verse?", icon: <BrainCircuitIcon className="h-3 w-3" /> },
+  { text: "Compare different translations", icon: <LayersIcon className="h-3 w-3" /> },
+  { text: "Show thematic connections", icon: <NetworkIcon className="h-3 w-3" /> },
+];
 
 export default function VerseDetailPage() {
   const { verse_key } = useParams();
@@ -147,6 +167,8 @@ export default function VerseDetailPage() {
       fetchVerseData();
     }
   }, [verse_key]);
+
+
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0A0A0A] relative">
@@ -541,7 +563,7 @@ export default function VerseDetailPage() {
         </div>
       </div>
 
-      <main className="flex-1 flex flex-col justify-start overflow-hidden pt-12 pb-20 sm:pb-24">
+      <main className="flex-1 flex flex-col justify-start overflow-hidden pt-12 pb-8">
         <div className="container mx-auto px-4 py-8">
           {loading ? (
             <div className="space-y-6">
@@ -955,33 +977,37 @@ export default function VerseDetailPage() {
         </div>
       </main>
 
-      {/* Input area - Fixed at bottom with consistent blur and transition */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 w-full px-3 sm:px-6 py-3 sm:py-4 transition-all duration-300">
-        <div className="absolute inset-0 blur-layer"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
-
-        <div className="max-w-xl mx-auto relative z-10">
-          {/* Enhanced experimental warning message with elegant styling - Mobile friendly */}
-          <div className="flex items-center justify-center mt-3 sm:mt-4 relative">
-            {/* Enhanced subtle decorative elements */}
-            <div className="absolute left-1/2 -translate-x-1/2 w-24 sm:w-32 h-px bg-gradient-to-r from-transparent via-accent/10 to-transparent"></div>
-            <div className="absolute left-1/2 -translate-x-1/2 -top-3 w-1 h-1 rounded-full bg-accent/20"></div>
-
-            <div className="px-2 sm:px-4 py-1 sm:py-2 relative">
-              <p className="text-[9px] sm:text-[10px] text-white/30 text-center flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 group">
-                <span className="hidden sm:inline-block w-3 h-px bg-accent/20 group-hover:w-5 transition-all duration-500"></span>
-                <span className="group-hover:text-white/40 transition-colors duration-300 text-center relative">
-                  <span className="relative">
-                    Experimental research preview - Please verify information for accuracy
-                    <span className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent/10 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></span>
-                  </span>
-                </span>
-                <span className="hidden sm:inline-block w-3 h-px bg-accent/20 group-hover:w-5 transition-all duration-500"></span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Floating Chat Interface */}
+      <FloatingChatInterface
+        title="Verse Assistant"
+        contextId={verse_key}
+        suggestions={VERSE_SUGGESTIONS}
+        onSendMessage={async (queryText) => {
+          // Simulate AI response (in a real app, this would call an API)
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              // Generate a response based on the query and verse
+              let response = "";
+              if (queryText.toLowerCase().includes("context")) {
+                response = `This verse (${verse_key}) discusses the importance of guidance. It's part of a larger section about divine wisdom and mercy.`;
+              } else if (queryText.toLowerCase().includes("meaning")) {
+                response = `The verse ${verse_key} emphasizes the concept of divine guidance and mercy. It reminds believers of God's compassion and wisdom in providing direction for humanity.`;
+              } else if (queryText.toLowerCase().includes("related")) {
+                response = `Verses related to ${verse_key} include those discussing guidance, mercy, and divine wisdom. You might want to explore verses in the same surah that expand on these themes.`;
+              } else if (queryText.toLowerCase().includes("scholars")) {
+                response = `Scholars have interpreted verse ${verse_key} in various ways. Many emphasize its message about divine guidance and the importance of following the straight path.`;
+              } else if (queryText.toLowerCase().includes("translation")) {
+                response = `There are several translations of verse ${verse_key}, each with subtle differences in wording but maintaining the core message about guidance and mercy.`;
+              } else if (queryText.toLowerCase().includes("thematic") || queryText.toLowerCase().includes("connection")) {
+                response = `Verse ${verse_key} connects thematically with other verses discussing guidance, mercy, faith, and the relationship between God and humanity.`;
+              } else {
+                response = `Verse ${verse_key} is an important part of the Quran's message. It contains wisdom about divine guidance and the path to righteousness. Would you like to know more about a specific aspect of this verse?`;
+              }
+              resolve(response);
+            }, 1500);
+          });
+        }}
+      />
     </div>
   );
 }

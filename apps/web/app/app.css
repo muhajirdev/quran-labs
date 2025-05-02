@@ -142,3 +142,22 @@ body {
   mask-image: linear-gradient(to top, black 0%, black 50%, transparent 100%);
   -webkit-mask-image: linear-gradient(to top, black 0%, black 50%, transparent 100%);
 }
+
+@keyframes subtle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-4px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-2px);
+  }
+}
+
+.animate-subtle-bounce {
+  animation: subtle-bounce 6s ease-in-out infinite;
+}
