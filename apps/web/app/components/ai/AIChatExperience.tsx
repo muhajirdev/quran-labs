@@ -22,6 +22,7 @@ import {
   getOrCreateThread,
   updateThread,
   setCurrentThread,
+  INITIAL_MESSAGES,
   type Message as ThreadMessage
 } from "~/lib/thread-manager"
 
@@ -36,36 +37,39 @@ const SUGGESTIONS = [
 ];
 
 export function AIChatExperience() {
-  // Initialize component state
-  const initializeState = () => {
-    const location = window.location;
-    const urlParams = new URLSearchParams(location.search);
-    const urlQuery = urlParams.get('q');
-    const threadParam = urlParams.get('thread');
-
-    // Get or create thread
-    const thread = getOrCreateThread(threadParam);
-
-    // Set initial state based on URL parameters
-    return {
-      commandDialogOpen: false,
-      query: urlQuery || "",
-      chatActive: Boolean(urlQuery || threadParam),
-      messages: thread.messages,
-      isLoading: false,
-      threadId: thread.id
-    };
-  };
-
-  // State using the initializer function
-  const [state, setState] = useState(initializeState);
-
-  // Destructure state for easier access
-  const { commandDialogOpen, query, chatActive, messages, isLoading, threadId } = state;
+  // State
+  const [commandDialogOpen, setCommandDialogOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [messages, setMessages] = useState<ThreadMessage[]>([...INITIAL_MESSAGES]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const [chatActive, setChatActive] = useState(false);
 
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+  // Initialize from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const urlQuery = urlParams.get('q');
+    const threadParam = urlParams.get('thread');
+
+    if (threadParam) {
+      // Load existing thread
+      const thread = getOrCreateThread(threadParam);
+      setThreadId(thread.id);
+      setMessages(thread.messages);
+      setChatActive(true);
+    } else if (urlQuery) {
+      // Handle query parameter
+      setQuery(urlQuery);
+      setChatActive(true);
+      handleQuerySubmission(urlQuery);
+      setQuery("");
+    }
+  }, []);
 
   // Focus input on mount
   useEffect(() => {
@@ -79,30 +83,19 @@ export function AIChatExperience() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // State updater functions
-  const updateState = (updates: Partial<typeof state>) => {
-    setState(prev => ({ ...prev, ...updates }));
-  };
-
-  const setCommandDialogOpen = (open: boolean) => updateState({ commandDialogOpen: open });
-  const setQuery = (newQuery: string) => updateState({ query: newQuery });
-  const setChatActive = (active: boolean) => updateState({ chatActive: active });
-  const setMessages = (newMessages: ThreadMessage[]) => updateState({ messages: newMessages });
-  const setIsLoading = (loading: boolean) => updateState({ isLoading: loading });
-  const setThreadId = (id: string) => updateState({ threadId: id });
-
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      // Activate chat immediately
+      const trimmedQuery = query.trim();
+
+      // Activate chat
       if (!chatActive) {
-        updateState({ chatActive: true });
+        setChatActive(true);
       }
 
       // Clear input immediately
-      const trimmedQuery = query.trim();
-      updateState({ query: "" });
+      setQuery("");
 
       // Process the query
       handleQuerySubmission(trimmedQuery);
@@ -124,26 +117,20 @@ export function AIChatExperience() {
     if (!currentThreadId) {
       const newThread = getOrCreateThread(null);
       currentThreadId = newThread.id;
-      updateState({ threadId: newThread.id });
+      setThreadId(newThread.id);
     }
 
     // Update messages and set loading state
     const updatedMessages = [...messages, userMessage];
-    updateState({
-      messages: updatedMessages,
-      isLoading: true
-    });
+    setMessages(updatedMessages);
+    setIsLoading(true);
 
     try {
       // Add placeholder for loading state
-      updateState({
-        messages: [...updatedMessages, { role: "assistant" as const, content: "" }]
-      });
+      setMessages([...updatedMessages, { role: "assistant", content: "" }]);
 
       // Save to thread storage
-      if (currentThreadId) {
-        updateThread(currentThreadId, updatedMessages);
-      }
+      updateThread(currentThreadId, updatedMessages);
 
       // Get AI response
       const response = await createChatCompletion({
@@ -157,18 +144,16 @@ export function AIChatExperience() {
 
       // Update messages with response
       const finalMessages = [...updatedMessages, assistantMessage];
-      updateState({ messages: finalMessages });
+      setMessages(finalMessages);
 
       // Save updated thread
-      if (currentThreadId) {
-        updateThread(currentThreadId, finalMessages);
-        setCurrentThread(currentThreadId);
+      updateThread(currentThreadId, finalMessages);
+      setCurrentThread(currentThreadId);
 
-        // Update URL without causing reload
-        const url = new URL(window.location.href);
-        url.searchParams.set('thread', currentThreadId);
-        window.history.replaceState({}, '', url.toString());
-      }
+      // Update URL without causing reload
+      const url = new URL(window.location.href);
+      url.searchParams.set('thread', currentThreadId);
+      window.history.replaceState({}, '', url.toString());
     } catch (error) {
       console.error("Error getting AI response:", error);
 
@@ -180,26 +165,19 @@ export function AIChatExperience() {
 
       // Update messages with error
       const messagesWithError = [...updatedMessages, errorMessage];
-      updateState({ messages: messagesWithError });
+      setMessages(messagesWithError);
 
       // Save thread with error
-      if (currentThreadId) {
-        updateThread(currentThreadId, messagesWithError);
-        setCurrentThread(currentThreadId);
-
-        // Update URL without causing reload
-        const url = new URL(window.location.href);
-        url.searchParams.set('thread', currentThreadId);
-        window.history.replaceState({}, '', url.toString());
-      }
+      updateThread(currentThreadId, messagesWithError);
+      setCurrentThread(currentThreadId);
     } finally {
-      updateState({ isLoading: false });
+      setIsLoading(false);
     }
   };
 
   // Handle suggestion click
   const handleSuggestionClick = (suggestion: string) => {
-    updateState({ query: suggestion });
+    setQuery(suggestion);
 
     // Focus input after setting suggestion
     if (inputRef.current) {
@@ -213,20 +191,15 @@ export function AIChatExperience() {
     const newThread = getOrCreateThread(null);
 
     // Update state
-    updateState({
-      threadId: newThread.id,
-      messages: newThread.messages,
-      chatActive: true,
-      query: ""
-    });
+    setThreadId(newThread.id);
+    setMessages(newThread.messages);
+    setChatActive(true);
+    setQuery("");
 
     // Update URL without causing reload
     const url = new URL(window.location.href);
     url.searchParams.set('thread', newThread.id);
-
-    // Remove any query parameter
     url.searchParams.delete('q');
-
     window.history.replaceState({}, '', url.toString());
   };
 
