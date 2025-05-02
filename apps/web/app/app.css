@@ -70,7 +70,7 @@ body {
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: #0F9D6F; /* Adjusted green accent color for better contrast */
+  --accent: #3B82F6; /* Elegant blue accent color for a premium feel */
   --accent-foreground: #FFFFFF;
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
@@ -85,7 +85,7 @@ body {
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: #0F9D6F; /* Adjusted green sidebar accent color for better contrast */
+  --sidebar-accent: #3B82F6; /* Elegant blue sidebar accent color for a premium feel */
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
@@ -105,7 +105,7 @@ body {
   --secondary-foreground: #B3B3B3;
   --muted: #3A3A3A;
   --muted-foreground: #7B7B7B; /* Muted text color from Figma */
-  --accent: #0F9D6F; /* Adjusted green accent color for better contrast */
+  --accent: #3B82F6; /* Elegant blue accent color for a premium feel */
   --accent-foreground: #FFFFFF;
   --destructive: oklch(0.704 0.191 22.216);
   --border: rgba(58, 58, 58, 0.7); /* Border color from Figma */
@@ -120,7 +120,7 @@ body {
   --sidebar-foreground: #B3B3B3;
   --sidebar-primary: #B3B3B3;
   --sidebar-primary-foreground: #191919;
-  --sidebar-accent: #0F9D6F; /* Adjusted green sidebar accent color for better contrast */
+  --sidebar-accent: #3B82F6; /* Elegant blue sidebar accent color for a premium feel */
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: rgba(58, 58, 58, 0.7);
   --sidebar-ring: #484848;
