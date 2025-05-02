@@ -18,6 +18,7 @@ import { HomeCommandDialog } from "~/components/command/HomeCommandDialog"
 import { useLocation } from "react-router"
 import { ChatMessage } from "./ChatMessage"
 import { createChatCompletion } from "~/lib/openrouter"
+import { GeometricDecoration } from "~/components/ui/geometric-background"
 import {
   getOrCreateThread,
   updateThread,
@@ -204,43 +205,54 @@ export function AIChatExperience() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0A0A0A]">
-      {/* Header - Fixed position with consistent blur and transition */}
-      <header className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between py-3 px-6 bg-[#0A0A0A]/90 backdrop-blur-lg transition-all duration-300">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => window.location.href = '/'}
-            className="font-medium text-sm tracking-wide text-white hover:text-accent transition-colors flex items-center"
-          >
-            <SparklesIcon className="h-4 w-4 mr-1.5" />
-            Quran AI
-          </button>
-          {threadId && (
-            <div className="flex items-center">
-              <span className="text-xs text-white/40 ml-2">•</span>
-              <span className="text-xs text-white/40 ml-2">Thread {threadId.split('-')[0]}</span>
-            </div>
-          )}
+    <div className="flex flex-col min-h-screen bg-[#0A0A0A] relative">
+      {/* Geometric Pattern Background */}
+      <GeometricDecoration variant="elegant" className="opacity-5" />
 
-        </div>
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white/50 hover:text-white text-xs h-7 px-2"
-            onClick={handleNewChat}
-          >
-            <span>New Chat</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white/50 hover:text-white text-xs h-7 px-2"
-            onClick={() => setCommandDialogOpen(true)}
-          >
-            <span>Commands</span>
-            <kbd className="ml-1.5 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium">⌘ K</kbd>
-          </Button>
+      {/* Header - Fixed position with consistent blur and transition */}
+      <header className="fixed top-0 left-0 right-0 z-10 bg-[#0A0A0A]/90 backdrop-blur-lg transition-all duration-300">
+        {/* Elegant geometric pattern in header */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
+          backgroundSize: '400px',
+          backgroundPosition: 'center',
+        }}></div>
+        <div className="flex items-center justify-between py-3 px-6 relative z-10">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.location.href = '/'}
+              className="font-medium text-sm tracking-wide text-white hover:text-accent transition-colors flex items-center"
+            >
+              <SparklesIcon className="h-4 w-4 mr-1.5" />
+              Quran AI
+            </button>
+            {threadId && (
+              <div className="flex items-center">
+                <span className="text-xs text-white/40 ml-2">•</span>
+                <span className="text-xs text-white/40 ml-2">Thread {threadId.split('-')[0]}</span>
+              </div>
+            )}
+
+          </div>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/50 hover:text-white text-xs h-7 px-2"
+              onClick={handleNewChat}
+            >
+              <span>New Chat</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/50 hover:text-white text-xs h-7 px-2"
+              onClick={() => setCommandDialogOpen(true)}
+            >
+              <span>Commands</span>
+              <kbd className="ml-1.5 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium">⌘ K</kbd>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -253,8 +265,14 @@ export function AIChatExperience() {
           {/* Raycast-inspired logo with enhanced glow effect and subtle animation */}
           <div className="mb-10 relative">
             <div className="absolute inset-0 bg-accent/30 blur-2xl rounded-full transform scale-110 opacity-40 animate-pulse"></div>
-            <div className="relative bg-gradient-to-br from-accent to-accent/80 p-5 rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
-              <SparklesIcon className="h-10 w-10 text-white animate-[spin_20s_linear_infinite]" />
+            <div className="relative bg-gradient-to-br from-accent to-accent/80 p-5 rounded-full shadow-lg hover:scale-105 transition-transform duration-300 overflow-hidden">
+              {/* Elegant geometric pattern inside the logo */}
+              <div className="absolute inset-0 opacity-30" style={{
+                backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
+                backgroundSize: '200%',
+                backgroundPosition: 'center',
+              }}></div>
+              <SparklesIcon className="h-10 w-10 text-white animate-[spin_20s_linear_infinite] relative z-10" />
             </div>
           </div>
 
@@ -268,13 +286,19 @@ export function AIChatExperience() {
             {SUGGESTIONS.slice(0, 4).map((suggestion, index) => (
               <button
                 key={index}
-                className="group flex items-center text-left py-3 px-4 rounded-lg bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.08] transition-colors"
+                className="group flex items-center text-left py-3 px-4 rounded-lg bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.08] transition-colors relative overflow-hidden"
                 onClick={() => handleSuggestionClick(suggestion.text)}
               >
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center mr-3">
+                {/* Elegant geometric pattern in suggestion cards */}
+                <div className="absolute inset-0 opacity-5" style={{
+                  backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
+                  backgroundSize: '200%',
+                  backgroundPosition: 'center',
+                }}></div>
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center mr-3 relative z-10">
                   <SparklesIcon className="h-3 w-3 text-accent" />
                 </div>
-                <span className="text-xs text-white/80 font-medium truncate">{suggestion.text}</span>
+                <span className="text-xs text-white/80 font-medium truncate relative z-10">{suggestion.text}</span>
               </button>
             ))}
           </div>
@@ -304,7 +328,14 @@ export function AIChatExperience() {
 
         {/* Input area - Fixed at bottom with consistent blur and transition */}
         <div className="fixed bottom-0 left-0 right-0 z-10 w-full px-6 py-4 bg-[#0A0A0A]/90 backdrop-blur-lg transition-all duration-300">
-          <div className="max-w-xl mx-auto">
+          {/* Elegant geometric pattern in the input area */}
+          <div className="absolute inset-0 opacity-5" style={{
+            backgroundImage: `url(/images/geometric-pattern-elegant.svg)`,
+            backgroundSize: '400px',
+            backgroundPosition: 'center',
+          }}></div>
+
+          <div className="max-w-xl mx-auto relative z-10">
             {/* Input form - Matching screenshot */}
             <div className="relative rounded-lg overflow-hidden bg-white/[0.04] backdrop-blur-md border border-white/[0.06]">
               <form onSubmit={handleSubmit} className="w-full">
