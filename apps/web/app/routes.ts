@@ -8,4 +8,6 @@ export default [
   route("verse/:verse_key", "routes/verse/$verse_key.tsx"),
   route("topic/:topic_id", "routes/topic/$topic_id.tsx"),
   route("ai-assistant", "routes/ai-assistant.tsx"),
+  route("logo-demo", "routes/logo-demo.tsx"),
+  route("logo-usage", "routes/logo-usage.tsx"),
 ] satisfies RouteConfig;

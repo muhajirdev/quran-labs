@@ -20,6 +20,7 @@ import { useLocation } from "react-router"
 import { ChatMessage } from "./ChatMessage"
 import { createChatCompletion } from "~/lib/openrouter"
 import { GeometricDecoration } from "~/components/ui/geometric-background"
+import { Logo } from "~/components/ui/logo"
 import {
   getOrCreateThread,
   updateThread,
@@ -223,8 +224,8 @@ export function AIChatExperience() {
               onClick={() => window.location.href = '/'}
               className="font-medium text-sm tracking-wide text-white hover:text-accent transition-all duration-300 flex items-center group"
             >
-              <span className="relative">
-                <SparklesIcon className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-300" />
+              <span className="relative mr-1.5">
+                <Logo size="sm" className="group-hover:scale-110 transition-transform duration-300" />
                 <span className="absolute inset-0 bg-accent/20 rounded-full blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300"></span>
               </span>
               <span className="group-hover:tracking-wider transition-all duration-300">Quran AI</span>
@@ -326,16 +327,11 @@ export function AIChatExperience() {
             <div className="absolute inset-0 bg-accent/20 blur-xl rounded-full transform scale-125 opacity-30 animate-[pulse_6s_ease-in-out_infinite_1s]"></div>
 
             {/* Main logo container with hover effect - Mobile friendly */}
-            <div className="relative bg-gradient-to-br from-accent to-accent/80 p-4 sm:p-5 rounded-full shadow-lg hover:scale-105 transition-all duration-300 overflow-hidden group">
-              {/* Custom logo pattern */}
-              <div className="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity duration-500" style={{
-                backgroundImage: `url(/images/logo-pattern.svg)`,
-                backgroundSize: '100%',
-                backgroundPosition: 'center',
-              }}></div>
-
-              {/* Icon with enhanced animation - Mobile friendly */}
-              <SparklesIcon className="h-8 w-8 sm:h-10 sm:w-10 text-white relative z-10 group-hover:scale-110 transition-transform duration-300 animate-[spin_20s_linear_infinite]" />
+            <div className="relative p-4 sm:p-5 rounded-full shadow-lg hover:scale-105 transition-all duration-300 overflow-hidden group">
+              {/* Crescent logo */}
+              <div className="h-16 w-16 sm:h-20 sm:w-20">
+                <Logo size="lg" className="w-full h-full" />
+              </div>
             </div>
           </div>
 
