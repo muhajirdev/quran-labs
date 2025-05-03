@@ -1,8 +1,9 @@
 import { useParams, Link } from "react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { Skeleton } from "~/components/ui/skeleton";
+import { useAtom } from "jotai";
 import {
   ArrowLeft,
   Tag,
@@ -40,6 +41,8 @@ import { TranslationCard } from "~/components/translation/TranslationCard";
 import { TranslationExplorer } from "~/components/translation/TranslationExplorer";
 import { GeometricDecoration } from "~/components/ui/geometric-background";
 import { FloatingChatInterface } from "~/components/ai/FloatingChatInterface";
+import type { Message } from "~/components/ai/FloatingChatInterface";
+import { chatMessagesAtom, chatMinimizedAtom } from "~/store/chat";
 
 interface VerseData {
   id: number;
@@ -85,6 +88,8 @@ export default function VerseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useAtom(chatMessagesAtom);
+  const [chatMinimized, setChatMinimized] = useAtom(chatMinimizedAtom);
 
   useEffect(() => {
     async function fetchVerseData() {
@@ -167,6 +172,50 @@ export default function VerseDetailPage() {
       fetchVerseData();
     }
   }, [verse_key]);
+
+  // Function to handle translation comparison
+  const handleCompareTranslations = (translationIds: number[]) => {
+    if (!verseData || !verseData.translations) return;
+
+    // Find the selected translations
+    const selectedTranslations = verseData.translations.filter(t =>
+      translationIds.includes(t.id)
+    );
+
+    if (selectedTranslations.length < 2) return;
+
+    // Format the comparison as a message
+    let comparisonText = `## Translation Comparison for ${verse_key}\n\n`;
+
+    // Add a table header
+    comparisonText += "| Translator | Translation |\n";
+    comparisonText += "|------------|-------------|\n";
+
+    // Add each translation as a row
+    selectedTranslations.forEach(t => {
+      comparisonText += `| **${t.translator}** (${t.language}) | ${t.text} |\n`;
+    });
+
+    // Add a user message to the chat
+    const userMessage: Message = {
+      role: "user",
+      content: `Compare translations of ${verse_key}`
+    };
+
+    // Add the AI response with the comparison
+    const aiResponse: Message = {
+      role: "assistant",
+      content: comparisonText
+    };
+
+    // Update chat messages
+    setChatMessages(prev => [...prev, userMessage, aiResponse]);
+
+    // Expand the chat if it's minimized
+    if (chatMinimized) {
+      setChatMinimized(false);
+    }
+  };
 
 
 
@@ -787,8 +836,35 @@ export default function VerseDetailPage() {
                       translations={verseData.translations}
                       verseKey={verseData.verse_key}
                       onCompare={(ids) => {
-                        console.log("Compare translations:", ids);
                         // Handle comparison logic here
+                        if (ids.length < 2) return;
+
+                        // Find the selected translations
+                        const selectedTranslations = verseData.translations.filter(t =>
+                          ids.includes(t.id)
+                        );
+
+                        // Format the comparison as a message
+                        let comparisonText = `## Translation Comparison for ${verseData.verse_key}\n\n`;
+
+                        // Add a table header
+                        comparisonText += "| Translator | Translation |\n";
+                        comparisonText += "|------------|-------------|\n";
+
+                        // Add each translation as a row
+                        selectedTranslations.forEach(t => {
+                          comparisonText += `| **${t.translator}** (${t.language}) | ${t.text} |\n`;
+                        });
+
+                        // Add messages to chat
+                        setChatMessages(prev => [
+                          ...prev,
+                          { role: "user", content: `Compare translations of ${verseData.verse_key}` },
+                          { role: "assistant", content: comparisonText }
+                        ]);
+
+                        // Expand the chat
+                        setChatMinimized(false);
                       }}
                     />
                   )}

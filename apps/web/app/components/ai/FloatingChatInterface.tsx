@@ -8,6 +8,8 @@ import { SparklesIcon, SendIcon, BookIcon, SearchIcon, BookMarkedIcon, BrainCirc
 import { ChatMessage } from "./ChatMessage"
 import { cn } from "~/lib/utils"
 import { motion } from 'framer-motion'
+import { useAtom } from "jotai"
+import { chatMessagesAtom, chatMinimizedAtom } from "~/store/chat"
 
 // Default suggestion chips
 const DEFAULT_SUGGESTIONS = [
@@ -54,11 +56,18 @@ export function FloatingChatInterface({
 }: FloatingChatInterfaceProps) {
   // Chat state
   const [query, setQuery] = useState("");
-  const [messages, setMessages] = useState<Message[]>([...initialMessages]);
+  const [chatMessages, setChatMessages] = useAtom(chatMessagesAtom);
+  const [chatMinimized, setChatMinimized] = useAtom(chatMinimizedAtom);
   const [isLoading, setIsLoading] = useState(false);
   const [chatActive, setChatActive] = useState(false);
-  const [chatMinimized, setChatMinimized] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // Initialize messages with initialMessages if provided
+  useEffect(() => {
+    if (initialMessages && initialMessages.length > 0) {
+      setChatMessages(initialMessages);
+    }
+  }, []);
 
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
@@ -152,7 +161,7 @@ export function FloatingChatInterface({
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [chatMessages]);
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
@@ -209,13 +218,13 @@ export function FloatingChatInterface({
     };
 
     // Update messages and set loading state
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
+    const updatedMessages = [...chatMessages, userMessage];
+    setChatMessages(updatedMessages);
     setIsLoading(true);
 
     try {
       // Add placeholder for loading state
-      setMessages([...updatedMessages, { role: "assistant", content: "" }]);
+      setChatMessages([...updatedMessages, { role: "assistant", content: "" }]);
 
       let response = "";
 
@@ -228,10 +237,10 @@ export function FloatingChatInterface({
       }
 
       // Update messages with AI response
-      setMessages([...updatedMessages, { role: "assistant", content: response }]);
+      setChatMessages([...updatedMessages, { role: "assistant", content: response }]);
     } catch (error) {
       console.error("Error generating response:", error);
-      setMessages([...updatedMessages, { role: "assistant", content: "I'm sorry, I encountered an error while processing your request." }]);
+      setChatMessages([...updatedMessages, { role: "assistant", content: "I'm sorry, I encountered an error while processing your request." }]);
     } finally {
       setIsLoading(false);
     }
@@ -297,7 +306,7 @@ export function FloatingChatInterface({
             >
               <SparklesIcon className="h-5 w-5 text-white" />
             </motion.div>
-            {messages.length > initialMessages.length && (
+            {chatMessages.length > initialMessages.length && (
               <motion.span
                 className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full"
                 animate={{ scale: [1, 1.5, 1] }}
@@ -351,25 +360,25 @@ export function FloatingChatInterface({
           {/* Chat Messages - Clean with subtle accents */}
           <div className="flex-1 overflow-y-auto p-4 max-h-[400px] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent relative z-10">
             {/* Subtle scroll indicator */}
-            {messages.length > 4 && (
+            {chatMessages.length > 4 && (
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-6 flex justify-center items-center pointer-events-none opacity-30 animate-bounce">
                 <div className="w-1 h-3 bg-accent/30 rounded-full"></div>
               </div>
             )}
 
             <div className="space-y-6">
-              {messages.slice(2).map((message, index) => (
+              {chatMessages.slice(2).map((message, index) => (
                 <ChatMessage
                   key={index}
                   message={message}
-                  isLoading={isLoading && index === messages.length - 3}
+                  isLoading={isLoading && index === chatMessages.length - 3}
                 />
               ))}
               <div ref={messagesEndRef} />
             </div>
 
             {/* Suggestion chips - Elegant with accent hover effects */}
-            {(!chatActive || messages.length <= 2) && (
+            {(!chatActive || chatMessages.length <= 2) && (
               <div className="mt-2 grid grid-cols-1 gap-2">
                 {suggestions.slice(0, 4).map((suggestion, index) => (
                   <button

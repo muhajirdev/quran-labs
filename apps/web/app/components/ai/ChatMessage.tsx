@@ -3,7 +3,8 @@
 import * as React from "react"
 import { cn } from "~/lib/utils"
 import { SparklesIcon } from "lucide-react"
-
+import { lazy, Suspense } from "react"
+const RenderMarkdown = lazy(() => import("./MarkdownRenderer"))
 interface ChatMessageProps {
   message: {
     role: "user" | "assistant" | "system"
@@ -35,7 +36,9 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
       {isUser ? (
         <div className="flex justify-end mb-4">
           <div className="bg-white/[0.03] rounded-2xl rounded-tr-sm py-2.5 px-3.5 max-w-[85%]">
-            <p className="text-sm text-white/80 leading-relaxed">{message.content}</p>
+            <div className="text-sm text-white/80 leading-relaxed">
+              {message.content}
+            </div>
           </div>
         </div>
       ) : (
@@ -48,9 +51,11 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
               {isLoading ? (
                 <LoadingDots />
               ) : (
-                <div className="prose prose-invert max-w-none">
-                  <p className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                </div>
+                <Suspense fallback={<LoadingDots />}>
+                  <div className="prose prose-invert prose-sm max-w-none text-white/90 leading-relaxed">
+                    <RenderMarkdown content={message.content} />
+                  </div>
+                </Suspense>
               )}
             </div>
           </div>
