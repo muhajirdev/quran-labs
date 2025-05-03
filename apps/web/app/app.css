@@ -1,11 +1,12 @@
 @import "tailwindcss" source(".");
 @import "tw-animate-css";
+@import "./styles/satoshi.css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+  --font-sans: "Satoshi", "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
@@ -131,8 +132,38 @@ body {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
+}
+
+/* Satoshi font utility classes */
+.font-satoshi {
+  font-family: "Satoshi", sans-serif;
+}
+
+.font-satoshi-variable {
+  font-family: "Satoshi-Variable", sans-serif;
+}
+
+/* Font weight utility classes */
+.font-light {
+  font-weight: 300;
+}
+
+.font-regular {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-black {
+  font-weight: 900;
 }
 
 
