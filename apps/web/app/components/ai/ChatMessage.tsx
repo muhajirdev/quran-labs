@@ -4,6 +4,7 @@ import * as React from "react"
 import { cn } from "~/lib/utils"
 import { SparklesIcon } from "lucide-react"
 import { lazy, Suspense } from "react"
+import { Logo } from "~/components/ui/logo"
 const RenderMarkdown = lazy(() => import("./MarkdownRenderer"))
 interface ChatMessageProps {
   message: {
@@ -44,15 +45,21 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
       ) : (
         <div className="mb-5">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center mt-0.5">
-              <SparklesIcon className="h-3 w-3 text-white" />
+            <div className="flex-shrink-0 mt-0.5 relative group">
+              {/* Accent color ring */}
+              {/* <div className="absolute inset-[-1px] rounded-full border-1 border-accent/60 group-hover:border-accent transition-colors duration-300"></div> */}
+              {/* Subtle glow effect */}
+              <div className="absolute inset-[-2px] bg-accent rounded-full blur-[6px] opacity-40 group-hover:opacity-70 transition-opacity duration-300"></div>
+              <div className="relative">
+                <Logo size="sm" className="w-6 h-6" />
+              </div>
             </div>
             <div className="flex-1">
               {isLoading ? (
                 <LoadingDots />
               ) : (
                 <Suspense fallback={<LoadingDots />}>
-                  <div className="mt-1">
+                  <div className="">
                     <RenderMarkdown content={message.content} />
                   </div>
                 </Suspense>
@@ -67,7 +74,7 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
 
 function LoadingDots() {
   return (
-    <div className="flex items-center space-x-1.5 min-h-[20px]">
+    <div className="flex items-center space-x-1.5 min-h-[26.5px]">
       <div className="h-1.5 w-1.5 animate-[pulse_1.2s_ease-in-out_0ms_infinite] rounded-full bg-gradient-to-r from-accent to-accent/80"></div>
       <div className="h-1.5 w-1.5 animate-[pulse_1.2s_ease-in-out_160ms_infinite] rounded-full bg-gradient-to-r from-accent to-accent/80"></div>
       <div className="h-1.5 w-1.5 animate-[pulse_1.2s_ease-in-out_320ms_infinite] rounded-full bg-gradient-to-r from-accent to-accent/80"></div>
