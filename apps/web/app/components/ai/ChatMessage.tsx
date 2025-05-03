@@ -51,7 +51,12 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
               {/* Subtle glow effect */}
               <div className="absolute inset-[-2px] bg-accent rounded-full blur-[6px] opacity-40 group-hover:opacity-70 transition-opacity duration-300"></div>
               <div className="relative">
-                <Logo size="sm" className="w-6 h-6" />
+                <Logo
+                  size="sm"
+                  className="w-6 h-6"
+                  useInlineSvg={true}
+                  fill="var(--accent)"
+                />
               </div>
             </div>
             <div className="flex-1">
