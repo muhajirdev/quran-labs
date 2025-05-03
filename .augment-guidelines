@@ -1,4 +1,5 @@
-- Everytime you create new component / functionality, create it new file. Keep it within under 100 lines of code
+- Everytime you create new component / functionality, create it new file. 
+- Always try to keep the file size small under 50 lines of code. If the components becomes bigger extract it into smaller components, and make new files.
 - Remember that we're using "react-router" , not remix and not "react-router-dom" , so import from "react-router"
 - We can use `export const clientLoader` for client-side data fetching before page is loaded and `export consts loader` for server-side data fetching
 - Always try to zoom out first, make plan, before implementing

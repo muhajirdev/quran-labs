@@ -8,7 +8,6 @@ import {
   BookIcon,
   LayersIcon,
   BookMarkedIcon,
-  NetworkIcon,
   SparklesIcon,
   MenuIcon,
   XIcon
@@ -32,12 +31,12 @@ import { cn } from "~/lib/utils"
 
 // Suggestion chips for the homepage
 const SUGGESTIONS = [
+  { text: "I'm grieving. What does the Qur'an say about loss?", icon: <BookIcon className="h-3 w-3" /> },
   { text: "What does the Quran say about patience?", icon: <BookIcon className="h-3 w-3" /> },
   { text: "Find verses about forgiveness", icon: <SearchIcon className="h-3 w-3" /> },
   { text: "Explain the first chapter of the Quran", icon: <BookMarkedIcon className="h-3 w-3" /> },
   { text: "How to deal with anxiety in Islam?", icon: <BrainCircuitIcon className="h-3 w-3" /> },
   { text: "Compare translations of verse 2:255", icon: <LayersIcon className="h-3 w-3" /> },
-  { text: "Show me connections between mercy and forgiveness", icon: <NetworkIcon className="h-3 w-3" /> },
 ];
 
 export function AIChatExperience() {

@@ -9,7 +9,7 @@ import { ChatMessage } from "./ChatMessage"
 import { cn } from "~/lib/utils"
 import { motion } from 'framer-motion'
 import { useAtom } from "jotai"
-import { chatMessagesAtom, chatMinimizedAtom } from "~/store/chat"
+import { chatMessagesAtom, chatMinimizedAtom, chatExpandedAtom } from "~/store/chat"
 
 // Default suggestion chips
 const DEFAULT_SUGGESTIONS = [
@@ -58,6 +58,7 @@ export function FloatingChatInterface({
   const [query, setQuery] = useState("");
   const [chatMessages, setChatMessages] = useAtom(chatMessagesAtom);
   const [chatMinimized, setChatMinimized] = useAtom(chatMinimizedAtom);
+  const [chatExpanded, setChatExpanded] = useAtom(chatExpandedAtom);
   const [isLoading, setIsLoading] = useState(false);
   const [chatActive, setChatActive] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -74,6 +75,19 @@ export function FloatingChatInterface({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
+  // Handle expand/collapse toggle
+  const handleExpandToggle = () => {
+    // Don't do anything if already animating
+    if (isAnimating) return;
+
+    setChatExpanded(!chatExpanded);
+
+    // Scroll to bottom after expanding
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
+
   // Handle smooth animation between states
   const handleMinimizeToggle = (minimize: boolean) => {
     // Don't do anything if already animating
@@ -82,12 +96,20 @@ export function FloatingChatInterface({
     setIsAnimating(true);
 
     // Create a reference to the button element for expanding animation
-    const buttonElement = document.querySelector('.chat-button');
-    const buttonRect = buttonElement?.getBoundingClientRect();
+    // Only access document in browser environment
+    let buttonWidth = 48;
+    let buttonHeight = 48;
 
-    // Default button dimensions if not found
-    const buttonWidth = buttonRect?.width || 48;
-    const buttonHeight = buttonRect?.height || 48;
+    if (typeof document !== 'undefined') {
+      const buttonElement = document.querySelector('.chat-button');
+      const buttonRect = buttonElement?.getBoundingClientRect();
+
+      // Use dimensions if found
+      if (buttonRect) {
+        buttonWidth = buttonRect.width;
+        buttonHeight = buttonRect.height;
+      }
+    }
 
     if (minimize) {
       // When minimizing: animate the chat container to the button position
@@ -109,6 +131,10 @@ export function FloatingChatInterface({
         setTimeout(() => {
           setChatMinimized(true);
           setIsAnimating(false);
+          // Reset expanded state when minimizing
+          if (chatExpanded) {
+            setChatExpanded(false);
+          }
         }, 350);
       }
     } else {
@@ -252,12 +278,14 @@ export function FloatingChatInterface({
         "fixed z-20 flex justify-end",
         chatMinimized
           ? 'bottom-4 right-4 w-12 h-12' :
-          'bottom-4 right-4 sm:bottom-6 sm:right-6 w-[420px] max-w-[calc(100vw-32px)] ',
+          chatExpanded
+            ? 'bottom-0 right-0 w-full h-full sm:w-[600px] sm:h-[calc(100vh-32px)] sm:bottom-4 sm:right-4'
+            : 'bottom-4 right-4 sm:bottom-6 sm:right-6 w-[420px] max-w-[calc(100vw-32px)]',
         className
       )}
       style={{
         transformOrigin: 'bottom right',
-        borderRadius: chatMinimized ? '9999px' : '1rem',
+        borderRadius: chatMinimized ? '9999px' : chatExpanded ? '0 sm:1rem' : '1rem',
         transition: isAnimating ? 'none' : 'width 400ms cubic-bezier(0.2, 0.8, 0.2, 1), height 400ms cubic-bezier(0.2, 0.8, 0.2, 1), border-radius 400ms cubic-bezier(0.2, 0.8, 0.2, 1)'
       }}
     >
@@ -318,7 +346,12 @@ export function FloatingChatInterface({
       ) : (
         <div
           ref={chatContainerRef}
-          className="w-full h-full bg-[#0A0A0A] backdrop-blur-xl border border-white/[0.03] rounded-2xl overflow-hidden flex flex-col shadow-[0_10px_40px_rgba(0,0,0,0.3)] relative"
+          className={cn(
+            "w-full h-full bg-[#0A0A0A] backdrop-blur-xl border overflow-hidden flex flex-col relative",
+            chatExpanded
+              ? "sm:rounded-2xl sm:border-white/[0.03] sm:shadow-[0_10px_40px_rgba(0,0,0,0.3)]"
+              : "rounded-2xl border-white/[0.03] shadow-[0_10px_40px_rgba(0,0,0,0.3)]"
+          )}
         >
           {/* Subtle background pattern */}
           <div className="absolute inset-0 opacity-5" style={{
@@ -345,20 +378,51 @@ export function FloatingChatInterface({
                 )}
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 rounded-full hover:bg-white/5 text-white/60 hover:text-white/90 transition-colors duration-300"
-              onClick={() => handleMinimizeToggle(true)}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 12H6" />
-              </svg>
-            </Button>
+            <div className="flex items-center gap-1">
+              {/* Expand/Collapse Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-full hover:bg-white/5 text-white/60 hover:text-white/90 transition-colors duration-300"
+                onClick={handleExpandToggle}
+                title={chatExpanded ? "Collapse" : "Expand"}
+              >
+                {chatExpanded ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="4 14 10 14 10 20" />
+                    <polyline points="20 10 14 10 14 4" />
+                    <line x1="14" y1="10" x2="21" y2="3" />
+                    <line x1="3" y1="21" x2="10" y2="14" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 3 21 3 21 9" />
+                    <polyline points="9 21 3 21 3 15" />
+                    <line x1="21" y1="3" x2="14" y2="10" />
+                    <line x1="3" y1="21" x2="10" y2="14" />
+                  </svg>
+                )}
+              </Button>
+
+              {/* Minimize Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-full hover:bg-white/5 text-white/60 hover:text-white/90 transition-colors duration-300"
+                onClick={() => handleMinimizeToggle(true)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 12H6" />
+                </svg>
+              </Button>
+            </div>
           </div>
 
           {/* Chat Messages - Clean with subtle accents */}
-          <div className="flex-1 overflow-y-auto p-4 max-h-[400px] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent relative z-10">
+          <div className={cn(
+            "flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent relative z-10",
+            chatExpanded ? "max-h-[calc(100vh-160px)]" : "max-h-[400px]"
+          )}>
             {/* Subtle scroll indicator */}
             {chatMessages.length > 4 && (
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-6 flex justify-center items-center pointer-events-none opacity-30 animate-bounce">

@@ -7,7 +7,7 @@ type Props = {
 
 export default function RenderMarkdown({ content }: Props) {
     return (
-        <div className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap">
+        <div className="text-base text-white/90 leading-relaxed whitespace-pre-wrap">
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{

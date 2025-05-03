@@ -16,5 +16,4 @@ const initialMessages: Message[] = [
 // Chat state atoms
 export const chatMessagesAtom = atom<Message[]>(initialMessages);
 export const chatMinimizedAtom = atom<boolean>(true);
-
-// Chat state atoms are defined above
+export const chatExpandedAtom = atom<boolean>(false);

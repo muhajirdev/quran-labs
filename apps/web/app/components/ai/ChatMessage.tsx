@@ -52,7 +52,7 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
                 <LoadingDots />
               ) : (
                 <Suspense fallback={<LoadingDots />}>
-                  <div className="prose prose-invert prose-sm max-w-none text-white/90 leading-relaxed">
+                  <div className="mt-1">
                     <RenderMarkdown content={message.content} />
                   </div>
                 </Suspense>

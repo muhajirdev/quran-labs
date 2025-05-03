@@ -43,7 +43,7 @@ export function GeometricDecoration({
     : variant === "elegant"
       ? 0.2
       : variant === "animated"
-        ? 0.10
+        ? 0.14
         : 0.08;
 
   return (

@@ -856,10 +856,18 @@ export default function VerseDetailPage() {
                           comparisonText += `| **${t.translator}** (${t.language}) | ${t.text} |\n`;
                         });
 
+                        // Create a list of selected translators for the user message
+                        const translatorsList = selectedTranslations
+                          .map(t => t.translator)
+                          .join(", ");
+
                         // Add messages to chat
                         setChatMessages(prev => [
                           ...prev,
-                          { role: "user", content: `Compare translations of ${verseData.verse_key}` },
+                          {
+                            role: "user",
+                            content: `Compare translations of ${verseData.verse_key} by ${translatorsList}`
+                          },
                           { role: "assistant", content: comparisonText }
                         ]);
 
