@@ -54,8 +54,8 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
                 <Logo
                   size="sm"
                   className="w-6 h-6"
-                  useInlineSvg={true}
-                  fill="var(--accent)"
+                // useInlineSvg={true}
+                // fill="var(--accent)"
                 />
               </div>
             </div>
