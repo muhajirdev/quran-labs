@@ -58,18 +58,21 @@ export function VerseItem({
   };
 
   return (
-    <div className="pb-6 border-b border-white/10 last:border-0 group">
+    <div className="group relative">
+      {/* Verse actions at the top */}
       <div className="flex justify-between items-center mb-4">
+        {/* Verse number badge */}
         <Link
           to={`/verse/${verseKey}`}
           className="hover:text-accent transition-colors"
         >
-          <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 hover:bg-accent/20 transition-colors">
+          <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 hover:bg-accent/20 transition-colors text-xs">
             {verseKey}
           </Badge>
         </Link>
 
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Action buttons */}
+        <div className="flex items-center gap-1 sm:gap-2 opacity-70 sm:opacity-0 group-hover:opacity-100 transition-opacity">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -77,12 +80,12 @@ export function VerseItem({
                   variant="ghost"
                   size="icon"
                   onClick={handleCopy}
-                  className="h-7 w-7 rounded-full border-0 hover:bg-white/5 text-white/70 hover:text-white"
+                  className="h-6 w-6 sm:h-7 sm:w-7 rounded-full border-0 bg-white/[0.03] hover:bg-white/10 text-white/70 hover:text-white shadow-sm"
                 >
-                  <Copy className={`h-3.5 w-3.5 ${copied ? 'text-accent' : ''}`} />
+                  <Copy className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${copied ? 'text-accent' : ''}`} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className="bg-[#121212] border-white/10 text-white">
+              <TooltipContent>
                 <p>{copied ? 'Copied!' : 'Copy verse'}</p>
               </TooltipContent>
             </Tooltip>
@@ -95,53 +98,67 @@ export function VerseItem({
                   variant="ghost"
                   size="icon"
                   onClick={handleBookmark}
-                  className="h-7 w-7 rounded-full border-0 hover:bg-white/5 text-white/70 hover:text-white"
+                  className="h-6 w-6 sm:h-7 sm:w-7 rounded-full border-0 bg-white/[0.03] hover:bg-white/10 text-white/70 hover:text-white shadow-sm"
                 >
-                  <Bookmark className={`h-3.5 w-3.5 ${bookmarked ? 'fill-accent text-accent' : ''}`} />
+                  <Bookmark className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${bookmarked ? 'fill-accent text-accent' : ''}`} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className="bg-[#121212] border-white/10 text-white">
+              <TooltipContent>
                 <p>{bookmarked ? 'Bookmarked' : 'Bookmark verse'}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
           {showDetailLink && (
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="h-7 px-2.5 rounded-full border-0 hover:bg-white/5 text-white/70 hover:text-white"
-            >
-              <Link to={`/verse/${verseKey}`} className="flex items-center gap-1 text-xs">
-                <span>Details</span>
-                <ExternalLink className="h-3 w-3" />
-              </Link>
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    className="h-6 w-6 sm:h-7 sm:w-7 rounded-full border-0 bg-white/[0.03] hover:bg-white/10 text-white/70 hover:text-white shadow-sm"
+                  >
+                    <Link to={`/verse/${verseKey}`}>
+                      <ExternalLink className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>View verse details</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </div>
 
-      {/* Arabic text */}
-      <div className="mb-4 group relative">
-        <div className="absolute -left-3 top-0 bottom-0 w-0.5 bg-gradient-to-b from-accent/0 via-accent/30 to-accent/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        <p className="text-xl font-arabic arabic-xl leading-loose text-white/90" dir="rtl" lang="ar">
-          {arabicText}
-        </p>
-      </div>
-
-      {/* Translation */}
-      {primaryTranslation && (
-        <div className="text-base leading-relaxed text-white/70">
-          {primaryTranslation.text}
-          {primaryTranslation.translator && (
-            <div className="mt-3 text-xs text-white/50 flex items-center gap-1">
-              <span>Translation:</span>
-              <span className="font-medium">{primaryTranslation.translator}</span>
-            </div>
-          )}
+      {/* Content with elegant spacing */}
+      <div className="pb-8 relative">
+        {/* Arabic text */}
+        <div className="mb-4 sm:mb-6 group relative">
+          <div className="absolute -left-2 sm:-left-3 top-0 bottom-0 w-0.5 bg-gradient-to-b from-accent/0 via-accent/30 to-accent/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <p className="text-xl sm:text-2xl font-arabic arabic-xl leading-loose text-white/90 break-words" dir="rtl" lang="ar">
+            {arabicText}
+          </p>
         </div>
-      )}
+
+        {/* Translation */}
+        {primaryTranslation && (
+          <div className="text-sm sm:text-base leading-relaxed text-white/70 break-words">
+            {primaryTranslation.text}
+            {primaryTranslation.translator && (
+              <div className="mt-3 sm:mt-4 text-[10px] sm:text-xs text-white/40 flex items-center gap-1">
+                <span>Translation:</span>
+                <span className="font-medium text-white/50">{primaryTranslation.translator}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Subtle verse separator */}
+        <div className="absolute bottom-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+      </div>
     </div>
   );
 }
