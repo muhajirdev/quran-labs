@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
 import { AIChatExperience } from "~/components/ai/AIChatExperience";
+import { useLoaderData } from "react-router";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -8,11 +9,12 @@ export function meta({ }: Route.MetaArgs) {
   ];
 }
 
+export const loader = async ({ context }: Route.LoaderArgs) => {
+  const country = context.country;
+  return { country }
+};
 
-export function clientLoader({ context }: Route.ClientLoaderArgs) {
-  return {}
-}
-
-export default function Home({ }: Route.ComponentProps) {
-  return <AIChatExperience />;
+export default function Home() {
+  const { country } = useLoaderData<typeof loader>();
+  return <AIChatExperience countryCode={country} />;
 }

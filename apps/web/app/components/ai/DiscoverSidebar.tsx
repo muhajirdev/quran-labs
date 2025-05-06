@@ -36,6 +36,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "~/components/ui/dropdown-menu"
+import { REGIONS } from "~/constants/regions"
 
 // Import JSON data
 import enData from "~/data/discover/en.json"
@@ -88,7 +89,8 @@ interface DiscoverSidebarProps {
 
 export function DiscoverSidebar({ open, onClose, onSelectSuggestion, currentLanguage, setCurrentLanguage }: DiscoverSidebarProps) {
 
-  // Get the current data based on language
+  // Get the appropriate content data based on country/language code
+  // id.json for Indonesia (ID), en.json for other countries
   const data = currentLanguage === "id" ? idData as unknown as DiscoverData : enData as unknown as DiscoverData;
 
   // Function to get icon component by name
@@ -119,11 +121,7 @@ export function DiscoverSidebar({ open, onClose, onSelectSuggestion, currentLang
     return icons[name] || <SearchIcon className={className} />;
   };
 
-  // Available languages
-  const languages = [
-    { code: "en", name: "English" },
-    { code: "id", name: "Bahasa Indonesia" }
-  ];
+  // Note: We're now using region-based content selection instead of just language selection
 
   return (
     <>
@@ -144,7 +142,7 @@ export function DiscoverSidebar({ open, onClose, onSelectSuggestion, currentLang
           </h2>
 
           <div className="flex items-center gap-2">
-            {/* Language Selector */}
+            {/* Region/Content Selector */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -153,24 +151,24 @@ export function DiscoverSidebar({ open, onClose, onSelectSuggestion, currentLang
                   className="h-8 w-8 text-white/70 hover:text-white"
                 >
                   <GlobeIcon className="h-4 w-4" />
-                  <span className="sr-only">Select Language</span>
+                  <span className="sr-only">Select Region</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-[#1A1A1A] border-white/10 text-white">
-                {languages.map(lang => (
+                {REGIONS.map(region => (
                   <DropdownMenuItem
-                    key={lang.code}
+                    key={region.code}
                     className={cn(
                       "flex items-center gap-2 cursor-pointer",
-                      currentLanguage === lang.code ? "bg-accent/10 text-accent" : "text-white/70"
+                      currentLanguage === region.code ? "bg-accent/10 text-accent" : "text-white/70"
                     )}
-                    onClick={() => setCurrentLanguage(lang.code)}
+                    onClick={() => setCurrentLanguage(region.code)}
                   >
-                    {currentLanguage === lang.code && (
+                    {currentLanguage === region.code && (
                       <CheckIcon className="h-4 w-4 text-accent" />
                     )}
-                    <span className={currentLanguage === lang.code ? "ml-0" : "ml-6"}>
-                      {lang.name}
+                    <span className={currentLanguage === region.code ? "ml-0" : "ml-6"}>
+                      {region.displayName}
                     </span>
                   </DropdownMenuItem>
                 ))}

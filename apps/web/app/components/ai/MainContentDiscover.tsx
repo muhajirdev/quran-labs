@@ -21,6 +21,7 @@ import {
 } from "~/components/ui/dropdown-menu"
 import { Button } from "~/components/ui/button"
 import { cn } from "~/lib/utils"
+import { REGIONS, getRegionByCode } from "~/constants/regions"
 
 // Import JSON data
 import enData from "~/data/discover/en.json"
@@ -70,19 +71,11 @@ interface MainContentDiscoverProps {
 }
 
 export function MainContentDiscover({ onSelectSuggestion, currentLanguage, setCurrentLanguage }: MainContentDiscoverProps) {
-  // Get the current data based on language
+  // Get the appropriate content data based on country/language code
+  // id.json for Indonesia (ID), en.json for other countries
   const data = currentLanguage === "id" ? idData as unknown as DiscoverData : enData as unknown as DiscoverData;
 
-  // Available languages - can be expanded in the future
-  const languages = [
-    { code: "en", name: "English" },
-    { code: "id", name: "Bahasa Indonesia" },
-    // Add more languages here as they become available
-    // { code: "ar", name: "العربية" },
-    // { code: "fr", name: "Français" },
-    // { code: "es", name: "Español" },
-    // etc.
-  ];
+  // Note: We're now using region-based content selection instead of just language selection
 
   // Function to get icon component by name
   const getIconByName = (name: string, className: string = "h-5 w-5 text-accent") => {
@@ -105,7 +98,7 @@ export function MainContentDiscover({ onSelectSuggestion, currentLanguage, setCu
 
   return (
     <div className="w-full max-w-3xl mx-auto px-3 sm:px-6">
-      {/* Language Selector - Dropdown for better scalability */}
+      {/* Region/Content Selector - Dropdown for better scalability */}
       {setCurrentLanguage && (
         <div className="flex justify-end mb-4">
           <DropdownMenu>
@@ -115,24 +108,28 @@ export function MainContentDiscover({ onSelectSuggestion, currentLanguage, setCu
                 className="flex items-center gap-2 bg-white/[0.03] hover:bg-white/[0.05] rounded-lg px-3 py-1.5 text-xs font-medium border border-white/5 hover:border-accent/20 text-white/80 hover:text-white transition-colors"
               >
                 <GlobeIcon className="h-3.5 w-3.5 text-accent/80" />
-                <span>{languages.find(lang => lang.code === currentLanguage)?.name || "Select Language"}</span>
+                <span>
+                  {getRegionByCode(currentLanguage).name}
+                </span>
                 <ChevronDownIcon className="h-3 w-3 ml-1 opacity-70" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-[#1A1A1A] border-white/10 text-white min-w-[160px]">
-              {languages.map(lang => (
+              {REGIONS.map(region => (
                 <DropdownMenuItem
-                  key={lang.code}
+                  key={region.code}
                   className={cn(
                     "flex items-center gap-2 cursor-pointer text-xs py-2",
-                    currentLanguage === lang.code ? "bg-accent/10 text-accent" : "text-white/70 hover:text-white"
+                    currentLanguage === region.code ? "bg-accent/10 text-accent" : "text-white/70 hover:text-white"
                   )}
-                  onClick={() => setCurrentLanguage(lang.code)}
+                  onClick={() => setCurrentLanguage(region.code)}
                 >
-                  {currentLanguage === lang.code && (
+                  {currentLanguage === region.code && (
                     <CheckIcon className="h-3.5 w-3.5 text-accent" />
                   )}
-                  <span className={currentLanguage === lang.code ? "ml-0" : "ml-5.5"}>{lang.name}</span>
+                  <span className={currentLanguage === region.code ? "ml-0" : "ml-5.5"}>
+                    {region.displayName}
+                  </span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

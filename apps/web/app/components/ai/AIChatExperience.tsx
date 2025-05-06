@@ -26,10 +26,13 @@ import {
 import { cn } from "~/lib/utils"
 import { DiscoverSidebar } from "./DiscoverSidebar"
 import { MainContentDiscover } from "./MainContentDiscover"
+import { getRegionCodeFromCountry } from "~/constants/regions"
 
+interface AIChatExperienceProps {
+  countryCode?: string;
+}
 
-
-export function AIChatExperience() {
+export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
   // State
   const [commandDialogOpen, setCommandDialogOpen] = useState(false);
   const [discoverSheetOpen, setDiscoverSheetOpen] = useState(false);
@@ -39,7 +42,9 @@ export function AIChatExperience() {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [chatActive, setChatActive] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState<string>("en");
+  // Set default content based on country code
+  // This selects the appropriate content file (id.json for Indonesia, en.json for others)
+  const [contentRegion, setContentRegion] = useState<string>(getRegionCodeFromCountry(countryCode));
 
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
@@ -393,8 +398,8 @@ export function AIChatExperience() {
           <div className="mb-10 sm:mb-14 w-full">
             <MainContentDiscover
               onSelectSuggestion={handleSuggestionClick}
-              currentLanguage={currentLanguage}
-              setCurrentLanguage={setCurrentLanguage}
+              currentLanguage={contentRegion}
+              setCurrentLanguage={setContentRegion}
             />
           </div>
         </div>
@@ -487,8 +492,8 @@ export function AIChatExperience() {
         open={discoverSheetOpen}
         onClose={() => setDiscoverSheetOpen(false)}
         onSelectSuggestion={handleDiscoverSuggestion}
-        currentLanguage={currentLanguage}
-        setCurrentLanguage={setCurrentLanguage}
+        currentLanguage={contentRegion}
+        setCurrentLanguage={setContentRegion}
       />
     </div>
   );

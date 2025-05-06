@@ -2,6 +2,7 @@ import { createRequestHandler } from "react-router";
 
 declare module "react-router" {
   export interface AppLoadContext {
+    country?: string; // example "ID"
     cloudflare: {
       env: Env;
       ctx: ExecutionContext;
@@ -17,7 +18,8 @@ const requestHandler = createRequestHandler(
 export default {
   async fetch(request, env, ctx) {
     return requestHandler(request, {
-      cloudflare: { env, ctx },
+      country: request.cf?.country,
+      cloudflare: { env, ctx, },
     });
   },
 } satisfies ExportedHandler<Env>;
