@@ -10,7 +10,8 @@ import {
   BookMarkedIcon,
   SparklesIcon,
   MenuIcon,
-  XIcon
+  XIcon,
+  CompassIcon
 } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { Button } from "~/components/ui/button"
@@ -29,6 +30,7 @@ import {
   type Message as ThreadMessage
 } from "~/lib/thread-manager"
 import { cn } from "~/lib/utils"
+import { DiscoverSidebar } from "./DiscoverSidebar"
 
 // Suggestion chips for the homepage
 const SUGGESTIONS = [
@@ -43,6 +45,7 @@ const SUGGESTIONS = [
 export function AIChatExperience() {
   // State
   const [commandDialogOpen, setCommandDialogOpen] = useState(false);
+  const [discoverSheetOpen, setDiscoverSheetOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState<ThreadMessage[]>([...INITIAL_MESSAGES]);
   const [isLoading, setIsLoading] = useState(false);
@@ -182,12 +185,8 @@ export function AIChatExperience() {
 
   // Handle suggestion click
   const handleSuggestionClick = (suggestion: string) => {
-    setQuery(suggestion);
-
-    // Focus input after setting suggestion
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    // Use the same handler as the discover sheet for consistency
+    handleDiscoverSuggestion(suggestion);
   };
 
   // Create new chat
@@ -208,13 +207,33 @@ export function AIChatExperience() {
     window.history.replaceState({}, '', url.toString());
   };
 
+  // Handle suggestion from DiscoverSheet
+  const handleDiscoverSuggestion = (suggestion: string) => {
+    setQuery(suggestion);
+    setDiscoverSheetOpen(false);
+
+    // If chat is not active, focus the input
+    if (!chatActive) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-[#0A0A0A] relative">
+    <div className={cn(
+      "flex flex-col min-h-screen bg-[#0A0A0A] relative transition-all duration-300",
+      discoverSheetOpen && "md:pl-[350px]" // Add padding when sidebar is open on desktop
+    )}>
       {/* Animated Geometric Pattern Background */}
       <GeometricDecoration variant="animated" />
 
       {/* Header - Fixed position with consistent blur and transition */}
-      <header className={cn("fixed top-0 left-0 right-0 z-10 transition-all duration-300", mobileMenuOpen && "backdrop-blur-md")}>
+      <header className={cn(
+        "fixed top-0 left-0 right-0 z-10 transition-all duration-300",
+        mobileMenuOpen && "backdrop-blur-md",
+        discoverSheetOpen && "md:left-[350px]" // Shift header when sidebar is open on desktop
+      )}>
 
         {/* Desktop and Mobile Header Layout */}
         <div className="flex items-center justify-between py-3 px-3 sm:px-6 relative z-10">
@@ -244,6 +263,16 @@ export function AIChatExperience() {
 
           {/* Desktop Navigation */}
           <div className="hidden sm:flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/50 hover:text-white text-xs h-7 px-3 relative overflow-hidden group border-0 hover:bg-white/5"
+              onClick={() => setDiscoverSheetOpen(true)}
+            >
+              <CompassIcon className="h-3 w-3 mr-1.5 text-accent/80" />
+              <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">Discover</span>
+            </Button>
+
             <Button
               variant="ghost"
               size="sm"
@@ -282,8 +311,21 @@ export function AIChatExperience() {
         </div>
 
         {/* Mobile Menu - Collapsible */}
-        <div className={`sm:hidden overflow-hidden transition-all duration-300 ${mobileMenuOpen ? 'max-h-24 opacity-100 border-b border-white/5' : 'max-h-0 opacity-0'}`}>
+        <div className={`sm:hidden overflow-hidden transition-all duration-300 ${mobileMenuOpen ? 'max-h-36 opacity-100 border-b border-white/5' : 'max-h-0 opacity-0'}`}>
           <div className="px-3 py-2 flex flex-col gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/50 hover:text-white text-xs h-8 px-3 justify-start relative overflow-hidden group border-0 hover:bg-white/5 w-full"
+              onClick={() => {
+                setDiscoverSheetOpen(true);
+                setMobileMenuOpen(false);
+              }}
+            >
+              <CompassIcon className="h-3 w-3 mr-1.5 text-accent/80" />
+              <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">Discover</span>
+            </Button>
+
             <Button
               variant="ghost"
               size="sm"
@@ -407,7 +449,10 @@ export function AIChatExperience() {
         </div>
 
         {/* Input area - Fixed at bottom with consistent blur and transition */}
-        <div className="fixed bottom-0 left-0 right-0 z-10 w-full px-3 sm:px-6 py-3 sm:py-4 transition-all duration-300">
+        <div className={cn(
+          "fixed bottom-0 left-0 right-0 z-10 w-full px-3 sm:px-6 py-3 sm:py-4 transition-all duration-300",
+          discoverSheetOpen && "md:left-[350px] md:w-[calc(100%-350px)]" // Shift input area and adjust width when sidebar is open
+        )}>
           <div className="absolute inset-0 blur-layer"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
 
@@ -462,6 +507,13 @@ export function AIChatExperience() {
       <HomeCommandDialog
         open={commandDialogOpen}
         onOpenChange={setCommandDialogOpen}
+      />
+
+      {/* Discover Sidebar */}
+      <DiscoverSidebar
+        open={discoverSheetOpen}
+        onClose={() => setDiscoverSheetOpen(false)}
+        onSelectSuggestion={handleDiscoverSuggestion}
       />
     </div>
   );
