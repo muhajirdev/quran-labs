@@ -1,0 +1,353 @@
+{
+  "language": "id",
+  "languageName": "Bahasa Indonesia",
+  "sections": [
+    {
+      "id": "trending",
+      "title": "Lagi Ngetren Nih",
+      "icon": "TrendingUp",
+      "items": [
+        {
+          "type": "card",
+          "title": "Arti lagu 'Selalu Ada di Nadimu'",
+          "description": "Lagu OST film Jumbo yang lagi viral",
+          "icon": "Music",
+          "query": "Eh, lagu 'Selalu Ada di Nadimu' yang jadi OST Jumbo itu artinya apa sih? Relate banget kayaknya sama kesetiaan."
+        },
+        {
+          "type": "imageCard",
+          "title": "Gak bisa lepas dari TikTok sebelum tidur",
+          "imageSrc": "/images/discover/peace.jpg",
+          "fullWidth": true,
+          "query": "Aduh, aku ketagihan scroll TikTok sebelum tidur nih, jadi sering telat bangun subuh. Gimana ya menurut Al-Quran soal kebiasaan kayak gini?"
+        },
+        {
+          "type": "card",
+          "title": "Hikmah film 'Ipar Adalah Maut'",
+          "description": "Pelajaran dari film viral soal rumah tangga",
+          "icon": "Film",
+          "query": "Film 'Ipar Adalah Maut' lagi rame banget. Dari sisi Islam, apa sih hikmah yang bisa diambil soal ujian dalam rumah tangga dan godaan?"
+        },
+        {
+          "type": "card",
+          "title": "Ngerti konflik Israel-Palestina",
+          "description": "Sejarah konflik dari sudut pandang Islam",
+          "icon": "Globe",
+          "query": "Bisa jelasin gak konflik Israel-Palestina dari sudut pandang sejarah Islam? Terus apa sih yang Al-Quran ajarin soal perdamaian dan keadilan?"
+        }
+      ]
+    },
+    {
+      "id": "entertainment",
+      "title": "Musik & Film",
+      "icon": "Film",
+      "items": [
+        {
+          "type": "card",
+          "title": "Pandangan Islam soal film 'Siksa Kubur'",
+          "description": "Belajar soal alam kubur dari film horor?",
+          "icon": "Film",
+          "query": "Film 'Siksa Kubur' bikin merinding ya. Dari kacamata Islam, gimana sih pandangannya soal film horor yang ngingetin tentang kematian dan alam kubur?"
+        },
+        {
+          "type": "card",
+          "title": "Arti lagu 'Bermuara' - Rizky Febian & Mahalini",
+          "description": "Makna duet hits dari kacamata Islam",
+          "icon": "Music",
+          "query": "Lagu 'Bermuara' nya Iky sama Lini enak banget ya. Kalau dari sudut pandang Islam, gimana sih memaknai liriknya tentang hubungan?"
+        },
+        {
+          "type": "imageCard",
+          "title": "Nilai Islam di sinetron 'Tukang Ojek Pengkolan'",
+          "imageSrc": "/images/discover/peace.jpg",
+          "fullWidth": true,
+          "query": "Sinetron 'Tukang Ojek Pengkolan' itu sebenernya ngajarin nilai-nilai Islam apa aja sih? Bagian mana yang bisa jadi contoh buat kehidupan sehari-hari?"
+        },
+        {
+          "type": "card",
+          "title": "Rekomendasi film Indonesia yang islami",
+          "description": "Film lokal yang sesuai nilai Islam",
+          "icon": "Tv",
+          "query": "Aku bingung nih mau nonton film Indonesia yang islami. Ada rekomendasi film lokal yang bagus dan sesuai nilai Islam gak?"
+        },
+        {
+          "type": "card",
+          "title": "Arti lagu 'Penjaga Hati' - Nadhif Basalamah",
+          "description": "Analisis lirik hits dari sudut pandang Islam",
+          "icon": "Music",
+          "query": "Lagu 'Penjaga Hati' nya Nadhif Basalamah lagi hits banget. Kalo dianalisis dari sudut pandang Islam, apa sih makna di balik liriknya?"
+        },
+        {
+          "type": "card",
+          "title": "Nilai Islam di film 'Ketika Berhenti di Sini'",
+          "description": "Pelajaran dari film Indonesia terbaru",
+          "icon": "Film",
+          "query": "Film 'Ketika Berhenti di Sini' itu sebenernya ngajarin apa sih dari sudut pandang Islam? Ada pelajaran yang bisa diambil gak dari ceritanya?"
+        }
+      ]
+    },
+    {
+      "id": "home",
+      "title": "Urusan Rumah Tangga",
+      "icon": "Home",
+      "items": [
+        {
+          "type": "card",
+          "title": "Suami hobi naruh handuk basah di kasur",
+          "description": "Tips sabar hadapi kebiasaan pasangan",
+          "icon": "Bed",
+          "query": "Suamiku tuh ya, suka banget naruh handuk basah di kasur. Sebel deh! Gimana sih cara sabar ngadepin kebiasaan nyebelin gini menurut Islam?"
+        },
+        {
+          "type": "card",
+          "title": "Anak kecanduan main Mobile Legends/game online lain",
+          "description": "Cara ngatur screen time anak zaman now",
+          "icon": "Smartphone",
+          "query": "Anakku kecanduan main Mobile Legends (atau game online lain), sampe lupa waktu. Gimana ya cara ngajarin anak soal disiplin waktu tapi gak bikin dia memberontak?"
+        },
+        {
+          "type": "card",
+          "title": "Kok cuma aku yang beres-beres rumah?",
+          "description": "Pembagian tugas rumah yang adil",
+          "icon": "Utensils",
+          "query": "Kok kayaknya cuma aku yang beres-beres rumah ya? Yang lain santai aja. Menurut Al-Quran, harusnya gimana sih pembagian tugas di rumah yang adil?"
+        },
+        {
+          "type": "card",
+          "title": "Ngajarin anak ngaji di era TikTok",
+          "description": "Gimana caranya anak tetep islami di zaman now",
+          "icon": "Lightbulb",
+          "query": "Anakku lebih suka nonton TikTok daripada ngaji. Gimana sih cara bikin anak tertarik sama Al-Quran di zaman digital gini?"
+        },
+        {
+          "type": "card",
+          "title": "Ortu maksa masuk jurusan tertentu",
+          "description": "Nurut sama ortu vs ikutin passion",
+          "icon": "Briefcase",
+          "query": "Ortuku maksa aku masuk jurusan X (misal: kedokteran), padahal aku pengen banget masuk Y (misal: DKV). Gimana ya caranya ngejar passion tapi tetep hormat sama ortu sesuai ajaran Islam?"
+        }
+      ]
+    },
+    {
+      "id": "relationships",
+      "title": "Masalah Pasangan & Keluarga",
+      "icon": "Heart",
+      "items": [
+        {
+          "type": "card",
+          "title": "Pasangan kecanduan main game online",
+          "description": "Cara ngobrol baik-baik soal kebiasaan pasangan",
+          "icon": "Smartphone",
+          "query": "Pasanganku (suami/istri) kecanduan main Mobile Legends/game online, sampe lupa tanggung jawab. Gimana ya cara ngomongnya yang baik menurut Islam, biar dia gak tersinggung?"
+        },
+        {
+          "type": "card",
+          "title": "Mertua suka banget ikut campur urusan rumah tangga",
+          "description": "Tips hadapi mertua yang cerewet",
+          "icon": "MessagesSquare",
+          "query": "Mertuaku tuh ikut campur mulu sama urusan rumah tanggaku. Capek deh! Ada tips gak sih dari Islam buat hadapi mertua yang suka ngatur-ngatur?"
+        },
+        {
+          "type": "imageCard",
+          "title": "Susah nyari jodoh di aplikasi ta'aruf online",
+          "imageSrc": "/images/discover/peace.jpg",
+          "fullWidth": true,
+          "query": "Kok susah banget ya nyari jodoh yang seiman di aplikasi ta'aruf online? Ada saran gak dari Islam buat nyari pasangan yang cocok?"
+        },
+        {
+          "type": "card",
+          "title": "Beda pendapat soal sekolah anak: pesantren vs sekolah umum",
+          "description": "Cari jalan tengah dalam pendidikan anak",
+          "icon": "Users",
+          "query": "Aku maunya anak sekolah di pesantren, tapi suami pengennya di sekolah umum aja. Gimana ya caranya nyari jalan tengah tapi tetep sesuai prinsip Islam?"
+        },
+        {
+          "type": "card",
+          "title": "Punya pacar beda agama, ortuku gak setuju",
+          "description": "Dilema cinta dan keimanan",
+          "icon": "UserPlus",
+          "query": "Aku pacaran sama cowok/cewek non-muslim, tapi ortuku gak setuju. Menurut Islam, apa yang sebaiknya aku lakuin dalam situasi kayak gini?"
+        }
+      ]
+    },
+    {
+      "id": "work",
+      "title": "Kerjaan & Duit",
+      "icon": "DollarSign",
+      "items": [
+        {
+          "type": "imageCard",
+          "title": "Kecanduan belanja di Shopee & Tokopedia",
+          "imageSrc": "/images/discover/productivity.jpg",
+          "fullWidth": true,
+          "query": "Duh, aku kecanduan belanja di Shopee & Tokopedia nih, padahal gajian masih lama. Ada nasihat gak dari Al-Quran soal gaya hidup sederhana?"
+        },
+        {
+          "type": "card",
+          "title": "Temen kantor hobi ngomongin orang di grup WA",
+          "description": "Cara hindari gibah di tempat kerja",
+          "icon": "Heart",
+          "query": "Temen kantorku hobi banget ngomongin si A atau si B di grup WA. Risih dengernya. Menurut Islam, gimana sih cara ngehindar dari obrolan gibah gitu?"
+        },
+        {
+          "type": "card",
+          "title": "Reksadana syariah vs konvensional",
+          "description": "Ngerti prinsip keuangan Islam",
+          "icon": "LineChart",
+          "query": "Aku bingung mau pilih reksadana syariah atau konvensional. Apa bedanya sih? Dan gimana caranya mastiin investasiku halal sesuai prinsip Islam?"
+        },
+        {
+          "type": "card",
+          "title": "Kerja di lingkungan yang gak sejalan sama nilai Islam",
+          "description": "Gimana ngadepin lingkungan kerja non-islami",
+          "icon": "Building",
+          "query": "Aku kerja di tempat yang kadang ada acara/kebiasaan yang kurang sesuai nilai Islam (misal: ada minuman keras pas gathering). Gimana ya cara ngadepin situasi ini tapi tetep bisa jalanin prinsip Islam dengan baik?"
+        },
+        {
+          "type": "card",
+          "title": "Mau buka bisnis kuliner halal",
+          "description": "Jalanin usaha sesuai nilai Islam",
+          "icon": "ShoppingBag",
+          "query": "Aku mau buka bisnis kuliner halal nih. Islam ngajarin apa aja sih soal praktik bisnis yang etis dan perlakuan adil ke karyawan dan pelanggan?"
+        }
+      ]
+    },
+    {
+      "id": "spirituality",
+      "title": "Iman & Spiritualitas",
+      "icon": "Moon",
+      "items": [
+        {
+          "type": "imageCard",
+          "title": "Ngerasa jauh dari Allah pas lagi susah",
+          "imageSrc": "/images/discover/peace.jpg",
+          "fullWidth": true,
+          "query": "Aku lagi ngalamin masa sulit dan ngerasa jauh banget dari Allah. Gimana ya caranya bisa lebih deket sama Allah pas lagi susah gini?"
+        },
+        {
+          "type": "card",
+          "title": "Ngerti soal takdir (Qadr)",
+          "description": "Nerima rencana Allah dengan ikhlas",
+          "icon": "Star",
+          "query": "Aku suka bingung kenapa hal buruk bisa terjadi kalo Allah itu Maha Pengasih. Bisa jelasin gak konsep takdir (Qadr) dalam Islam?"
+        },
+        {
+          "type": "card",
+          "title": "Kadang ragu sama iman sendiri",
+          "description": "Nguatin iman lewat pertanyaan",
+          "icon": "HelpCircle",
+          "query": "Kadang aku suka ragu sama iman ku sendiri. Ini normal gak sih? Terus gimana cara ngatasinnya menurut ajaran Islam?"
+        },
+        {
+          "type": "card",
+          "title": "Doa yang kayaknya gak dikabulin",
+          "description": "Tetep berdoa meski lama gak dijawab",
+          "icon": "Hands",
+          "query": "Udah lama aku berdoa minta sesuatu (misal: jodoh, pekerjaan), tapi belum dikabulin juga. Aku harus terus berdoa atau gimana ya menurut Islam?"
+        }
+      ]
+    },
+    {
+      "id": "common",
+      "title": "Pertanyaan Sehari-hari",
+      "icon": "HelpCircle",
+      "items": [
+        {
+          "type": "button",
+          "text": "Gimana cara tenang kalo lagi overthinking?",
+          "icon": "BrainCircuit",
+          "query": "Aku sering overthinking nih. Ada tips gak dari Islam buat menenangkan pikiran yang rame banget?"
+        },
+        {
+          "type": "button",
+          "text": "Al-Quran bilang apa soal sabar?",
+          "icon": "Book",
+          "query": "Lagi butuh banget motivasi nih. Al-Quran bilang apa sih soal sabar pas lagi susah?"
+        },
+        {
+          "type": "button",
+          "text": "Suka ngelamun pas sholat, gimana ya?",
+          "icon": "BookMarked",
+          "query": "Aku suka ngelamun pas lagi sholat. Ada tips gak biar bisa lebih khusyuk?"
+        },
+        {
+          "type": "button",
+          "text": "Sibuk kerja, ibadah jadi berantakan",
+          "icon": "Layers",
+          "query": "Sibuk kerja bikin ibadahku berantakan. Ada tips gak buat seimbangin kerjaan sama ibadah?"
+        },
+        {
+          "type": "button",
+          "text": "Musik itu haram gak sih di Islam?",
+          "icon": "Music",
+          "query": "Sebenernya hukum dengerin musik dalam Islam itu gimana sih? Ada yang bilang boleh, ada yang bilang haram."
+        },
+        {
+          "type": "button",
+          "text": "Beda NU sama Muhammadiyah apa sih?",
+          "icon": "Compass",
+          "query": "Bisa jelasin gak bedanya NU sama Muhammadiyah secara singkat? Kok bisa beda-beda gitu cara ibadahnya?"
+        },
+        {
+          "type": "button",
+          "text": "Cara ngadepin Islamofobia",
+          "icon": "Shield",
+          "query": "Aku sering dapet komentar Islamofobia di sosmed nih. Cara terbaik buat ngadepin ini menurut Islam gimana ya?"
+        },
+        {
+          "type": "button",
+          "text": "Puasa Senin Kamis itu gimana?",
+          "icon": "Calendar",
+          "query": "Apa sih keutamaan puasa Senin Kamis? Terus ada gak doa khusus pas buka puasanya?"
+        },
+        {
+          "type": "button",
+          "text": "Ikut-ikutan tren hijrah/kajian biar gak FOMO",
+          "icon": "Users",
+          "query": "Sekarang kan banyak banget tren hijrah atau ikut kajian. Menurut Islam, gimana sih bedain niat yang beneran karena Allah sama yang cuma ikut-ikutan biar nggak FOMO?"
+        },
+        {
+          "type": "button",
+          "text": "Pandangan Islam soal pinjol (pinjaman online)",
+          "icon": "DollarSign",
+          "query": "Lagi rame soal pinjol nih. Gimana sih pandangan Islam tentang pinjaman online yang ada bunganya itu?"
+        }
+      ]
+    },
+    {
+      "id": "health",
+      "title": "Kesehatan & Kesejahteraan",
+      "icon": "HeartPulse",
+      "items": [
+        {
+          "type": "card",
+          "title": "Pandangan Islam soal anxiety dan overthinking",
+          "description": "Gabungin iman dengan bantuan profesional",
+          "icon": "Brain",
+          "query": "Islam bilang apa sih soal nyari bantuan psikolog atau psikiater buat masalah anxiety dan overthinking? Boleh gak sih minum obat antidepresan?"
+        },
+        {
+          "type": "card",
+          "title": "Jaga aurat pas USG kehamilan",
+          "description": "Tetep sopan pas ke dokter",
+          "icon": "Stethoscope",
+          "query": "Gimana caranya jaga aurat pas USG kehamilan, apalagi kalau dokternya laki-laki? Boleh gak sih minta dokter perempuan khusus?"
+        },
+        {
+          "type": "imageCard",
+          "title": "Makanan sunnah buat jaga kesehatan",
+          "imageSrc": "/images/discover/productivity.jpg",
+          "fullWidth": true,
+          "query": "Lagi pengen hidup lebih sehat nih. Makanan sunnah apa aja sih yang bagus buat kesehatan menurut Islam? Kurma sama madu beneran bagus kan?"
+        },
+        {
+          "type": "card",
+          "title": "Punya penyakit kronis tapi pengen puasa",
+          "description": "Tetep ibadah meski kondisi terbatas",
+          "icon": "Pill",
+          "query": "Aku punya penyakit (misal: diabetes, maag kronis) yang bikin susah puasa Ramadhan atau puasa sunnah. Gimana caranya tetep bisa ibadah tapi gak membahayakan kesehatan? Atau ada alternatif lain?"
+        }
+      ]
+    }
+  ]
+}

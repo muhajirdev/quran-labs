@@ -21,9 +21,9 @@ export function TafsirInsights({ author, language }: TafsirInsightProps) {
           <h4 className="text-sm font-medium">About this commentary</h4>
         </div>
         <p className="text-xs text-muted-foreground">
-          This interpretation is from <span className="text-primary font-medium">{author}</span>, 
-          a renowned scholar known for {author.includes("Jalalayn") ? 
-            "concise explanations focusing on the literal meaning of the text" : 
+          This interpretation is from <span className="text-primary font-medium">{author}</span>,
+          a renowned scholar known for {author.includes("Jalalayn") ?
+            "concise explanations focusing on the literal meaning of the text" :
             "detailed analysis of linguistic and contextual elements"}.
         </p>
         <div className="flex items-center gap-2 mt-2">
@@ -79,18 +79,25 @@ export function TafsirInsights({ author, language }: TafsirInsightProps) {
           <h4 className="text-sm font-medium">Related commentaries</h4>
         </div>
 
-        <div className="flex gap-2 mt-2 overflow-x-auto pb-2 scrollbar-thin">
-          {getRelatedCommentaries(author).map((related, i) => (
-            <div key={i} className="flex-shrink-0 bg-muted/10 rounded-md p-2 border border-border/30 hover:border-primary/20 hover:bg-primary/5 transition-colors cursor-pointer min-w-[150px]">
-              <div className="flex items-center gap-1.5 mb-1">
-                <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-[10px] font-medium text-primary">{related.author.charAt(0)}</span>
+        <div className="relative">
+          {/* Gradient fade on edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none"></div>
+
+          {/* Scrollable container */}
+          <div className="flex gap-2 mt-2 overflow-x-auto pb-2 scrollbar-thin pl-1">
+            {getRelatedCommentaries(author).map((related, i) => (
+              <div key={i} className="flex-shrink-0 bg-muted/10 rounded-md p-2 border border-border/30 hover:border-primary/20 hover:bg-primary/5 transition-colors cursor-pointer min-w-[150px]">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-[10px] font-medium text-primary">{related.author.charAt(0)}</span>
+                  </div>
+                  <p className="text-xs font-medium">{related.author}</p>
                 </div>
-                <p className="text-xs font-medium">{related.author}</p>
+                <p className="text-[10px] text-muted-foreground line-clamp-2">{related.excerpt}</p>
               </div>
-              <p className="text-[10px] text-muted-foreground line-clamp-2">{related.excerpt}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -115,7 +122,7 @@ function getKeyInsights(author: string): string[] {
       "Contextual references"
     ];
   }
-  
+
   if (author.includes("Ibn Kathir")) {
     return [
       "Historical context of revelation",
@@ -124,7 +131,7 @@ function getKeyInsights(author: string): string[] {
       "Practical application"
     ];
   }
-  
+
   return [
     "Linguistic analysis of key terms",
     "Historical context of revelation",
@@ -133,7 +140,7 @@ function getKeyInsights(author: string): string[] {
   ];
 }
 
-function getRelatedCommentaries(author: string): Array<{author: string, excerpt: string}> {
+function getRelatedCommentaries(author: string): Array<{ author: string, excerpt: string }> {
   if (author.includes("Jalalayn")) {
     return [
       {
@@ -150,7 +157,7 @@ function getRelatedCommentaries(author: string): Array<{author: string, excerpt:
       }
     ];
   }
-  
+
   if (author.includes("Ibn Kathir")) {
     return [
       {
@@ -167,7 +174,7 @@ function getRelatedCommentaries(author: string): Array<{author: string, excerpt:
       }
     ];
   }
-  
+
   return [
     {
       author: "Ibn Kathir",

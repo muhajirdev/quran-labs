@@ -134,7 +134,7 @@ $RECYCLE.BIN/
 *.msp
 *.lnk
 
-data/
+playground/data/
 cookie-info
 playground/raw_data
 playground/quran_graph_db

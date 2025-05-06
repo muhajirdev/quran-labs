@@ -82,11 +82,11 @@ interface DiscoverSidebarProps {
   open: boolean
   onClose: () => void
   onSelectSuggestion: (suggestion: string) => void
+  currentLanguage: string
+  setCurrentLanguage: (language: string) => void
 }
 
-export function DiscoverSidebar({ open, onClose, onSelectSuggestion }: DiscoverSidebarProps) {
-  // State for language selection
-  const [currentLanguage, setCurrentLanguage] = React.useState<string>("en");
+export function DiscoverSidebar({ open, onClose, onSelectSuggestion, currentLanguage, setCurrentLanguage }: DiscoverSidebarProps) {
 
   // Get the current data based on language
   const data = currentLanguage === "id" ? idData as unknown as DiscoverData : enData as unknown as DiscoverData;

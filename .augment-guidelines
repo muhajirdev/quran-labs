@@ -3,3 +3,4 @@
 - Remember that we're using "react-router" , not remix and not "react-router-dom" , so import from "react-router"
 - We can use `export const clientLoader` for client-side data fetching before page is loaded and `export consts loader` for server-side data fetching
 - Always try to zoom out first, make plan, before implementing
+- Remember we have jotai if you need global state management

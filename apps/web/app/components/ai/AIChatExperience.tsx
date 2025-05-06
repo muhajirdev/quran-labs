@@ -2,13 +2,7 @@
 
 import * as React from "react"
 import {
-  SearchIcon,
   SendIcon,
-  BrainCircuitIcon,
-  BookIcon,
-  LayersIcon,
-  BookMarkedIcon,
-  SparklesIcon,
   MenuIcon,
   XIcon,
   CompassIcon
@@ -31,16 +25,9 @@ import {
 } from "~/lib/thread-manager"
 import { cn } from "~/lib/utils"
 import { DiscoverSidebar } from "./DiscoverSidebar"
+import { MainContentDiscover } from "./MainContentDiscover"
 
-// Suggestion chips for the homepage
-const SUGGESTIONS = [
-  { text: "I'm grieving. What does the Qur'an say about loss?", icon: <BookIcon className="h-3 w-3" /> },
-  { text: "What does the Quran say about patience?", icon: <BookIcon className="h-3 w-3" /> },
-  { text: "Find verses about forgiveness", icon: <SearchIcon className="h-3 w-3" /> },
-  { text: "Explain the first chapter of the Quran", icon: <BookMarkedIcon className="h-3 w-3" /> },
-  { text: "How to deal with anxiety in Islam?", icon: <BrainCircuitIcon className="h-3 w-3" /> },
-  { text: "Compare translations of verse 2:255", icon: <LayersIcon className="h-3 w-3" /> },
-];
+
 
 export function AIChatExperience() {
   // State
@@ -52,6 +39,7 @@ export function AIChatExperience() {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [chatActive, setChatActive] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState<string>("en");
 
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
@@ -86,10 +74,13 @@ export function AIChatExperience() {
     }
   }, []);
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom only when chat is active and there are messages to scroll to
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    // Only scroll if chat is active and there are messages beyond the initial system messages
+    if (chatActive && messages.length > 2) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, chatActive]);
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
@@ -398,31 +389,13 @@ export function AIChatExperience() {
             <span className="block mt-1">Ask questions, discover connections, and gain deeper insights.</span>
           </p>
 
-          {/* Enhanced suggestion cards with animations and hover effects - Mobile friendly */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full max-w-xl mb-10 sm:mb-14">
-            {SUGGESTIONS.slice(0, 4).map((suggestion, index) => (
-              <button
-                key={index}
-                className="group flex items-center text-left py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.08] hover:border-accent/20 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all duration-300 relative overflow-hidden"
-                onClick={() => handleSuggestionClick(suggestion.text)}
-              >
-                {/* Animated geometric pattern in suggestion cards */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500" style={{
-                  backgroundImage: `url(/images/geometric-pattern-animated.svg)`,
-                  backgroundSize: '200%',
-                  backgroundPosition: 'center',
-                }}></div>
-
-
-                {/* Icon with enhanced hover effect */}
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/10 group-hover:bg-accent/20 flex items-center justify-center mr-3 relative z-10 transition-all duration-300 group-hover:scale-110">
-                  <SparklesIcon className="h-3 w-3 text-accent group-hover:text-accent/90" />
-                </div>
-
-                {/* Text with subtle hover effect */}
-                <span className="text-xs text-white/80 group-hover:text-white font-medium truncate relative z-10 transition-colors duration-300">{suggestion.text}</span>
-              </button>
-            ))}
+          {/* Discover Content in Main Area */}
+          <div className="mb-10 sm:mb-14 w-full">
+            <MainContentDiscover
+              onSelectSuggestion={handleSuggestionClick}
+              currentLanguage={currentLanguage}
+              setCurrentLanguage={setCurrentLanguage}
+            />
           </div>
         </div>
 
@@ -514,6 +487,8 @@ export function AIChatExperience() {
         open={discoverSheetOpen}
         onClose={() => setDiscoverSheetOpen(false)}
         onSelectSuggestion={handleDiscoverSuggestion}
+        currentLanguage={currentLanguage}
+        setCurrentLanguage={setCurrentLanguage}
       />
     </div>
   );

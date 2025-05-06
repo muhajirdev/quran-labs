@@ -1,0 +1,346 @@
+{
+  "language": "en",
+  "languageName": "English",
+  "sections": [
+    {
+      "id": "trending",
+      "title": "Trending Now",
+      "icon": "TrendingUp",
+      "items": [
+        {
+          "type": "card",
+          "title": "Meaning of Taylor Swift's 'Fortnight'",
+          "description": "Islamic perspective on love and relationships",
+          "icon": "Music",
+          "query": "What's the meaning of Taylor Swift's song 'Fortnight' and how might its themes relate to Islamic teachings about love and relationships?"
+        },
+        {
+          "type": "imageCard",
+          "title": "I can't stop scrolling TikTok before bed",
+          "imageSrc": "/images/discover/peace.jpg",
+          "fullWidth": true,
+          "query": "I'm addicted to scrolling TikTok before bed and it's affecting my sleep and Fajr prayer. What guidance does the Quran offer?"
+        },
+        {
+          "type": "card",
+          "title": "Islamic perspective on AI and ChatGPT",
+          "description": "Ethical considerations for modern innovations",
+          "icon": "Cpu",
+          "query": "What would Islamic scholars say about artificial intelligence like ChatGPT and our increasing dependence on technology?"
+        },
+        {
+          "type": "card",
+          "title": "Understanding the Israel-Palestine conflict",
+          "description": "Historical context from an Islamic perspective",
+          "icon": "Globe",
+          "query": "Can you explain the Israel-Palestine conflict from an Islamic historical perspective and what the Quran teaches about peace and justice?"
+        }
+      ]
+    },
+    {
+      "id": "entertainment",
+      "title": "Music & Movies",
+      "icon": "Film",
+      "items": [
+        {
+          "type": "card",
+          "title": "Islamic themes in 'Dune: Part Two'",
+          "description": "Religious symbolism in modern sci-fi",
+          "icon": "Film",
+          "query": "What Islamic themes and influences can be found in 'Dune: Part Two', and how accurately does it represent concepts from Islamic tradition?"
+        },
+        {
+          "type": "card",
+          "title": "Meaning of Billie Eilish's 'Birds of a Feather'",
+          "description": "Spiritual themes in popular music",
+          "icon": "Music",
+          "query": "What spiritual themes are in Billie Eilish's song 'Birds of a Feather' and how might they relate to Islamic concepts of love and companionship?"
+        },
+        {
+          "type": "imageCard",
+          "title": "Islamic representation in 'The Acolyte'",
+          "imageSrc": "/images/discover/peace.jpg",
+          "fullWidth": true,
+          "query": "Are there any Islamic influences in the Star Wars series 'The Acolyte'? How does it compare to other spiritual themes in the franchise?"
+        },
+        {
+          "type": "card",
+          "title": "Family-friendly streaming options",
+          "description": "Finding media aligned with Islamic values",
+          "icon": "Tv",
+          "query": "What guidelines should Muslim families follow when choosing Netflix or Disney+ content? Can you recommend some family-friendly shows that align with Islamic values?"
+        },
+        {
+          "type": "card",
+          "title": "Meaning of Kendrick Lamar's 'Not Like Us'",
+          "description": "Analyzing popular lyrics through Islamic lens",
+          "icon": "Music",
+          "query": "What's the meaning behind Kendrick Lamar's song 'Not Like Us' and how might its themes of community and identity relate to Islamic spiritual concepts?"
+        }
+      ]
+    },
+    {
+      "id": "home",
+      "title": "Home & Family",
+      "icon": "Home",
+      "items": [
+        {
+          "type": "card",
+          "title": "My husband keeps leaving dishes in the sink",
+          "description": "Patience in marriage from Islamic perspective",
+          "icon": "Bed",
+          "query": "My husband keeps leaving dishes in the sink and it frustrates me. How can I handle small annoyances in marriage according to Islamic teachings?"
+        },
+        {
+          "type": "card",
+          "title": "My teenager is addicted to Fortnite",
+          "description": "Islamic guidance on screen time and gaming",
+          "icon": "Smartphone",
+          "query": "My teenager spends hours playing Fortnite and ignores family time. What does Islam teach about balancing recreation with family responsibilities?"
+        },
+        {
+          "type": "card",
+          "title": "I'm always the one cleaning up after everyone",
+          "description": "Fairness and mutual respect in the home",
+          "icon": "Utensils",
+          "query": "I'm always the one cleaning up after everyone in my family. What does the Quran say about fairness and mutual respect in household responsibilities?"
+        },
+        {
+          "type": "card",
+          "title": "Teaching children about Islam in a public school environment",
+          "description": "Balancing faith and modern society",
+          "icon": "Lightbulb",
+          "query": "How can I teach my children about Islam when they attend public school and are constantly exposed to different values and beliefs?"
+        },
+        {
+          "type": "card",
+          "title": "My parents want me to be a doctor or lawyer",
+          "description": "Balancing parental respect with personal goals",
+          "icon": "Briefcase",
+          "query": "My parents want me to pursue medicine or law, but I'm passionate about tech and entrepreneurship. How can I follow my passion while respecting my parents according to Islamic teachings?"
+        }
+      ]
+    },
+    {
+      "id": "relationships",
+      "title": "Marriage & Relationships",
+      "icon": "Heart",
+      "items": [
+        {
+          "type": "card",
+          "title": "My spouse is always on social media",
+          "description": "Addressing digital distraction with compassion",
+          "icon": "Smartphone",
+          "query": "My spouse is constantly scrolling through Instagram and TikTok, even during family time. How can I address this issue with compassion according to Islamic principles?"
+        },
+        {
+          "type": "card",
+          "title": "My mother-in-law is too involved in our marriage",
+          "description": "Navigating family boundaries with wisdom",
+          "icon": "MessagesSquare",
+          "query": "My mother-in-law is constantly giving unsolicited advice about our marriage. How can I establish healthy boundaries while still showing respect according to Islamic teachings?"
+        },
+        {
+          "type": "imageCard",
+          "title": "Finding a spouse in the age of dating apps",
+          "imageSrc": "/images/discover/peace.jpg",
+          "fullWidth": true,
+          "query": "I'm struggling to find a spouse who shares my Islamic values while using dating apps like Muzmatch and Salams. What guidance does Islam offer for finding a compatible partner in the digital age?"
+        },
+        {
+          "type": "card",
+          "title": "Disagreeing about Islamic school vs. public school",
+          "description": "Finding common ground in parenting",
+          "icon": "Users",
+          "query": "I want to send our children to Islamic school, but my spouse prefers public school. How can we find common ground while ensuring our children receive proper Islamic education?"
+        },
+        {
+          "type": "card",
+          "title": "My sister married a non-Muslim",
+          "description": "Maintaining family bonds while honoring faith",
+          "icon": "UserPlus",
+          "query": "My sister recently married a non-Muslim man against our parents' wishes. How should I maintain a good relationship with her while staying true to my Islamic values?"
+        }
+      ]
+    },
+    {
+      "id": "work",
+      "title": "Work & Money",
+      "icon": "DollarSign",
+      "items": [
+        {
+          "type": "imageCard",
+          "title": "I can't stop shopping on Amazon Prime",
+          "imageSrc": "/images/discover/productivity.jpg",
+          "fullWidth": true,
+          "query": "I can't stop impulse shopping on Amazon Prime and it's affecting my finances. What does the Quran teach about moderation in spending and avoiding materialism?"
+        },
+        {
+          "type": "card",
+          "title": "Office politics and gossip in Slack channels",
+          "description": "Maintaining Islamic ethics at work",
+          "icon": "Heart",
+          "query": "My colleagues constantly gossip about management in private Slack channels. How should I respond according to Islamic teachings about backbiting and workplace ethics?"
+        },
+        {
+          "type": "card",
+          "title": "Are index funds and 401(k) plans halal?",
+          "description": "Understanding Islamic finance principles",
+          "icon": "LineChart",
+          "query": "I'm considering investing in S&P 500 index funds and my company's 401(k) plan. How can I ensure my retirement investments are halal according to Islamic principles?"
+        },
+        {
+          "type": "card",
+          "title": "Working at a company that serves alcohol",
+          "description": "Navigating non-Islamic workplace practices",
+          "icon": "Building",
+          "query": "I work at a tech company that has beer on tap in the office and regular happy hours. How can I navigate this environment while adhering to Islamic principles?"
+        },
+        {
+          "type": "card",
+          "title": "Starting a halal food delivery service",
+          "description": "Applying Islamic values to entrepreneurship",
+          "icon": "ShoppingBag",
+          "query": "I'm planning to start a halal food delivery service. What does Islam teach about ethical business practices, fair pricing, and treatment of employees?"
+        }
+      ]
+    },
+    {
+      "id": "spirituality",
+      "title": "Faith & Spirituality",
+      "icon": "Moon",
+      "items": [
+        {
+          "type": "imageCard",
+          "title": "Maintaining faith during mental health struggles",
+          "imageSrc": "/images/discover/peace.jpg",
+          "fullWidth": true,
+          "query": "I'm dealing with depression and anxiety, and it's affecting my connection with Allah. How can I maintain my faith while also seeking professional mental health support?"
+        },
+        {
+          "type": "card",
+          "title": "Understanding Qadr in times of global crisis",
+          "description": "Finding peace with Allah's plan",
+          "icon": "Star",
+          "query": "With all the suffering in the world today, I'm struggling to understand divine wisdom. Can you explain the concept of Qadr (divine decree) in Islam in relation to global crises?"
+        },
+        {
+          "type": "card",
+          "title": "Faith doubts after studying science",
+          "description": "Reconciling faith with scientific knowledge",
+          "icon": "HelpCircle",
+          "query": "Since studying biology and evolution in college, I've had doubts about my faith. How can I reconcile scientific knowledge with Islamic teachings?"
+        },
+        {
+          "type": "card",
+          "title": "Making dua for marriage but still single",
+          "description": "Persistence in prayer during waiting periods",
+          "icon": "Hands",
+          "query": "I've been making dua to find a spouse for years, but I'm still single at 35. Should I keep asking or accept that marriage might not be in my destiny?"
+        }
+      ]
+    },
+    {
+      "id": "common",
+      "title": "Common Questions",
+      "icon": "HelpCircle",
+      "items": [
+        {
+          "type": "button",
+          "text": "Islam and therapy/counseling",
+          "icon": "BrainCircuit",
+          "query": "Is seeking therapy or counseling compatible with Islamic teachings about relying on Allah?"
+        },
+        {
+          "type": "button",
+          "text": "What does the Quran say about resilience?",
+          "icon": "Book",
+          "query": "What does the Quran say about resilience and perseverance during difficult times?"
+        },
+        {
+          "type": "button",
+          "text": "Mindfulness techniques for prayer",
+          "icon": "BookMarked",
+          "query": "Are mindfulness techniques compatible with Islamic prayer? How can I improve my focus during salah?"
+        },
+        {
+          "type": "button",
+          "text": "Work-life balance in Islam",
+          "icon": "Layers",
+          "query": "How can I maintain a healthy work-life balance while fulfilling my religious obligations as a Muslim professional?"
+        },
+        {
+          "type": "button",
+          "text": "Is listening to pop music haram?",
+          "icon": "Music",
+          "query": "What does Islam say about listening to mainstream pop music like Taylor Swift or Beyoncé? Is it permissible?"
+        },
+        {
+          "type": "button",
+          "text": "Differences between Sunni and Shia",
+          "icon": "Compass",
+          "query": "Can you explain the main differences between Sunni and Shia Islam in a respectful and balanced way?"
+        },
+        {
+          "type": "button",
+          "text": "Responding to Islamophobia at work",
+          "icon": "Shield",
+          "query": "I face subtle Islamophobic comments at my workplace. What's the best way to respond professionally while staying true to Islamic teachings?"
+        },
+        {
+          "type": "button",
+          "text": "Intermittent fasting from Islamic perspective",
+          "icon": "Calendar",
+          "query": "How does the popular intermittent fasting trend compare to Islamic fasting traditions? Is it compatible with Islamic teachings?"
+        },
+        {
+          "type": "button",
+          "text": "Islamic perspective on 'Dune: Part Two'",
+          "icon": "Film",
+          "query": "What would be an Islamic perspective on the themes of messiah figures and religious manipulation in 'Dune: Part Two'?"
+        },
+        {
+          "type": "button",
+          "text": "Meaning of SZA's 'Snooze'",
+          "icon": "Music",
+          "query": "What's the meaning behind SZA's song 'Snooze' and how might its themes of love and attachment relate to Islamic teachings about relationships?"
+        }
+      ]
+    },
+    {
+      "id": "health",
+      "title": "Health & Wellbeing",
+      "icon": "HeartPulse",
+      "items": [
+        {
+          "type": "card",
+          "title": "Islam and mental health medication",
+          "description": "Combining faith with modern treatment",
+          "icon": "Brain",
+          "query": "Is it permissible in Islam to take antidepressants or anxiety medication? How can I balance relying on Allah with seeking medical treatment for mental health?"
+        },
+        {
+          "type": "card",
+          "title": "Modesty during hospital stays",
+          "description": "Navigating healthcare while preserving Islamic values",
+          "icon": "Stethoscope",
+          "query": "I'm scheduled for surgery that will require a hospital stay. How can I maintain Islamic modesty standards during my hospital stay with various medical staff?"
+        },
+        {
+          "type": "imageCard",
+          "title": "Halal alternatives to popular supplements",
+          "imageSrc": "/images/discover/productivity.jpg",
+          "fullWidth": true,
+          "query": "I'm into fitness and nutrition but worried about non-halal ingredients in protein powders and supplements. What halal alternatives exist and what does Islam teach about body optimization?"
+        },
+        {
+          "type": "card",
+          "title": "Managing diabetes during Ramadan",
+          "description": "Finding balance between health and worship",
+          "icon": "Pill",
+          "query": "I have Type 2 diabetes but want to fast during Ramadan. What accommodations does Islam allow for people with my condition, and how can I safely observe the fast?"
+        }
+      ]
+    }
+  ]
+}
