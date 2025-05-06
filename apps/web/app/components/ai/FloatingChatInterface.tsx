@@ -243,6 +243,11 @@ export function FloatingChatInterface({
       content: queryText
     };
 
+    // Set chat as active when a message is sent
+    if (!chatActive) {
+      setChatActive(true);
+    }
+
     // Update messages and set loading state
     const updatedMessages = [...chatMessages, userMessage];
     setChatMessages(updatedMessages);
@@ -441,8 +446,8 @@ export function FloatingChatInterface({
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Suggestion chips - Elegant with accent hover effects */}
-            {(!chatActive || chatMessages.length <= 2) && (
+            {/* Suggestion chips - Only shown when no user messages exist */}
+            {chatMessages.length <= 2 && (
               <div className="mt-2 grid grid-cols-1 gap-2">
                 {suggestions.slice(0, 4).map((suggestion, index) => (
                   <button

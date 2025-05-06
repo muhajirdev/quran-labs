@@ -63,8 +63,8 @@ export function AskAIButton({
   const [chatMessages, setChatMessages] = useAtom(chatMessagesAtom);
   const [, setChatMinimized] = useAtom(chatMinimizedAtom);
 
-  // Function to send a message to the AI chat
-  const sendPrompt = (prompt: string | ((context: AIContext) => string)) => {
+  // Function to send a message to the AI chat and generate a response
+  const sendPrompt = async (prompt: string | ((context: AIContext) => string)) => {
     // If prompt is a function, call it with the context
     const promptText = typeof prompt === 'function' ? prompt(context) : prompt;
 
@@ -74,12 +74,44 @@ export function AskAIButton({
       content: promptText
     };
 
-    // Update the chat state
+    // Update the chat state with user message
     setChatMessages([...chatMessages, userMessage]);
     setChatMinimized(false);
 
-    // Call the callback if provided
-    if (onPromptSent) {
+    // Generate a simple AI response if no callback is provided
+    if (!onPromptSent) {
+      // Create a placeholder response based on the context
+      let responseText = "";
+
+      if (promptText.includes("relevant to my life")) {
+        responseText = `${context.entityType === 'verse' ? 'Verse' : 'Chapter'} ${context.entityId} contains wisdom that can be personally relevant to you. It speaks about ${context.entityType === 'verse' ? 'principles' : 'themes'} that can guide your daily decisions and provide perspective on life's challenges.`;
+      } else if (promptText.includes("key lessons")) {
+        responseText = `The key lessons from ${context.entityType === 'verse' ? 'verse' : 'chapter'} ${context.entityId} include guidance on moral conduct, spiritual growth, and the relationship between humans and their Creator.`;
+      } else if (promptText.includes("historical context")) {
+        responseText = `${context.entityType === 'verse' ? 'Verse' : 'Chapter'} ${context.entityId} was revealed during a significant period in Islamic history, providing context for understanding its message and application.`;
+      } else if (promptText.includes("scholars say")) {
+        responseText = `Scholars have provided various interpretations of ${context.entityType === 'verse' ? 'verse' : 'chapter'} ${context.entityId}, emphasizing different aspects of its meaning and significance.`;
+      } else if (promptText.includes("apply") && promptText.includes("today")) {
+        responseText = `${context.entityType === 'verse' ? 'Verse' : 'Chapter'} ${context.entityId} can be applied today by understanding its core principles and adapting them to contemporary situations and challenges.`;
+      } else if (promptText.includes("explain") || promptText.includes("tell me about")) {
+        responseText = `${context.entityType === 'verse' ? 'Verse' : 'Chapter'} ${context.entityId} ${context.text ? `says: "${context.text}"` : ''} and addresses important spiritual and ethical principles that guide believers.`;
+      } else {
+        responseText = `I'd be happy to discuss ${context.entityType === 'verse' ? 'verse' : 'chapter'} ${context.entityId} with you. What specific aspect would you like to explore?`;
+      }
+
+      // Add AI response to chat
+      const aiResponse: Message = {
+        role: "assistant",
+        content: responseText
+      };
+
+      // Update chat with AI response
+      setTimeout(() => {
+        setChatMessages(prev => [...prev, aiResponse]);
+      }, 500); // Small delay to simulate AI thinking
+    }
+    // Call the callback if provided to get a real response
+    else {
       onPromptSent(promptText);
     }
   };

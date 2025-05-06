@@ -382,6 +382,46 @@ export default function QuranReader() {
         response = `To navigate to a specific chapter, please specify the chapter number (e.g., "Go to chapter 5").`;
       }
     }
+    // Handle verse-specific queries
+    else if (queryText.toLowerCase().includes("verse") && /verse\s+(\d+):(\d+)/i.test(queryText)) {
+      // Extract verse reference
+      const verseMatch = queryText.match(/verse\s+(\d+):(\d+)/i);
+      if (verseMatch && verseMatch[1] && verseMatch[2]) {
+        const chapterNum = parseInt(verseMatch[1], 10);
+        const verseNum = parseInt(verseMatch[2], 10);
+        const verseKey = `${chapterNum}:${verseNum}`;
+
+        // Find the verse if we're already on the right chapter
+        const verse = verses.find(v => v.verse_key === verseKey);
+
+        if (chapterNum !== selectedChapter) {
+          // We need to navigate to the correct chapter
+          handleChapterChange(chapterNum.toString());
+          response = `Navigating to Chapter ${chapterNum} to find verse ${verseKey}. Please ask about this verse again after the chapter loads.`;
+        } else if (verse) {
+          // We have the verse data
+          const translation = verse.translations && verse.translations.length > 0
+            ? verse.translations[0].text
+            : "Translation not available";
+
+          if (queryText.toLowerCase().includes("relevant to my life")) {
+            response = `Verse ${verseKey} contains wisdom that can be personally relevant to your life. It says: "${translation}". This verse can guide your daily decisions and provide perspective on life's challenges.`;
+          } else if (queryText.toLowerCase().includes("key lessons")) {
+            response = `The key lessons from verse ${verseKey} include guidance on moral conduct, spiritual growth, and the relationship between humans and their Creator. The verse states: "${translation}"`;
+          } else if (queryText.toLowerCase().includes("historical context")) {
+            response = `Verse ${verseKey} was revealed during a significant period in Islamic history, providing context for understanding its message and application. The verse says: "${translation}"`;
+          } else if (queryText.toLowerCase().includes("scholars say")) {
+            response = `Scholars have provided various interpretations of verse ${verseKey}, emphasizing different aspects of its meaning and significance. The verse states: "${translation}"`;
+          } else if (queryText.toLowerCase().includes("apply") && queryText.toLowerCase().includes("today")) {
+            response = `Verse ${verseKey} can be applied today by understanding its core principles and adapting them to contemporary situations and challenges. The verse says: "${translation}"`;
+          } else {
+            response = `Verse ${verseKey} says: "${translation}". This verse addresses important spiritual and ethical principles that guide believers.`;
+          }
+        } else {
+          response = `I couldn't find verse ${verseKey} in the current chapter. Please check the verse reference and try again.`;
+        }
+      }
+    }
     // Handle informational queries
     else if (queryText.toLowerCase().includes("explain") || queryText.toLowerCase().includes("meaning")) {
       response = `${chapterName} (Chapter ${selectedChapter}) consists of ${verseCount} verses. It discusses themes of guidance, faith, and divine wisdom. This chapter was revealed in ${chapterInfo?.revelationType === "Meccan" ? "Mecca" : "Medina"} and is known for its profound spiritual teachings.`;
@@ -414,18 +454,25 @@ export default function QuranReader() {
       response = `I'd be happy to help you understand more about ${chapterName} (Chapter ${selectedChapter}). This chapter contains ${verseCount} verses and was revealed in ${chapterInfo?.revelationType === "Meccan" ? "Mecca" : "Medina"}. You can ask about its meanings, historical context, or how it relates to daily life. You can also navigate between chapters or change translations.`;
     }
 
-    // Add the user message and AI response to the chat
+    // Add the user message and AI response to the chat with a small delay to simulate thinking
     const userMessage = {
       role: "user" as const,
       content: queryText
     };
 
-    const aiResponse = {
-      role: "assistant" as const,
-      content: response
-    };
+    // First add just the user message
+    setChatMessages(prev => [...prev, userMessage]);
 
-    setChatMessages([...chatMessages, userMessage, aiResponse]);
+    // Then add the AI response after a small delay
+    setTimeout(() => {
+      const aiResponse = {
+        role: "assistant" as const,
+        content: response
+      };
+
+      setChatMessages(prev => [...prev, aiResponse]);
+    }, 500);
+
     setChatMinimized(false);
 
     return response;
