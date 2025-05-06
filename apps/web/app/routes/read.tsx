@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLoaderData, useSearchParams } from "react-router";
 import type { Route } from "./+types/read";
 import { VerseItem } from "~/components/quran/VerseItem";
@@ -6,6 +6,7 @@ import { VerseItemSkeleton } from "~/components/quran/VerseItemSkeleton";
 import { ChapterInfo } from "~/components/quran/ChapterInfo";
 import { GeometricDecoration } from "~/components/ui/geometric-background";
 import { Logo } from "~/components/ui/logo";
+import { cn } from "~/lib/utils";
 
 import {
   Select,
@@ -14,8 +15,6 @@ import {
   SelectTrigger,
   SelectValue
 } from "~/components/ui/select";
-
-import { BookOpen } from "lucide-react";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -154,6 +153,27 @@ export default function QuranReader() {
   } = useLoaderData<typeof clientLoader>();
   const [, setSearchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  // Handle scroll events to show/hide header on all devices
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Show header when scrolling up, hide when scrolling down
+      if (currentScrollY > lastScrollY.current && currentScrollY > 60) {
+        setIsHeaderVisible(false);
+      } else {
+        setIsHeaderVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Handle chapter selection
   const handleChapterChange = (value: string) => {
@@ -194,27 +214,52 @@ export default function QuranReader() {
     verses_count: chapterInfo.numberOfAyahs
   } : null;
 
+  // Function to show header when tapped at the top of the screen
+  const showHeader = () => {
+    if (!isHeaderVisible) {
+      setIsHeaderVisible(true);
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        setIsHeaderVisible(false);
+      }, 3000);
+    }
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-[#0A0A0A] text-white relative">
+    <div className="flex flex-col min-h-screen bg-[#0A0A0A] text-white relative overflow-hidden">
       {/* Animated Geometric Pattern Background */}
       <GeometricDecoration variant="animated" />
 
       {/* Additional background effects */}
-      <div className="absolute top-[-150px] right-[-150px] w-[300px] h-[300px] rounded-full bg-accent/5 blur-[100px]"></div>
-      <div className="absolute bottom-[-180px] left-[-180px] w-[350px] h-[350px] rounded-full bg-primary/5 blur-[120px]"></div>
+      <div className="absolute top-0 right-0 w-[300px] h-[300px] translate-x-1/4 -translate-y-1/4 rounded-full bg-accent/5 blur-[100px]"></div>
+      <div className="absolute bottom-0 left-0 w-[350px] h-[350px] -translate-x-1/4 translate-y-1/4 rounded-full bg-primary/5 blur-[120px]"></div>
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent"></div>
 
-      {/* Header - Fixed position with consistent blur and transition */}
-      <header className="fixed top-0 left-0 right-0 z-10 transition-all duration-300 backdrop-blur-md">
-        <div className="flex items-center justify-between py-3 px-3 sm:px-6 relative z-10">
+      {/* Tap area to show header when it's hidden */}
+      {!isHeaderVisible && (
+        <div
+          className="fixed top-0 left-0 right-0 h-8 z-20 cursor-pointer"
+          onClick={showHeader}
+          aria-label="Show navigation"
+        >
+          <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20 animate-pulse"></div>
+        </div>
+      )}
+
+      {/* Header - Fixed position with consistent blur and transition - Similar to AIChatExperience */}
+      <header className={cn(
+        "fixed left-0 right-0 z-10 transition-all duration-300 backdrop-blur-md",
+        isHeaderVisible ? "top-0" : "-top-20"
+      )}>
+        <div className="flex items-center justify-between py-2 px-2 sm:py-3 sm:px-6 relative z-10">
           {/* Logo and Title */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => window.location.href = '/'}
-              className="font-medium text-sm tracking-wide text-white hover:text-accent transition-all duration-300 flex items-center group"
+              className="font-medium text-xs sm:text-sm tracking-wide text-white hover:text-accent transition-all duration-300 flex items-center group"
             >
-              <span className="relative mr-1.5">
-                <Logo size="sm" className="group-hover:scale-110 transition-transform duration-300" />
+              <span className="relative mr-1">
+                <Logo size="sm" className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform duration-300" />
                 <span className="absolute inset-0 bg-accent/20 rounded-full blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300"></span>
               </span>
               <span className="group-hover:tracking-wider transition-all duration-300">Quran Reader</span>
@@ -222,84 +267,70 @@ export default function QuranReader() {
           </div>
 
           {/* Selectors */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 sm:gap-2">
+
+            {/* Translation selector - Shown on all screen sizes but with adaptive width */}
+            <Select
+              value={currentTranslation}
+              onValueChange={handleTranslationChange}
+            >
+              <SelectTrigger className="h-7 sm:h-8 w-[90px] sm:w-[180px] bg-white/[0.02] border-white/[0.06] text-white focus:ring-accent/30 focus:border-accent/20 text-xs sm:text-sm px-2 sm:px-3">
+                <SelectValue placeholder="Translation" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableTranslations.map((translation) => (
+                  <SelectItem key={translation.identifier} value={translation.identifier}>
+                    {translation.englishName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {/* Chapter selector */}
-            <div className="w-48">
-              <Select
-                value={selectedChapter.toString()}
-                onValueChange={handleChapterChange}
-              >
-                <SelectTrigger className="h-8 bg-white/[0.02] border-white/[0.06] text-white focus:ring-accent/30 focus:border-accent/20">
-                  <SelectValue placeholder="Select chapter" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#121212] border-white/10 text-white">
-                  {chapters.map((chapter) => (
-                    <SelectItem key={chapter.number} value={chapter.number.toString()} className="focus:bg-white/10 focus:text-white">
-                      {chapter.number}. {chapter.englishName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Select
+              value={selectedChapter.toString()}
+              onValueChange={handleChapterChange}
+            >
+              <SelectTrigger className="h-7 sm:h-8 w-[90px] sm:w-[160px] bg-white/[0.02] border-white/[0.06] text-white focus:ring-accent/30 focus:border-accent/20 text-xs sm:text-sm px-2 sm:px-3">
+                <SelectValue placeholder="Chapter" />
+              </SelectTrigger>
+              <SelectContent>
+                {chapters.map((chapter) => (
+                  <SelectItem key={chapter.number} value={chapter.number.toString()}>
+                    {chapter.number}. {chapter.englishName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            {/* Translation selector */}
-            <div className="w-56 hidden sm:block">
-              <Select
-                value={currentTranslation}
-                onValueChange={handleTranslationChange}
-              >
-                <SelectTrigger className="h-8 bg-white/[0.02] border-white/[0.06] text-white focus:ring-accent/30 focus:border-accent/20">
-                  <SelectValue placeholder="Select translation" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#121212] border-white/10 text-white">
-                  {availableTranslations.map((translation) => (
-                    <SelectItem key={translation.identifier} value={translation.identifier} className="focus:bg-white/10 focus:text-white">
-                      {translation.englishName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
-        </div>
-
-        {/* Mobile translation selector */}
-        <div className="sm:hidden px-3 pb-3">
-          <Select
-            value={currentTranslation}
-            onValueChange={handleTranslationChange}
-          >
-            <SelectTrigger className="h-8 w-full bg-white/[0.02] border-white/[0.06] text-white focus:ring-accent/30 focus:border-accent/20">
-              <SelectValue placeholder="Select translation" />
-            </SelectTrigger>
-            <SelectContent className="bg-[#121212] border-white/10 text-white">
-              {availableTranslations.map((translation) => (
-                <SelectItem key={translation.identifier} value={translation.identifier} className="focus:bg-white/10 focus:text-white">
-                  {translation.englishName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         {/* Header bottom border */}
         <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
       </header>
 
-      {/* Main content - Centered with padding for fixed header */}
-      <main className="flex-1 flex flex-col overflow-hidden pt-20 pb-20 sm:pb-24">
-        <div className="max-w-3xl mx-auto w-full px-3 sm:px-6 py-6 relative">
-          {error && (
-            <div className="mb-6 rounded-lg overflow-hidden bg-destructive/10 backdrop-blur-sm border border-destructive/30">
-              <div className="p-4">
-                <p className="text-destructive">Error: {error}</p>
+      {/* Main content - Immersive reading experience */}
+      <main className={cn(
+        "flex-1 pb-10 transition-all duration-300",
+        isHeaderVisible ? "pt-16 sm:pt-20" : "pt-4"
+      )}>
+        {error && (
+          <div className={cn(
+            "fixed left-0 right-0 z-20 px-3 transition-all duration-300",
+            isHeaderVisible ? "top-20" : "top-4"
+          )}>
+            <div className="max-w-md mx-auto rounded-lg overflow-hidden bg-destructive/10 backdrop-blur-sm border border-destructive/30 shadow-lg">
+              <div className="p-3">
+                <p className="text-destructive text-sm">Error: {error}</p>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Chapter info */}
-          {currentChapter && (
-            <div className="mb-6">
+        {/* Chapter info */}
+        {currentChapter && (
+          <div className="px-3 sm:px-6 mb-6">
+            <div className="max-w-3xl mx-auto">
               <ChapterInfo
                 chapterNumber={currentChapter.chapter_number}
                 nameEnglish={currentChapter.name_english}
@@ -310,70 +341,42 @@ export default function QuranReader() {
                 onNext={() => handleChapterChange((selectedChapter + 1).toString())}
               />
             </div>
-          )}
-
-          {/* Verses */}
-          <div className="rounded-lg overflow-hidden bg-white/[0.02] backdrop-blur-md border border-white/[0.06]">
-            <div className="px-4 py-3 border-b border-white/10 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-accent" />
-                <span className="font-medium text-white">Verses</span>
-              </div>
-
-              {isLoading && (
-                <div className="flex items-center gap-2 text-white/50">
-                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-accent border-t-transparent"></div>
-                  <span className="text-xs">Loading...</span>
-                </div>
-              )}
-            </div>
-            <div className="p-5">
-              <div className="space-y-8">
-                {isLoading ? (
-                  // Show skeletons while loading
-                  Array.from({ length: 5 }).map((_, index) => (
-                    <VerseItemSkeleton key={index} />
-                  ))
-                ) : (
-                  // Show actual verses when loaded
-                  verses.map((verse) => (
-                    <VerseItem
-                      key={verse.verse_key}
-                      verseKey={verse.verse_key}
-                      arabicText={verse.text_uthmani}
-                      translations={verse.translations}
-                    />
-                  ))
-                )}
-              </div>
-            </div>
           </div>
+        )}
+
+        {/* Verses - Clean, immersive layout */}
+        <div className="flex-1 px-3 sm:px-6 relative">
+          <div className="max-w-3xl mx-auto">
+            {isLoading ? (
+              // Loading state
+              <div className="space-y-12 py-6">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <VerseItemSkeleton key={index} />
+                ))}
+              </div>
+            ) : (
+              // Verses with elegant spacing
+              <div className="space-y-12 py-6">
+                {verses.map((verse) => (
+                  <VerseItem
+                    key={verse.verse_key}
+                    verseKey={verse.verse_key}
+                    arabicText={verse.text_uthmani}
+                    translations={verse.translations}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Small experimental notice at the bottom */}
+        <div className="mt-6 mb-4 text-center">
+          <p className="text-[10px] text-white/30">
+            Experimental research preview - Please verify information for accuracy
+          </p>
         </div>
       </main>
-
-      {/* Footer area with experimental warning */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 w-full px-3 sm:px-6 py-3 sm:py-4 transition-all duration-300">
-        <div className="absolute inset-0 blur-layer"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
-
-        <div className="max-w-xl mx-auto relative z-10">
-          {/* Enhanced experimental warning message with elegant styling */}
-          <div className="flex items-center justify-center relative">
-            {/* Subtle decorative elements */}
-            <div className="absolute left-1/2 -translate-x-1/2 w-24 sm:w-32 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-
-            <div className="px-2 sm:px-4 py-1 sm:py-2 relative">
-              <p className="text-[9px] sm:text-[10px] text-white/30 text-center flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 group">
-                <span className="hidden sm:inline-block w-3 h-px bg-white/20 group-hover:w-5 transition-all duration-500"></span>
-                <span className="group-hover:text-white/40 transition-colors duration-300 text-center">
-                  Experimental research preview - Please verify information for accuracy
-                </span>
-                <span className="hidden sm:inline-block w-3 h-px bg-white/20 group-hover:w-5 transition-all duration-500"></span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
