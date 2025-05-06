@@ -10,4 +10,5 @@ export default [
   route("ai-assistant", "routes/ai-assistant.tsx"),
   route("logo-demo", "routes/logo-demo.tsx"),
   route("logo-usage", "routes/logo-usage.tsx"),
+  route("read", "routes/read.tsx"),
 ] satisfies RouteConfig;
