@@ -7,6 +7,10 @@ import { ChapterInfo } from "~/components/quran/ChapterInfo";
 import { GeometricDecoration } from "~/components/ui/geometric-background";
 import { Logo } from "~/components/ui/logo";
 import { cn } from "~/lib/utils";
+import { FloatingChatInterface } from "~/components/ai/FloatingChatInterface";
+import { BookIcon, BookMarkedIcon, BrainCircuitIcon, LayersIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { chatMessagesAtom, chatMinimizedAtom } from "~/store/chat";
+import { useAtom } from "jotai";
 
 import {
   Select,
@@ -141,6 +145,16 @@ export async function clientLoader({ request }: { request: Request }) {
 
 clientLoader.hydrate = true as const;
 
+// Define Quran reader specific suggestions for the AI chat
+const QURAN_READER_SUGGESTIONS = [
+  { text: "Go to next chapter", icon: <ChevronRight className="h-3 w-3" /> },
+  { text: "Go to previous chapter", icon: <ChevronLeft className="h-3 w-3" /> },
+  { text: "Change translation", icon: <LayersIcon className="h-3 w-3" /> },
+  { text: "Go to chapter 1", icon: <BookIcon className="h-3 w-3" /> },
+  { text: "Explain this chapter", icon: <BookMarkedIcon className="h-3 w-3" /> },
+  { text: "What can you do?", icon: <BrainCircuitIcon className="h-3 w-3" /> },
+];
+
 export default function QuranReader() {
   const {
     chapters,
@@ -154,6 +168,8 @@ export default function QuranReader() {
   const [, setSearchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [chatMessages, setChatMessages] = useAtom(chatMessagesAtom);
+  const [chatMinimized, setChatMinimized] = useAtom(chatMinimizedAtom);
 
   // Handle scroll events to show/hide header on all devices
   useEffect(() => {
@@ -292,6 +308,129 @@ export default function QuranReader() {
     }
   };
 
+  // Function to handle AI chat messages
+  const handleSendMessage = async (queryText: string) => {
+    // Get the current chapter information for context
+    const chapterName = chapterInfo?.englishName || `Chapter ${selectedChapter}`;
+    const verseCount = verses.length;
+
+    // Generate a response based on the query and current chapter
+    let response = "";
+
+    // Handle navigation and control actions
+    if (queryText.toLowerCase().includes("next chapter") || queryText.toLowerCase().includes("go to next")) {
+      if (selectedChapter < 114) {
+        // Navigate to next chapter
+        handleChapterChange((selectedChapter + 1).toString());
+        response = `Navigating to Chapter ${selectedChapter + 1}: ${chapters.find(c => c.number === selectedChapter + 1)?.englishName || ''}`;
+      } else {
+        response = `You're already at Chapter 114 (An-Nas), which is the last chapter of the Quran.`;
+      }
+    }
+    else if (queryText.toLowerCase().includes("previous chapter") || queryText.toLowerCase().includes("go to previous")) {
+      if (selectedChapter > 1) {
+        // Navigate to previous chapter
+        handleChapterChange((selectedChapter - 1).toString());
+        response = `Navigating to Chapter ${selectedChapter - 1}: ${chapters.find(c => c.number === selectedChapter - 1)?.englishName || ''}`;
+      } else {
+        response = `You're already at Chapter 1 (Al-Fatiha), which is the first chapter of the Quran.`;
+      }
+    }
+    else if (queryText.toLowerCase().includes("change translation") || queryText.toLowerCase().includes("switch translation")) {
+      // Show available translations
+      response = `Here are some available translations:\n\n`;
+
+      // List a few popular translations
+      const popularTranslations = availableTranslations.slice(0, 5);
+      popularTranslations.forEach((translation, index) => {
+        response += `${index + 1}. ${translation.englishName} (${translation.identifier})\n`;
+      });
+
+      response += `\nYou can say "use translation [name or identifier]" to switch to a specific translation.`;
+    }
+    else if (queryText.toLowerCase().includes("use translation")) {
+      // Extract the translation name or identifier
+      const translationQuery = queryText.toLowerCase().replace("use translation", "").trim();
+
+      // Find the matching translation
+      const matchedTranslation = availableTranslations.find(t =>
+        t.identifier.toLowerCase().includes(translationQuery) ||
+        t.englishName.toLowerCase().includes(translationQuery)
+      );
+
+      if (matchedTranslation) {
+        // Change the translation
+        handleTranslationChange(matchedTranslation.identifier);
+        response = `Changing translation to ${matchedTranslation.englishName} (${matchedTranslation.identifier})`;
+      } else {
+        response = `I couldn't find a translation matching "${translationQuery}". Try saying "change translation" to see available options.`;
+      }
+    }
+    else if (queryText.toLowerCase().includes("go to chapter") || queryText.toLowerCase().includes("navigate to chapter")) {
+      // Extract the chapter number
+      const chapterMatch = queryText.match(/chapter\s+(\d+)/i);
+      if (chapterMatch && chapterMatch[1]) {
+        const chapterNum = parseInt(chapterMatch[1], 10);
+        if (chapterNum >= 1 && chapterNum <= 114) {
+          // Navigate to the specified chapter
+          handleChapterChange(chapterNum.toString());
+          response = `Navigating to Chapter ${chapterNum}: ${chapters.find(c => c.number === chapterNum)?.englishName || ''}`;
+        } else {
+          response = `The Quran has 114 chapters. Please specify a chapter number between 1 and 114.`;
+        }
+      } else {
+        response = `To navigate to a specific chapter, please specify the chapter number (e.g., "Go to chapter 5").`;
+      }
+    }
+    // Handle informational queries
+    else if (queryText.toLowerCase().includes("explain") || queryText.toLowerCase().includes("meaning")) {
+      response = `${chapterName} (Chapter ${selectedChapter}) consists of ${verseCount} verses. It discusses themes of guidance, faith, and divine wisdom. This chapter was revealed in ${chapterInfo?.revelationType === "Meccan" ? "Mecca" : "Medina"} and is known for its profound spiritual teachings.`;
+    }
+    else if (queryText.toLowerCase().includes("historical context") || queryText.toLowerCase().includes("history")) {
+      response = `${chapterName} was revealed during the ${chapterInfo?.revelationType === "Meccan" ? "early" : "later"} period of Prophet Muhammad's mission. ${chapterInfo?.revelationType === "Meccan" ? "Meccan chapters generally focus on faith, monotheism, and spiritual teachings." : "Medinan chapters often address social regulations, community building, and interactions with other faith communities."}`;
+    }
+    else if (queryText.toLowerCase().includes("daily life") || queryText.toLowerCase().includes("relate")) {
+      response = `The teachings in ${chapterName} can be applied to daily life through practicing patience, gratitude, and mindfulness of God. The ethical principles emphasized in this chapter guide believers in their interactions with family, community, and society at large.`;
+    }
+    else if (queryText.toLowerCase().includes("bookmark") || queryText.toLowerCase().includes("save")) {
+      // Simulate bookmarking the current chapter
+      response = `I've bookmarked Chapter ${selectedChapter}: ${chapterName} for you. You can access your bookmarks later.`;
+    }
+    else if (queryText.toLowerCase().includes("copy") || queryText.toLowerCase().includes("share")) {
+      // Simulate copying chapter information
+      response = `I've copied information about Chapter ${selectedChapter}: ${chapterName} to your clipboard. You can now paste it elsewhere.`;
+    }
+    else if (queryText.toLowerCase().includes("help") || queryText.toLowerCase().includes("what can you do")) {
+      response = `I can help you with the following actions while reading the Quran:\n\n` +
+        `- Navigate between chapters (e.g., "Go to next chapter" or "Go to chapter 5")\n` +
+        `- Change translations (e.g., "Change translation" or "Use translation Sahih")\n` +
+        `- Explain the meaning and context of chapters\n` +
+        `- Provide historical background\n` +
+        `- Relate teachings to daily life\n` +
+        `- Bookmark or copy verses\n\n` +
+        `What would you like to do?`;
+    }
+    else {
+      response = `I'd be happy to help you understand more about ${chapterName} (Chapter ${selectedChapter}). This chapter contains ${verseCount} verses and was revealed in ${chapterInfo?.revelationType === "Meccan" ? "Mecca" : "Medina"}. You can ask about its meanings, historical context, or how it relates to daily life. You can also navigate between chapters or change translations.`;
+    }
+
+    // Add the user message and AI response to the chat
+    const userMessage = {
+      role: "user" as const,
+      content: queryText
+    };
+
+    const aiResponse = {
+      role: "assistant" as const,
+      content: response
+    };
+
+    setChatMessages([...chatMessages, userMessage, aiResponse]);
+    setChatMinimized(false);
+
+    return response;
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0A0A0A] text-white relative overflow-hidden">
       {/* Animated Geometric Pattern Background */}
@@ -301,6 +440,14 @@ export default function QuranReader() {
       <div className="absolute top-0 right-0 w-[300px] h-[300px] translate-x-1/4 -translate-y-1/4 rounded-full bg-accent/5 blur-[100px]"></div>
       <div className="absolute bottom-0 left-0 w-[350px] h-[350px] -translate-x-1/4 translate-y-1/4 rounded-full bg-primary/5 blur-[120px]"></div>
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent"></div>
+
+      {/* Floating AI Chat Interface */}
+      <FloatingChatInterface
+        title="Quran Assistant"
+        contextId={`Chapter ${selectedChapter}: ${chapterInfo?.englishName}`}
+        suggestions={QURAN_READER_SUGGESTIONS}
+        onSendMessage={handleSendMessage}
+      />
 
       {/* Tap area to show header when it's hidden */}
       {!isHeaderVisible && (

@@ -5,7 +5,14 @@ import { Button } from "~/components/ui/button";
 import {
   ExternalLink,
   Copy,
-  Bookmark
+  Bookmark,
+  SparklesIcon,
+  BookIcon,
+  HistoryIcon,
+  GraduationCapIcon,
+  LightbulbIcon,
+  FileTextIcon,
+  HeartIcon
 } from "lucide-react";
 import {
   Tooltip,
@@ -13,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { AskAIButton } from "~/components/ai/AskAIButton";
 
 interface Translation {
   id?: number;
@@ -108,6 +116,60 @@ export function VerseItem({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+
+          {/* AI Assistant Button */}
+          <AskAIButton
+            context={{
+              entityType: "verse",
+              entityId: verseKey,
+              text: primaryTranslation?.text
+            }}
+            size="sm"
+            options={[
+              {
+                id: 'general',
+                label: 'Tell me about this verse',
+                icon: SparklesIcon,
+                prompt: (ctx) => `Tell me about verse ${ctx.entityId}`
+              },
+              {
+                id: 'lessons',
+                label: 'Key lessons',
+                icon: BookIcon,
+                prompt: (ctx) => `What are the key lessons from verse ${ctx.entityId}?`
+              },
+              {
+                id: 'context',
+                label: 'Historical context',
+                icon: HistoryIcon,
+                prompt: (ctx) => `What is the historical context of verse ${ctx.entityId}?`
+              },
+              {
+                id: 'scholars',
+                label: 'Scholarly views',
+                icon: GraduationCapIcon,
+                prompt: (ctx) => `What do scholars say about verse ${ctx.entityId}?`
+              },
+              {
+                id: 'apply',
+                label: 'Apply today',
+                icon: LightbulbIcon,
+                prompt: (ctx) => `How can I apply verse ${ctx.entityId} in today's world?`
+              },
+              {
+                id: 'explain',
+                label: 'General explanation',
+                icon: FileTextIcon,
+                prompt: (ctx) => `Explain verse ${ctx.entityId} in simple terms.`
+              },
+              {
+                id: 'personal',
+                label: 'Relevant to my life',
+                icon: HeartIcon,
+                prompt: (ctx) => `How might verse ${ctx.entityId} be relevant to my life?`
+              },
+            ]}
+          />
 
           {showDetailLink && (
             <TooltipProvider>
