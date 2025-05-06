@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLoaderData, useSearchParams } from "react-router";
 import type { Route } from "./+types/read";
 import { VerseItem } from "~/components/quran/VerseItem";
@@ -154,26 +154,93 @@ export default function QuranReader() {
   const [, setSearchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const lastScrollY = useRef(0);
 
   // Handle scroll events to show/hide header on all devices
   useEffect(() => {
+    // Track scroll direction and position
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+    let isScrollingDown = false;
+    let lastDirection: 'up' | 'down' | null = null;
+    let directionChangeTimestamp = 0;
+    let lastHeaderChangeTime = 0;
+
+    // Minimum time between direction changes and header visibility changes (ms)
+    const directionChangeThreshold = 200;
+    const headerChangeThreshold = 300;
+
+    // Check if we're at the bottom of the page with some margin
+    const isNearBottom = () => {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollPosition = window.scrollY + windowHeight;
+      // Consider "near bottom" if within 150px of the bottom
+      return documentHeight - scrollPosition < 150;
+    };
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const currentTime = Date.now();
 
-      // Show header when scrolling up, hide when scrolling down
-      if (currentScrollY > lastScrollY.current && currentScrollY > 60) {
-        setIsHeaderVisible(false);
-      } else {
-        setIsHeaderVisible(true);
+          // Determine scroll direction
+          const currentDirection: 'up' | 'down' = currentScrollY > lastScrollY ? 'down' : 'up';
+
+          // Check if direction changed
+          const directionChanged = lastDirection !== null && currentDirection !== lastDirection;
+
+          // Update last direction if it changed and enough time has passed
+          if (directionChanged && (currentTime - directionChangeTimestamp > directionChangeThreshold)) {
+            lastDirection = currentDirection;
+            directionChangeTimestamp = currentTime;
+            isScrollingDown = currentDirection === 'down';
+          } else if (lastDirection === null) {
+            // First scroll event
+            lastDirection = currentDirection;
+            isScrollingDown = currentDirection === 'down';
+          }
+
+          // Only change header visibility if enough time has passed since last change
+          // This prevents rapid toggling
+          if (currentTime - lastHeaderChangeTime > headerChangeThreshold) {
+            // Don't change header state when near the bottom of the page
+            if (!isNearBottom()) {
+              // Only update header visibility based on established scroll direction
+              if (isScrollingDown && currentScrollY > 60) {
+                if (isHeaderVisible) {
+                  setIsHeaderVisible(false);
+                  lastHeaderChangeTime = currentTime;
+                }
+              } else if (!isScrollingDown) {
+                if (!isHeaderVisible) {
+                  setIsHeaderVisible(true);
+                  lastHeaderChangeTime = currentTime;
+                }
+              }
+            } else {
+              // When near bottom, keep header visible to prevent vibration
+              if (!isHeaderVisible) {
+                setIsHeaderVisible(true);
+                lastHeaderChangeTime = currentTime;
+              }
+            }
+          }
+
+          lastScrollY = currentScrollY;
+          ticking = false;
+        });
+
+        ticking = true;
       }
-
-      lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isHeaderVisible]);
 
   // Handle chapter selection
   const handleChapterChange = (value: string) => {
@@ -242,7 +309,7 @@ export default function QuranReader() {
           onClick={showHeader}
           aria-label="Show navigation"
         >
-          <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20 animate-pulse"></div>
+          <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20"></div>
         </div>
       )}
 
