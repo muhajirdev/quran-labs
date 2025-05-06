@@ -1,0 +1,94 @@
+---
+title: 'AI System Architecture Overview'
+description: 'High-level architecture of the Quran AI system combining tools and agents'
+---
+
+# Quran AI System Architecture
+
+The Quran AI system uses a hybrid architecture that combines specialized tools with intelligent agents to provide a comprehensive, accurate, and spiritually meaningful experience for users exploring the Quran.
+
+## Architecture Principles
+
+Our architecture is guided by the following principles:
+
+1. **Accuracy First**: All interactions must prioritize theological accuracy and respect for the Quranic text
+2. **Meaningful Depth**: Go beyond simple information retrieval to provide spiritual insight and guidance
+3. **Personalized Experience**: Adapt to the user's knowledge level, interests, and spiritual needs
+4. **Modular Design**: Enable continuous improvement through component-based architecture
+5. **Ethical AI**: Ensure transparency, avoid hallucination, and respect Islamic scholarly tradition
+
+## Layered Architecture
+
+The Quran AI system is structured in three primary layers:
+
+### 1. Foundation Layer: Core Tools
+
+The foundation layer consists of specialized tools that perform specific, well-defined tasks:
+
+- Database access (Kuzu graph queries)
+- Vector embeddings and semantic search
+- Text processing (Arabic handling, transliteration)
+- Media generation (images, audio, visualizations)
+
+These tools provide the fundamental capabilities that power the entire system, handling tasks that require precision, consistency, and integration with external systems.
+
+### 2. Reasoning Layer: Specialized Agents
+
+The reasoning layer contains specialized agents that perform complex reasoning tasks:
+
+- Tafsir Agent (for scholarly interpretation)
+- Personal Guidance Agent (for life application)
+- Educational Agent (for structured learning)
+- Creative Expression Agent (for artistic outputs)
+
+These agents leverage the foundation layer tools while adding sophisticated reasoning, personalization, and contextual understanding.
+
+### 3. Orchestration Layer: Meta-Agent
+
+The orchestration layer contains a meta-agent that:
+
+- Determines which agents and tools to use based on user intent
+- Manages conversation flow and context
+- Ensures responses align with Islamic principles and accuracy
+- Provides a consistent user experience
+
+## System Flow
+
+1. **User Input Processing**:
+   - The system analyzes user input to determine intent and context
+   - The orchestration layer selects appropriate agents and tools
+
+2. **Multi-step Reasoning** (invisible to the user):
+   - Agents perform internal reasoning steps
+   - Tools are called to retrieve information or generate content
+   - Results are synthesized into a coherent response
+
+3. **Response Generation**:
+   - The final response is formatted according to the user's needs
+   - Citations and sources are included for transparency
+   - The response is delivered in the appropriate modality (text, visual, etc.)
+
+## Integration Points
+
+The Quran AI system integrates with several key components:
+
+- **Kuzu Graph Database**: For accessing the Quran Knowledge Graph
+- **Vector Database**: For semantic search and concept matching
+- **Media Generation Services**: For creating visualizations and other media
+- **User Profile System**: For personalization and context awareness
+
+## Implementation Approach
+
+Our implementation follows a phased approach:
+
+1. **Phase 1**: Core tools and basic orchestration
+2. **Phase 2**: Specialized agents and enhanced reasoning
+3. **Phase 3**: Advanced personalization and multi-modal interactions
+
+This allows us to deliver value quickly while continuously improving the system's capabilities.
+
+## Next Steps
+
+- See [Tools Overview](/docs/tools/overview) for details on the foundation layer
+- See [Agents Overview](/docs/agents/overview) for details on the reasoning layer
+- See [Integration Guide](/docs/implementation/integration-guide) for implementation details

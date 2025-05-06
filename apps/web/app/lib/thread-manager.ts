@@ -1,4 +1,5 @@
 // Thread management utility for chat conversations
+import { getSystemMessage } from './system-prompt';
 
 export interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -18,13 +19,10 @@ const CURRENT_THREAD_KEY = 'quran-ai-current-thread';
 
 // Initial system messages for new threads
 export const INITIAL_MESSAGES: Message[] = [
-  {
-    role: 'system',
-    content: 'You are a helpful AI assistant specialized in the Quran and Islamic knowledge.'
-  },
+  getSystemMessage(),
   {
     role: 'assistant',
-    content: 'I\'m your Quran AI Assistant. Ask me anything about the Quran, its verses, chapters, themes, or interpretations.'
+    content: 'I\'m your Quran AI Assistant. Ask me anything about the Quran, its verses, chapters, themes, or interpretations. I\'ll do my best to provide accurate, helpful information.'
   }
 ];
 

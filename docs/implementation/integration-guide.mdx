@@ -1,0 +1,450 @@
+---
+title: 'Integration Guide'
+description: 'Guide for integrating tools and agents in the Quran AI system'
+---
+
+# Integration Guide
+
+This guide provides practical information on how to integrate tools and agents in the Quran AI system. It covers implementation approaches, best practices, and examples to help developers effectively combine these components.
+
+## Architecture Overview
+
+Before diving into integration details, it's important to understand the layered architecture:
+
+1. **Foundation Layer (Tools)**: Specialized components for specific tasks
+2. **Reasoning Layer (Agents)**: AI components that perform complex reasoning
+3. **Orchestration Layer**: Coordination of tools and agents
+
+These layers work together to provide a comprehensive, intelligent system for Quranic exploration and understanding.
+
+## Tool Integration
+
+### Direct Tool Usage
+
+Tools can be used directly in your application code:
+
+```typescript
+import { VerseRetriever, TafsirRetriever } from '@quran-ai/tools';
+
+// Example: Fetch a verse and its tafsir
+async function getVerseWithTafsir(verseKey: string) {
+  // Get the verse
+  const verse = await VerseRetriever({
+    reference: verseKey
+  });
+  
+  // Get the tafsir
+  const tafsir = await TafsirRetriever({
+    verse_key: verseKey,
+    author: 'ibn-kathir'
+  });
+  
+  return {
+    verse,
+    tafsir
+  };
+}
+```
+
+### Tool Chaining
+
+Tools can be chained together for more complex operations:
+
+```typescript
+import { VerseRetriever, ThematicAnalyzer, RelatedVersesFinder } from '@quran-ai/tools';
+
+// Example: Find thematically related verses
+async function findThematicConnections(verseKey: string) {
+  // Get the verse
+  const verse = await VerseRetriever({
+    reference: verseKey
+  });
+  
+  // Analyze themes
+  const thematicAnalysis = await ThematicAnalyzer({
+    text: verse.translation
+  });
+  
+  // Find related verses based on themes
+  const relatedVerses = await RelatedVersesFinder({
+    themes: thematicAnalysis.primary_themes,
+    exclude_verse: verseKey
+  });
+  
+  return {
+    original_verse: verse,
+    themes: thematicAnalysis.primary_themes,
+    related_verses: relatedVerses
+  };
+}
+```
+
+### Tool Registration
+
+To make tools available to agents, register them in the tool registry:
+
+```typescript
+import { ToolRegistry } from '@quran-ai/core';
+import { VerseRetriever, TafsirRetriever } from '@quran-ai/tools';
+
+// Register tools
+ToolRegistry.register('VerseRetriever', VerseRetriever);
+ToolRegistry.register('TafsirRetriever', TafsirRetriever);
+
+// Tools are now available to agents
+```
+
+## Agent Integration
+
+### Using Individual Agents
+
+Agents can be used directly for specific tasks:
+
+```typescript
+import { TafsirAgent } from '@quran-ai/agents';
+
+// Example: Get tafsir explanation
+async function getTafsirExplanation(verseKey: string, question: string) {
+  const agent = new TafsirAgent();
+  
+  const response = await agent.process({
+    verse_key: verseKey,
+    question: question
+  });
+  
+  return response;
+}
+```
+
+### Agent Configuration
+
+Agents can be configured with specific parameters:
+
+```typescript
+import { QuranTeacherAgent } from '@quran-ai/agents';
+
+// Configure the agent
+const teacherAgent = new QuranTeacherAgent({
+  knowledge_level: 'beginner',
+  preferred_scholars: ['ibn-kathir', 'al-tabari'],
+  language: 'en',
+  include_arabic: true
+});
+
+// Use the configured agent
+const lesson = await teacherAgent.createLesson('Introduction to Tawhid');
+```
+
+### Agent Chaining
+
+Multiple agents can be chained together for complex workflows:
+
+```typescript
+import { TafsirAgent, LifeApplicationAgent } from '@quran-ai/agents';
+
+// Example: Get interpretation and application
+async function getInterpretationAndApplication(verseKey: string, lifeContext: string) {
+  // Get scholarly interpretation
+  const tafsirAgent = new TafsirAgent();
+  const interpretation = await tafsirAgent.process({
+    verse_key: verseKey
+  });
+  
+  // Get life application
+  const applicationAgent = new LifeApplicationAgent();
+  const application = await applicationAgent.process({
+    verse_key: verseKey,
+    interpretation: interpretation,
+    life_context: lifeContext
+  });
+  
+  return {
+    interpretation,
+    application
+  };
+}
+```
+
+## Orchestration
+
+### Using the OrchestratorAgent
+
+The OrchestratorAgent can coordinate multiple agents and tools:
+
+```typescript
+import { OrchestratorAgent } from '@quran-ai/agents';
+
+// Create orchestrator
+const orchestrator = new OrchestratorAgent();
+
+// Process a complex request
+const response = await orchestrator.process({
+  user_request: "I want to understand Surah Al-Fatiha, its interpretation by different scholars, and how I can apply its teachings in my daily life.",
+  user_context: {
+    knowledge_level: "intermediate",
+    preferred_language: "en",
+    interests: ["spiritual growth", "practical application"]
+  }
+});
+```
+
+### Custom Orchestration
+
+You can also create custom orchestration logic:
+
+```typescript
+import { AgentRegistry, ToolRegistry } from '@quran-ai/core';
+
+// Example: Custom orchestration function
+async function customOrchestration(request, context) {
+  // Analyze the request
+  const intent = determineIntent(request);
+  
+  // Select appropriate agents and tools
+  const agents = selectAgents(intent, AgentRegistry);
+  const tools = selectTools(intent, ToolRegistry);
+  
+  // Execute the workflow
+  const results = await executeWorkflow(agents, tools, request, context);
+  
+  // Synthesize the response
+  return synthesizeResponse(results);
+}
+```
+
+## Integration Patterns
+
+### Web API Integration
+
+Expose tools and agents through a web API:
+
+```typescript
+import express from 'express';
+import { TafsirAgent, VerseRetriever } from '@quran-ai/agents';
+
+const app = express();
+app.use(express.json());
+
+// Tool endpoint
+app.post('/api/verse', async (req, res) => {
+  try {
+    const verse = await VerseRetriever(req.body);
+    res.json(verse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Agent endpoint
+app.post('/api/tafsir', async (req, res) => {
+  try {
+    const agent = new TafsirAgent();
+    const response = await agent.process(req.body);
+    res.json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.listen(3000);
+```
+
+### React Component Integration
+
+Create React components that use tools and agents:
+
+```tsx
+import React, { useState, useEffect } from 'react';
+import { VerseRetriever } from '@quran-ai/tools';
+
+export function VerseDisplay({ verseKey }) {
+  const [verse, setVerse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchVerse() {
+      try {
+        setLoading(true);
+        const verseData = await VerseRetriever({ reference: verseKey });
+        setVerse(verseData);
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchVerse();
+  }, [verseKey]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!verse) return null;
+
+  return (
+    <div className="verse-display">
+      <div className="arabic">{verse.text_uthmani}</div>
+      <div className="translation">{verse.translation}</div>
+      <div className="reference">{verse.verse_key}</div>
+    </div>
+  );
+}
+```
+
+### Chat Interface Integration
+
+Integrate with a chat interface:
+
+```tsx
+import React, { useState } from 'react';
+import { OrchestratorAgent } from '@quran-ai/agents';
+
+export function QuranChat() {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  
+  const orchestrator = new OrchestratorAgent();
+
+  async function handleSendMessage() {
+    if (!input.trim()) return;
+    
+    // Add user message
+    const userMessage = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
+    
+    try {
+      // Get response from orchestrator
+      const response = await orchestrator.process({
+        user_request: input,
+        conversation_history: messages
+      });
+      
+      // Add AI message
+      const aiMessage = { role: 'assistant', content: response.content };
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      // Add error message
+      const errorMessage = { role: 'assistant', content: `Error: ${error.message}` };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="chat-container">
+      <div className="messages">
+        {messages.map((msg, index) => (
+          <div key={index} className={`message ${msg.role}`}>
+            {msg.content}
+          </div>
+        ))}
+        {loading && <div className="loading-indicator">...</div>}
+      </div>
+      
+      <div className="input-area">
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          placeholder="Ask about the Quran..."
+          disabled={loading}
+        />
+        <button onClick={handleSendMessage} disabled={loading || !input.trim()}>
+          Send
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Error Handling
+
+Implement robust error handling:
+
+```typescript
+try {
+  const verse = await VerseRetriever({ reference: verseKey });
+  // Process verse
+} catch (error) {
+  if (error.code === 'VERSE_NOT_FOUND') {
+    // Handle specific error
+    console.error(`Verse ${verseKey} not found`);
+  } else if (error.code === 'API_ERROR') {
+    // Handle API error
+    console.error(`API error: ${error.message}`);
+  } else {
+    // Handle unexpected error
+    console.error(`Unexpected error: ${error.message}`);
+  }
+}
+```
+
+### Caching
+
+Implement caching for frequently used data:
+
+```typescript
+import { createCache } from '@quran-ai/core';
+
+// Create a cache
+const verseCache = createCache({
+  maxSize: 1000,
+  ttl: 3600000 // 1 hour
+});
+
+// Use the cache
+async function getCachedVerse(verseKey) {
+  // Check cache first
+  const cachedVerse = verseCache.get(verseKey);
+  if (cachedVerse) {
+    return cachedVerse;
+  }
+  
+  // Fetch if not in cache
+  const verse = await VerseRetriever({ reference: verseKey });
+  
+  // Store in cache
+  verseCache.set(verseKey, verse);
+  
+  return verse;
+}
+```
+
+### Logging
+
+Implement comprehensive logging:
+
+```typescript
+import { Logger } from '@quran-ai/core';
+
+// Create a logger
+const logger = new Logger('TafsirIntegration');
+
+// Log events
+async function getTafsir(verseKey) {
+  logger.info(`Fetching tafsir for verse ${verseKey}`);
+  
+  try {
+    const tafsir = await TafsirRetriever({ verse_key: verseKey });
+    logger.debug(`Retrieved tafsir from ${tafsir.author}`);
+    return tafsir;
+  } catch (error) {
+    logger.error(`Failed to fetch tafsir for verse ${verseKey}`, error);
+    throw error;
+  }
+}
+```
+
+## Next Steps
+
+- See [Tools Overview](/docs/tools/overview) for details on available tools
+- See [Agents Overview](/docs/agents/overview) for details on available agents
+- See [API Reference](/docs/api-reference) for complete API documentation

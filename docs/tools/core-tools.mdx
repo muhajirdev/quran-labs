@@ -1,0 +1,294 @@
+---
+title: 'Core Tools'
+description: 'Detailed documentation of the core tools in the Quran AI system'
+---
+
+# Core Tools
+
+This document provides detailed specifications for the core tools in the Quran AI system. These tools form the foundation of our capabilities and are designed to be used both directly and by agents in the system.
+
+## Knowledge Access Tools
+
+### VerseRetriever
+
+Retrieves Quranic verses based on various query parameters.
+
+**Input Parameters:**
+- `reference` (optional): Specific verse reference (e.g., "2:255")
+- `keywords` (optional): Keywords to search for in verse text or translations
+- `theme` (optional): Thematic category to search within
+- `language` (optional): Language for returned translations (default: "en")
+- `limit` (optional): Maximum number of verses to return (default: 10)
+
+**Output:**
+- Array of verse objects containing:
+  - `verse_key`: The verse reference (e.g., "2:255")
+  - `text_uthmani`: Original Arabic text in Uthmani script
+  - `text_simple`: Simplified Arabic text
+  - `translation`: Translation in requested language
+  - `chapter_name`: Name of the chapter (surah)
+  - `juz_number`: Juz number
+  - `page_number`: Page number in standard Quran
+
+**Example:**
+```javascript
+const verses = await VerseRetriever({
+  keywords: "guidance light",
+  limit: 5
+});
+```
+
+### TafsirRetriever
+
+Retrieves scholarly interpretations (tafsir) for Quranic verses.
+
+**Input Parameters:**
+- `verse_key`: Specific verse reference (e.g., "2:255")
+- `author` (optional): Specific tafsir author/source (e.g., "ibn-kathir")
+- `language` (optional): Language for returned tafsir (default: "en")
+- `concise` (optional): Whether to return a concise version (default: false)
+
+**Output:**
+- Array of tafsir objects containing:
+  - `author`: Name of the scholar or tafsir source
+  - `text`: The tafsir text
+  - `source`: Reference information
+  - `century`: Time period of the tafsir
+  - `school_of_thought`: Associated legal/theological school
+
+**Example:**
+```javascript
+const tafsir = await TafsirRetriever({
+  verse_key: "2:255",
+  author: "ibn-kathir"
+});
+```
+
+### ConceptExplorer
+
+Explores concepts mentioned in the Quran and their relationships.
+
+**Input Parameters:**
+- `concept`: The concept to explore (e.g., "mercy", "justice")
+- `depth` (optional): Exploration depth for related concepts (default: 1)
+- `include_verses` (optional): Whether to include related verses (default: true)
+- `language` (optional): Language for returned content (default: "en")
+
+**Output:**
+- Concept object containing:
+  - `name`: The concept name
+  - `description`: Description of the concept
+  - `occurrences`: Number of occurrences in the Quran
+  - `related_concepts`: Array of related concepts
+  - `key_verses`: Array of key verses mentioning the concept
+  - `scholarly_notes`: Scholarly notes on the concept
+
+**Example:**
+```javascript
+const concept = await ConceptExplorer({
+  concept: "mercy",
+  depth: 2
+});
+```
+
+## Language Processing Tools
+
+### ArabicTransliterator
+
+Converts between Arabic script and Latin transliteration.
+
+**Input Parameters:**
+- `text`: The text to transliterate
+- `direction`: Either "arabic-to-latin" or "latin-to-arabic"
+- `system` (optional): Transliteration system to use (default: "buckwalter")
+
+**Output:**
+- `original`: The original input text
+- `transliterated`: The transliterated text
+- `system`: The transliteration system used
+
+**Example:**
+```javascript
+const result = await ArabicTransliterator({
+  text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  direction: "arabic-to-latin"
+});
+```
+
+### RootWordAnalyzer
+
+Analyzes Arabic words to identify their trilateral roots and derivatives.
+
+**Input Parameters:**
+- `word`: The Arabic word to analyze
+- `include_derivatives` (optional): Whether to include derivative words (default: true)
+
+**Output:**
+- `word`: The original word
+- `root`: The trilateral root
+- `root_meaning`: Basic meaning of the root
+- `derivatives`: Array of derivative words sharing the same root
+- `occurrences`: Occurrences of this root in the Quran
+
+**Example:**
+```javascript
+const analysis = await RootWordAnalyzer({
+  word: "رَحْمَٰن"
+});
+```
+
+## Semantic Analysis Tools
+
+### ThematicAnalyzer
+
+Identifies themes in Quranic text and provides thematic analysis.
+
+**Input Parameters:**
+- `text`: The text to analyze (verse, passage, or query)
+- `depth` (optional): Depth of analysis (1-3, default: 2)
+- `format` (optional): Response format (default: "detailed")
+
+**Output:**
+- `primary_themes`: Array of primary themes identified
+- `secondary_themes`: Array of secondary themes identified
+- `related_verses`: Verses related to these themes
+- `analysis`: Detailed thematic analysis
+
+**Example:**
+```javascript
+const themes = await ThematicAnalyzer({
+  text: "Who has created death and life that He may test you which of you is best in deed.",
+  depth: 2
+});
+```
+
+### SemanticSearcher
+
+Performs semantic search across Quranic content using vector embeddings.
+
+**Input Parameters:**
+- `query`: The search query
+- `scope` (optional): Search scope ("verses", "concepts", "both") (default: "both")
+- `limit` (optional): Maximum number of results (default: 10)
+- `min_similarity` (optional): Minimum similarity threshold (default: 0.7)
+
+**Output:**
+- Array of result objects containing:
+  - `content`: The matched content
+  - `type`: Type of content ("verse", "concept")
+  - `reference`: Reference information
+  - `similarity`: Similarity score (0-1)
+
+**Example:**
+```javascript
+const results = await SemanticSearcher({
+  query: "How should we treat our parents?",
+  limit: 5
+});
+```
+
+## Media Generation Tools
+
+### CalligraphyGenerator
+
+Generates Arabic calligraphy for Quranic verses in various styles.
+
+**Input Parameters:**
+- `text`: The Arabic text to render
+- `style` (optional): Calligraphy style (default: "thuluth")
+- `color_scheme` (optional): Color scheme to use
+- `background` (optional): Background style
+- `format` (optional): Output format (default: "png")
+
+**Output:**
+- `image_url`: URL to the generated calligraphy image
+- `text`: The text that was rendered
+- `style`: The style that was used
+
+**Example:**
+```javascript
+const calligraphy = await CalligraphyGenerator({
+  text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  style: "diwani"
+});
+```
+
+### VisualizationCreator
+
+Creates visualizations of Quranic data and concepts.
+
+**Input Parameters:**
+- `type`: Visualization type ("concept-map", "word-cloud", "chapter-structure", etc.)
+- `data`: The data to visualize (depends on type)
+- `style` (optional): Visual style preferences
+- `dimensions` (optional): Output dimensions
+
+**Output:**
+- `image_url`: URL to the generated visualization
+- `data_summary`: Summary of the data visualized
+- `interactive`: Boolean indicating if the visualization is interactive
+
+**Example:**
+```javascript
+const visualization = await VisualizationCreator({
+  type: "concept-map",
+  data: {
+    central_concept: "taqwa",
+    related_concepts: ["fear", "consciousness", "piety"]
+  }
+});
+```
+
+## Graph Database Tools
+
+### GraphQueryExecutor
+
+Executes Cypher queries against the Quran Knowledge Graph.
+
+**Input Parameters:**
+- `query`: The Cypher query to execute
+- `parameters` (optional): Query parameters
+- `timeout` (optional): Query timeout in milliseconds
+
+**Output:**
+- `data`: The query results
+- `metadata`: Query execution metadata
+- `execution_time`: Query execution time in milliseconds
+
+**Example:**
+```javascript
+const result = await GraphQueryExecutor({
+  query: "MATCH (v:Verse)-[:MENTIONS]->(c:Concept {name: 'mercy'}) RETURN v.verse_key, v.text_simple LIMIT 5"
+});
+```
+
+### PathFinder
+
+Finds paths between concepts, verses, or chapters in the knowledge graph.
+
+**Input Parameters:**
+- `start`: Starting node (concept, verse, chapter)
+- `end`: Ending node (concept, verse, chapter)
+- `max_length` (optional): Maximum path length (default: 3)
+- `relationship_types` (optional): Types of relationships to consider
+
+**Output:**
+- Array of path objects containing:
+  - `nodes`: Array of nodes in the path
+  - `relationships`: Array of relationships in the path
+  - `length`: Path length
+  - `explanation`: Human-readable explanation of the path
+
+**Example:**
+```javascript
+const paths = await PathFinder({
+  start: {type: "concept", name: "mercy"},
+  end: {type: "concept", name: "justice"},
+  max_length: 2
+});
+```
+
+## Next Steps
+
+- See [Integration Guide](/docs/implementation/integration-guide) for how to integrate these tools into your workflow
+- See [Agents Overview](/docs/agents/overview) to understand how agents use these tools

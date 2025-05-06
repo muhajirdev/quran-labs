@@ -7,6 +7,7 @@ import { Input } from "~/components/ui/input"
 import { ChatMessage } from "./ChatMessage"
 import { createChatCompletion } from "~/lib/openrouter"
 import { Separator } from "~/components/ui/separator"
+import { getSystemMessage } from "~/lib/system-prompt"
 
 interface Message {
   role: "user" | "assistant" | "system"
@@ -14,13 +15,10 @@ interface Message {
 }
 
 const INITIAL_MESSAGES: Message[] = [
-  {
-    role: "system",
-    content: "You are a helpful AI assistant specialized in the Quran and Islamic knowledge."
-  },
+  getSystemMessage(),
   {
     role: "assistant",
-    content: "I'm your Quran AI Assistant. Ask me anything about the Quran, its verses, chapters, themes, or interpretations."
+    content: "I'm your Quran AI Assistant. Ask me anything about the Quran, its verses, chapters, themes, or interpretations. I'll do my best to provide accurate, helpful information."
   }
 ]
 

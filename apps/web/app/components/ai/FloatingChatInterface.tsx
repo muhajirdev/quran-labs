@@ -10,6 +10,7 @@ import { cn } from "~/lib/utils"
 import { motion } from 'framer-motion'
 import { useAtom } from "jotai"
 import { chatMessagesAtom, chatMinimizedAtom, chatExpandedAtom } from "~/store/chat"
+import { getSystemMessage } from "~/lib/system-prompt"
 
 // Default suggestion chips
 const DEFAULT_SUGGESTIONS = [
@@ -27,13 +28,10 @@ export interface Message {
 }
 
 const INITIAL_MESSAGES: Message[] = [
-  {
-    role: "system",
-    content: "You are a helpful AI assistant specialized in the Quran and Islamic knowledge."
-  },
+  getSystemMessage(),
   {
     role: "assistant",
-    content: "I'm here to help you explore and understand the Quran. You can ask me about meanings, contexts, or related topics."
+    content: "I'm here to help you explore and understand the Quran. You can ask me about meanings, contexts, or related topics. I'll do my best to provide accurate, helpful information."
   }
 ];
 

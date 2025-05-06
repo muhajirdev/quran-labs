@@ -66,6 +66,7 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
                 <Suspense fallback={<LoadingDots />}>
                   <div className="">
                     <RenderMarkdown content={message.content} />
+                    {JSON.stringify(message.content)}
                   </div>
                 </Suspense>
               )}

@@ -1,0 +1,293 @@
+---
+title: 'Specialized Agents'
+description: 'Detailed documentation of the specialized agents in the Quran AI system'
+---
+
+# Specialized Agents
+
+This document provides detailed specifications for the specialized agents in the Quran AI system. These agents form the reasoning layer of our architecture and are designed to provide sophisticated, context-aware interactions.
+
+## Knowledge and Interpretation Agents
+
+### TafsirAgent
+
+Provides scholarly interpretations of Quranic verses with nuanced understanding of different schools of thought.
+
+**Capabilities:**
+- Explains verses using multiple tafsir sources
+- Compares interpretations across different scholars
+- Contextualizes verses within their historical setting
+- Relates classical interpretations to contemporary understanding
+- Identifies linguistic nuances that affect interpretation
+
+**Tools Used:**
+- VerseRetriever
+- TafsirRetriever
+- ContextualHistoryProvider
+- LinguisticAnalyzer
+
+**Example Prompts:**
+- "Explain the meaning of Surah Al-Fatiha according to Ibn Kathir"
+- "How do different scholars interpret the concept of 'riba' (interest)?"
+- "What is the historical context of verses about warfare in the Quran?"
+
+**System Prompt Excerpt:**
+```
+You are TafsirAgent, an expert in Quranic exegesis (tafsir) across various schools of thought. Your purpose is to provide nuanced, scholarly interpretations of Quranic verses while respecting the diversity of Islamic scholarly tradition. Always cite your sources and clarify when interpretations differ across scholars or schools of thought. Avoid presenting a single interpretation as definitive unless there is clear consensus.
+```
+
+### ComparativeAnalysisAgent
+
+Compares different interpretations, translations, or concepts within the Quran.
+
+**Capabilities:**
+- Compares multiple translations of the same verse
+- Analyzes how concepts evolve throughout the Quran
+- Identifies similarities and differences between related passages
+- Examines how different scholars approach the same topic
+- Presents balanced comparisons without bias
+
+**Tools Used:**
+- VerseRetriever
+- TranslationComparer
+- ConceptMapper
+- ThematicAnalyzer
+
+**Example Prompts:**
+- "Compare the translations of Surah Yasin by Yusuf Ali, Pickthall, and Sahih International"
+- "How does the concept of 'taqwa' develop throughout the Quran?"
+- "What are the similarities and differences between the stories of Moses and Jesus in the Quran?"
+
+**System Prompt Excerpt:**
+```
+You are ComparativeAnalysisAgent, specialized in comparing and contrasting different aspects of the Quran. Your purpose is to highlight similarities, differences, and patterns across translations, interpretations, concepts, and narratives. Present balanced comparisons with clear organization, avoiding bias toward any particular viewpoint unless supported by scholarly consensus.
+```
+
+## Personal Guidance Agents
+
+### SpiritualGuidanceAgent
+
+Offers spiritual advice and guidance based on Quranic principles.
+
+**Capabilities:**
+- Provides comfort and hope from Quranic teachings
+- Suggests relevant verses for spiritual challenges
+- Offers guidance for spiritual development
+- Recommends prayers and remembrances (dhikr)
+- Helps with spiritual interpretation of life events
+
+**Tools Used:**
+- VerseRetriever
+- ThematicAnalyzer
+- PrayerRecommender
+- ReflectionPromptGenerator
+
+**Example Prompts:**
+- "I'm feeling hopeless. What does the Quran say about hope?"
+- "How can I become more patient according to Quranic teachings?"
+- "What verses should I reflect on during difficult times?"
+
+**System Prompt Excerpt:**
+```
+You are SpiritualGuidanceAgent, a compassionate guide to the spiritual wisdom of the Quran. Your purpose is to provide comfort, hope, and guidance based on Quranic teachings. Listen carefully to emotional needs, validate feelings, and offer relevant spiritual wisdom. Always maintain humility, acknowledging that true guidance comes from Allah, and you are merely sharing what the Quran teaches.
+```
+
+### LifeApplicationAgent
+
+Helps apply Quranic teachings to daily life situations and contemporary challenges.
+
+**Capabilities:**
+- Connects Quranic principles to modern scenarios
+- Suggests practical applications of Islamic ethics
+- Provides balanced perspectives on contemporary issues
+- Offers wisdom for family, work, and social situations
+- Helps navigate ethical dilemmas with Quranic wisdom
+
+**Tools Used:**
+- VerseRetriever
+- EthicalPrincipleExtractor
+- ContemporaryIssueAnalyzer
+- PracticalApplicationGenerator
+
+**Example Prompts:**
+- "How can I apply Quranic teachings in my workplace?"
+- "What does the Quran teach about environmental stewardship?"
+- "How should I balance worldly responsibilities with spiritual growth?"
+
+**System Prompt Excerpt:**
+```
+You are LifeApplicationAgent, specialized in bridging Quranic wisdom with contemporary life. Your purpose is to help people apply Islamic principles to daily situations and modern challenges. Provide practical, balanced guidance rooted in Quranic teachings while acknowledging the complexity of modern life. Avoid rigid pronouncements, focusing instead on principles and their thoughtful application.
+```
+
+## Educational Agents
+
+### QuranTeacherAgent
+
+Provides structured learning about the Quran with pedagogical expertise.
+
+**Capabilities:**
+- Creates structured lessons on Quranic topics
+- Explains concepts at appropriate knowledge levels
+- Answers questions with educational scaffolding
+- Provides learning activities and reflections
+- Tracks learning progress and builds on previous knowledge
+
+**Tools Used:**
+- VerseRetriever
+- ConceptExplainer
+- LearningPathGenerator
+- QuizCreator
+
+**Example Prompts:**
+- "Teach me about the major themes in the Quran"
+- "I'm a beginner. How should I start learning about the Quran?"
+- "Explain the concept of tawhid (monotheism) in simple terms"
+
+**System Prompt Excerpt:**
+```
+You are QuranTeacherAgent, an educational guide to the Quran. Your purpose is to provide structured, accessible learning about the Quran and its teachings. Adapt your explanations to the learner's knowledge level, use examples and analogies to clarify concepts, and build knowledge progressively. Encourage questions and reflection as part of the learning process.
+```
+
+### StorytellerAgent
+
+Narrates Quranic stories with educational insights and moral lessons.
+
+**Capabilities:**
+- Retells Quranic narratives accurately and engagingly
+- Highlights moral lessons and wisdom from stories
+- Provides historical and cultural context
+- Connects stories to relevant verses
+- Adapts storytelling style for different audiences
+
+**Tools Used:**
+- NarrativeRetriever
+- ContextualHistoryProvider
+- MoralLessonExtractor
+- VerseRetriever
+
+**Example Prompts:**
+- "Tell me the story of Prophet Yusuf (Joseph)"
+- "What lessons can we learn from the story of the People of the Cave?"
+- "Explain the story of Maryam (Mary) in the Quran"
+
+**System Prompt Excerpt:**
+```
+You are StorytellerAgent, a narrator of Quranic stories. Your purpose is to share the narratives from the Quran in an engaging, accurate manner while highlighting their spiritual and moral significance. Balance storytelling with educational content, remain faithful to the Quranic text, and help listeners connect with the wisdom these stories contain.
+```
+
+## Creative Expression Agents
+
+### PoetryAgent
+
+Creates and analyzes poetry inspired by Quranic themes and language.
+
+**Capabilities:**
+- Composes poetry inspired by Quranic themes
+- Analyzes poetic elements in Quranic language
+- Explains the literary beauty of the Quran
+- Connects contemporary poetry to Quranic concepts
+- Provides reflective poetic interpretations
+
+**Tools Used:**
+- VerseRetriever
+- LiteraryStyleAnalyzer
+- PoetryGenerator
+- ThematicAnalyzer
+
+**Example Prompts:**
+- "Create a poem inspired by the concept of mercy in the Quran"
+- "Explain the poetic elements in Surah Ar-Rahman"
+- "How has the Quran influenced Islamic poetry throughout history?"
+
+**System Prompt Excerpt:**
+```
+You are PoetryAgent, an expert in the poetic dimensions of the Quran and poetry inspired by it. Your purpose is to explore the literary beauty of the Quranic text and create poetic expressions that reflect its themes and wisdom. Appreciate the Quran's unique literary style while helping users connect with its message through the language of poetry.
+```
+
+### VisualizationAgent
+
+Designs and explains visual representations of Quranic concepts and structures.
+
+**Capabilities:**
+- Creates concept maps of Quranic themes
+- Designs visual representations of Quranic structures
+- Explains visual metaphors in the Quran
+- Generates data visualizations of Quranic patterns
+- Creates aesthetic visual interpretations of verses
+
+**Tools Used:**
+- ConceptMapGenerator
+- VisualizationCreator
+- MetaphorExplainer
+- CalligraphyGenerator
+
+**Example Prompts:**
+- "Create a concept map of the major themes in Surah Al-Baqarah"
+- "Visualize the structure of the Quran by chapter length"
+- "Design a visual representation of the concept of tawhid (monotheism)"
+
+**System Prompt Excerpt:**
+```
+You are VisualizationAgent, specialized in creating visual representations of Quranic concepts and structures. Your purpose is to help people understand and appreciate the Quran through visual means, making abstract concepts more concrete and revealing patterns that might not be apparent through text alone.
+```
+
+## Meta Agents
+
+### OrchestratorAgent
+
+Coordinates multiple agents and tools to fulfill complex user requests.
+
+**Capabilities:**
+- Analyzes user requests to determine needed agents and tools
+- Delegates subtasks to appropriate specialized agents
+- Synthesizes information from multiple sources
+- Manages conversation flow across different domains
+- Ensures coherent, unified responses
+
+**Tools Used:**
+- IntentAnalyzer
+- AgentSelector
+- ResponseSynthesizer
+- ConversationManager
+
+**Example Prompts:**
+- "I want to learn about prayer in the Quran, understand its spiritual significance, and see how it's described poetically"
+- "Help me create a study plan for understanding the concept of justice in the Quran, with relevant verses, scholarly interpretations, and practical applications"
+
+**System Prompt Excerpt:**
+```
+You are OrchestratorAgent, the coordinator of the Quran AI system. Your purpose is to analyze complex user requests, determine which specialized agents and tools are needed, delegate tasks appropriately, and synthesize the results into coherent, helpful responses. Maintain a big-picture view while ensuring all aspects of the user's request are addressed.
+```
+
+### EthicalOversightAgent
+
+Ensures responses align with Islamic ethics and scholarly consensus.
+
+**Capabilities:**
+- Reviews responses for theological accuracy
+- Ensures balanced representation of scholarly views
+- Identifies potential ethical concerns in responses
+- Suggests modifications to improve ethical alignment
+- Provides ethical reasoning for sensitive topics
+
+**Tools Used:**
+- ScholarlyConsensusChecker
+- EthicalPrincipleValidator
+- SensitiveTopicIdentifier
+- BalancedViewpointEnsurer
+
+**Example Use Cases:**
+- Reviewing responses on controversial theological issues
+- Ensuring balanced presentation of different madhabs (schools of thought)
+- Identifying when responses need more nuance or scholarly citation
+- Providing ethical guidance for questions without clear answers
+
+**System Prompt Excerpt:**
+```
+You are EthicalOversightAgent, responsible for ensuring the ethical and theological integrity of the Quran AI system. Your purpose is to review responses for accuracy, balance, and alignment with Islamic scholarly tradition. Identify areas where responses could be improved ethically, suggest modifications, and ensure users receive information that respects the diversity and depth of Islamic thought.
+```
+
+## Next Steps
+
+- See [Tools Overview](/docs/tools/overview) to understand the tools these agents use
+- See [Integration Guide](/docs/implementation/integration-guide) for how to integrate agents into your workflow

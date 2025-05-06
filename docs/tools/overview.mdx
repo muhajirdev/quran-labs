@@ -1,0 +1,102 @@
+---
+title: 'Tools Overview'
+description: 'Introduction to the tools-based approach in the Quran AI system'
+---
+
+# Tools Overview
+
+Tools in the Quran AI system are specialized components that perform specific, well-defined tasks with high reliability and efficiency. They form the foundation layer of our architecture, providing essential capabilities that both users and agents can leverage.
+
+## What Are Tools?
+
+In our system, tools are:
+
+- **Specialized**: Each tool performs a specific function
+- **Stateless**: Tools don't maintain their own conversation state
+- **Composable**: Tools can be combined to perform complex operations
+- **Deterministic**: Given the same input, a tool will produce the same output
+- **Efficient**: Tools are optimized for performance and resource usage
+
+## When to Use Tools
+
+Tools are ideal for:
+
+1. **Information Retrieval**: Fetching specific data from databases or APIs
+2. **Content Transformation**: Converting between formats or languages
+3. **Media Generation**: Creating images, audio, or other media
+4. **Structured Analysis**: Performing well-defined analytical tasks
+5. **External System Integration**: Connecting with databases or services
+
+## Tool Categories
+
+Our tools are organized into the following categories:
+
+### 1. Knowledge Access Tools
+
+Tools for accessing and retrieving information from our knowledge bases:
+
+- **VerseRetriever**: Fetch Quranic verses by reference, keyword, or theme
+- **TafsirRetriever**: Access scholarly interpretations of verses
+- **HadithRetriever**: Find relevant hadith related to Quranic concepts
+- **ScholarlyOpinionRetriever**: Access views from different scholars and schools of thought
+
+### 2. Language Processing Tools
+
+Tools for working with text in various languages:
+
+- **ArabicTransliterator**: Convert between Arabic script and Latin characters
+- **VerseTranslator**: Provide translations of verses in multiple languages
+- **RootWordAnalyzer**: Analyze Arabic words for their trilateral roots
+- **LinguisticFeatureExtractor**: Identify linguistic features in Quranic Arabic
+
+### 3. Semantic Analysis Tools
+
+Tools for understanding meaning and relationships:
+
+- **ConceptExtractor**: Identify key concepts in text
+- **ThematicAnalyzer**: Recognize themes in verses or passages
+- **SemanticSearcher**: Find semantically related content
+- **RelationshipMapper**: Map relationships between concepts, verses, or chapters
+
+### 4. Media Generation Tools
+
+Tools for creating visual and audio content:
+
+- **CalligraphyGenerator**: Create Arabic calligraphy of verses
+- **VisualizationCreator**: Generate charts, graphs, or other visualizations
+- **AudioRecitationProvider**: Provide audio recitations of verses
+- **WallpaperGenerator**: Create beautiful wallpapers featuring verses or concepts
+
+### 5. Graph Database Tools
+
+Tools for interacting with our Kuzu graph database:
+
+- **GraphQueryExecutor**: Execute Cypher queries against the graph database
+- **PathFinder**: Find paths between concepts or verses in the knowledge graph
+- **SubgraphExtractor**: Extract relevant subgraphs for specific topics
+- **GraphVisualizer**: Create visual representations of graph structures
+
+## Tool Integration
+
+Tools can be integrated into the system in several ways:
+
+1. **Direct API Access**: Tools can be called directly via API endpoints
+2. **Agent Utilization**: Agents can use tools to perform specific tasks
+3. **Chained Operations**: Multiple tools can be chained together for complex workflows
+4. **User Interface Integration**: Tools can be exposed directly in the UI for user interaction
+
+## Tool Development Guidelines
+
+When developing new tools, follow these guidelines:
+
+1. **Single Responsibility**: Each tool should do one thing well
+2. **Clear Interface**: Define clear inputs and outputs
+3. **Error Handling**: Provide meaningful error messages
+4. **Performance**: Optimize for speed and resource efficiency
+5. **Documentation**: Document purpose, inputs, outputs, and examples
+6. **Testing**: Create comprehensive tests for each tool
+
+## Next Steps
+
+- See [Core Tools](/docs/tools/core-tools) for detailed documentation of our foundation tools
+- See [Integration Guide](/docs/implementation/integration-guide) for how to integrate tools into your workflow
