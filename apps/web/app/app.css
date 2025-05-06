@@ -1,6 +1,7 @@
 @import "tailwindcss" source(".");
 @import "tw-animate-css";
 @import "./styles/satoshi.css";
+@import "./styles/arabic-font.css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));

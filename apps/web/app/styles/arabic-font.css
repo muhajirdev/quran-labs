@@ -1,0 +1,50 @@
+/**
+* QPC Hafs Font for Arabic text
+* Used for rendering Quranic text in the Uthmani script
+*
+* Note: When using this font for Arabic text, make sure to add the font-sans class
+* to any tooltips or UI elements that should use the default UI font instead.
+*/
+
+@font-face {
+  font-family: 'UthmanicHafs';
+  src: url('/fonts/qpc-hafs-font/UthmanicHafs1Ver18.woff2') format('woff2'),
+       url('/fonts/qpc-hafs-font/UthmanicHafs1Ver18.ttf') format('truetype');
+  font-weight: normal;
+  font-display: swap;
+  font-style: normal;
+}
+
+/* Arabic font utility class */
+.font-arabic {
+  font-family: 'UthmanicHafs', 'Traditional Arabic', 'Scheherazade New', serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* RTL text direction for Arabic */
+[dir="rtl"] {
+  text-align: right;
+}
+
+/* Override for centered Arabic text */
+.text-center[dir="rtl"] {
+  text-align: center;
+}
+
+/* Additional utility classes for Arabic text */
+.arabic-lg {
+  font-size: 1.5rem;
+  line-height: 2.5rem;
+}
+
+.arabic-xl {
+  font-size: 2rem;
+  line-height: 3rem;
+}
+
+.arabic-2xl {
+  font-size: 2.5rem;
+  line-height: 3.5rem;
+}

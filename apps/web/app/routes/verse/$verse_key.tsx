@@ -705,7 +705,7 @@ export default function VerseDetailPage() {
                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-accent/5 blur-3xl opacity-20 animate-[pulse_15s_ease-in-out_infinite]"></div>
 
                       <div className="w-full text-center relative z-10">
-                        <p className="text-3xl md:text-4xl text-center font-arabic leading-loose tracking-wide" dir="rtl" lang="ar">
+                        <p className="text-3xl md:text-4xl text-center font-arabic arabic-xl leading-loose" dir="rtl" lang="ar">
                           {/* Split text into words for interactive exploration */}
                           {verseData.text.split(' ').map((word, index) => (
                             <span
@@ -716,7 +716,7 @@ export default function VerseDetailPage() {
                               <span className="absolute right-0 bottom-0 w-full h-0.5 bg-primary/30 scale-x-0 group-hover:scale-x-100 transition-transform origin-right"></span>
 
                               {/* Enhanced word exploration tooltip */}
-                              <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-48 p-3 bg-popover/90 backdrop-blur-2xl rounded-md text-sm font-normal text-popover-foreground shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border border-accent/10">
+                              <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-48 p-3 bg-popover/90 backdrop-blur-2xl rounded-md text-sm font-normal text-popover-foreground shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border border-accent/10 font-sans">
                                 <div className="text-xs text-center">
                                   <p className="font-medium mb-1 text-primary">Word Analysis</p>
                                   <p className="text-muted-foreground">Click to explore root, grammar, and meaning</p>

@@ -29,7 +29,7 @@ export function TopicOverview({ topic }: TopicOverviewProps) {
         {topic.arabic_name && (
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1">
             <Languages className="h-3.5 w-3.5" />
-            Arabic: <span className="font-arabic text-base">{topic.arabic_name}</span>
+            Arabic: <span className="font-arabic text-base" dir="rtl" lang="ar">{topic.arabic_name}</span>
           </div>
         )}
       </div>
