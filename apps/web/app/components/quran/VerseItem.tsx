@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import { Link } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -34,14 +34,16 @@ interface VerseItemProps {
   arabicText: string;
   translations?: Translation[];
   showDetailLink?: boolean;
+  isHighlighted?: boolean;
 }
 
-export function VerseItem({
+export const VerseItem = forwardRef<HTMLDivElement, VerseItemProps>(({
   verseKey,
   arabicText,
   translations = [],
-  showDetailLink = true
-}: VerseItemProps) {
+  showDetailLink = true,
+  isHighlighted = false
+}, ref) => {
   const [copied, setCopied] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
 
@@ -66,7 +68,10 @@ export function VerseItem({
   };
 
   return (
-    <div className="group relative">
+    <div
+      ref={ref}
+      className={`group relative transition-colors duration-500 ${isHighlighted ? 'bg-accent/10 rounded-lg p-3 -mx-3' : ''}`}
+    >
       {/* Verse actions at the top */}
       <div className="flex justify-between items-center mb-4">
         {/* Verse number badge */}
@@ -221,6 +226,6 @@ export function VerseItem({
         {/* Subtle verse separator */}
         <div className="absolute bottom-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
       </div>
-    </div>
+    </div >
   );
-}
+});

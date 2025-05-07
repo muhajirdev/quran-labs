@@ -12,4 +12,5 @@ export default [
   route("logo-usage", "routes/logo-usage.tsx"),
   route("read", "routes/read.tsx"),
   route("journey", "routes/journey.tsx"),
+  route("test-tools", "routes/test-tools.tsx"),
 ] satisfies RouteConfig;

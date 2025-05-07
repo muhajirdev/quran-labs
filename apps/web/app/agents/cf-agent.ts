@@ -1,6 +1,7 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import {
+  appendResponseMessages,
   streamText,
   tool,
   type Message,
@@ -11,6 +12,7 @@ import {
 import { z } from "zod";
 import { DEFAULT_SYSTEM_PROMPT } from "~/lib/system-prompt";
 import { fetchLyrics } from "~/lib/lyrics-api";
+import { fetchVerseData } from "~/lib/quran-api";
 
 // Enhanced state for meta agent functionality
 type State = {
@@ -22,6 +24,7 @@ type State = {
 // Define the lyrics tool input schema
 const LyricsToolInputSchema = z.object({
   songTitle: z.string().describe("The title of the song to fetch lyrics for"),
+  artist: z.string().optional().describe("The artist of the song (optional)"),
 });
 
 // Define the lyrics tool output schema
@@ -32,11 +35,34 @@ const LyricsToolOutputSchema = z.object({
   error: z.string().optional(),
 });
 
+// Define the verse reference tool input schema
+const VerseReferenceInputSchema = z.object({
+  verseReference: z
+    .string()
+    .describe("The verse reference in format chapter:verse (e.g., '2:255')"),
+});
+
+// Define the verse reference tool output schema
+const VerseReferenceOutputSchema = z.object({
+  verse_key: z.string(),
+  arabic_text: z.string(),
+  chapter_name: z.string().optional(),
+  translations: z
+    .record(
+      z.object({
+        text: z.string(),
+        translator: z.string(),
+      })
+    )
+    .optional(),
+  error: z.string().optional(),
+});
+
 /**
  * ChatAgent - AI Chat Agent with Tools
  *
  * This agent provides tools for fetching song lyrics and analyzing them
- * in the context of Quranic wisdom.
+ * in the context of Quranic wisdom, as well as referencing Quranic verses.
  */
 export class ChatAgent extends AIChatAgent<Env, State> {
   // Define the tools available to this agent
@@ -44,18 +70,51 @@ export class ChatAgent extends AIChatAgent<Env, State> {
     fetchLyrics: tool({
       description: "Fetch lyrics for a song by title and optionally artist",
       parameters: LyricsToolInputSchema,
-      execute: async ({ songTitle }) => {
+      execute: async ({ songTitle, artist }) => {
         try {
-          const lyricsData = await fetchLyrics(songTitle);
+          const lyricsData = await fetchLyrics(songTitle, artist);
           return LyricsToolOutputSchema.parse(lyricsData);
         } catch (error) {
           console.error("Error fetching lyrics:", error);
           return LyricsToolOutputSchema.parse({
             title: songTitle,
-            artist: "Unknown",
+            artist: artist || "Unknown",
             lyrics: "",
             error:
               error instanceof Error ? error.message : "Failed to fetch lyrics",
+          });
+        }
+      },
+    }),
+
+    verseReference: tool({
+      description:
+        "Reference a specific verse from the Quran by its chapter and verse number",
+      parameters: VerseReferenceInputSchema,
+      execute: async ({ verseReference }) => {
+        try {
+          // Fetch verse data directly using our utility function
+          const verseData = await fetchVerseData(verseReference);
+
+          if (verseData.error) {
+            throw new Error(verseData.error);
+          }
+
+          return VerseReferenceOutputSchema.parse({
+            verse_key: verseData.verse_key,
+            arabic_text: verseData.arabic_text,
+            chapter_name: verseData.chapter_name,
+            translations: verseData.translations,
+          });
+        } catch (error) {
+          console.error("Error fetching verse:", error);
+          return VerseReferenceOutputSchema.parse({
+            verse_key: verseReference,
+            arabic_text: "",
+            error:
+              error instanceof Error
+                ? error.message
+                : "Failed to fetch verse data",
           });
         }
       },
@@ -86,8 +145,8 @@ export class ChatAgent extends AIChatAgent<Env, State> {
         maxTokens: 1000,
         tools: this.tools,
         onFinish: (result) => {
-          console.log("Stream finished with result:", result);
           onFinish(result);
+          console.log(JSON.stringify(this.messages));
         },
       });
 
@@ -127,8 +186,13 @@ export class ChatAgent extends AIChatAgent<Env, State> {
 ## Tool Usage
 - Use the fetchLyrics tool when a user asks about a song by calling it with:
   - songTitle: The title of the song (required)
-  - artist: The artist name (optional, but improves accuracy)
+  - artist: The artist name (optional, but helps with accuracy)
 - If lyrics cannot be found, be empathetic about the disappointment and ask if they can share the lyrics or parts that moved them most.
+
+- Use the verseReference tool whenever you mention a specific Quranic verse by calling it with:
+  - verseReference: The verse reference in format chapter:verse (e.g., '2:255')
+- Always use this tool when citing verses to provide the user with the full verse text and translation
+- When discussing multiple verses, call the tool separately for each verse reference
 
 ## Song Analysis Process
 1. When a user asks about a song, use the fetchLyrics tool to get the lyrics

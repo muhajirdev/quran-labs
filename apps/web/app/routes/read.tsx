@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLoaderData, useSearchParams } from "react-router";
 import type { Route } from "./+types/read";
 import { VerseItem } from "~/components/quran/VerseItem";
@@ -65,7 +65,25 @@ interface ApiResponse<T> {
 export async function clientLoader({ request }: { request: Request }) {
   const url = new URL(request.url);
   const chapterParam = url.searchParams.get('chapter');
-  const chapter = chapterParam ? parseInt(chapterParam, 10) : 1;
+  const verseParam = url.searchParams.get('verse');
+
+  // Parse verse parameter (format can be either "2:255" or just "255" if chapter is specified)
+  let targetChapter = chapterParam ? parseInt(chapterParam, 10) : 1;
+  let targetVerse: number | null = null;
+
+  if (verseParam) {
+    // Check if verse parameter contains chapter:verse format
+    if (verseParam.includes(':')) {
+      const [chapterStr, verseStr] = verseParam.split(':');
+      targetChapter = parseInt(chapterStr, 10);
+      targetVerse = parseInt(verseStr, 10);
+    } else {
+      // Just verse number, use with the specified chapter
+      targetVerse = parseInt(verseParam, 10);
+    }
+  }
+
+  const chapter = targetChapter;
   const editionParam = url.searchParams.get('edition') || 'quran-uthmani';
   const translationParam = url.searchParams.get('translation') || 'en.sahih';
 
@@ -127,7 +145,8 @@ export async function clientLoader({ request }: { request: Request }) {
       currentEdition: editionParam,
       currentTranslation: translationParam,
       availableTranslations: translations,
-      chapterInfo: arabicData.data
+      chapterInfo: arabicData.data,
+      targetVerse: targetVerse
     };
   } catch (error) {
     console.error('Error loading data:', error);
@@ -138,6 +157,7 @@ export async function clientLoader({ request }: { request: Request }) {
       currentEdition: editionParam,
       currentTranslation: translationParam,
       availableTranslations: [],
+      targetVerse: targetVerse,
       error: error instanceof Error ? error.message : 'An unknown error occurred'
     };
   }
@@ -163,8 +183,12 @@ export default function QuranReader() {
     error,
     currentTranslation,
     availableTranslations,
-    chapterInfo
+    chapterInfo,
+    targetVerse
   } = useLoaderData<typeof clientLoader>();
+
+  // Create refs for verses that need to be scrolled to
+  const verseRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [, setSearchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
@@ -283,10 +307,35 @@ export default function QuranReader() {
     // Short timeout to allow UI to render first
     const timer = setTimeout(() => {
       setIsLoading(false);
+
+      // After loading is complete, scroll to the target verse if specified
+      if (targetVerse && !isLoading) {
+        const verseKey = `${selectedChapter}:${targetVerse}`;
+        const verseElement = verseRefs.current[verseKey];
+
+        if (verseElement) {
+          // Scroll to the verse with a small offset for better visibility
+          const headerOffset = 80; // Adjust based on your header height
+          const elementPosition = verseElement.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+          // Smooth scroll to the verse
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+
+          // Highlight the verse temporarily
+          verseElement.classList.add('bg-accent/10');
+          setTimeout(() => {
+            verseElement.classList.remove('bg-accent/10');
+          }, 2000);
+        }
+      }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [verses]);
+  }, [verses, targetVerse, selectedChapter, isLoading]);
 
   // Map chapter info to the format expected by ChapterInfo component
   const currentChapter = chapterInfo ? {
@@ -618,14 +667,20 @@ export default function QuranReader() {
             ) : (
               // Verses with elegant spacing
               <div className="space-y-12 py-6">
-                {verses.map((verse) => (
-                  <VerseItem
-                    key={verse.verse_key}
-                    verseKey={verse.verse_key}
-                    arabicText={verse.text_uthmani}
-                    translations={verse.translations}
-                  />
-                ))}
+                {verses.map((verse) => {
+                  const isHighlighted = targetVerse === parseInt(verse.verse_key.split(':')[1]);
+
+                  return (
+                    <VerseItem
+                      key={verse.verse_key}
+                      ref={(el: HTMLDivElement | null) => { verseRefs.current[verse.verse_key] = el }}
+                      verseKey={verse.verse_key}
+                      arabicText={verse.text_uthmani}
+                      translations={verse.translations}
+                      isHighlighted={isHighlighted}
+                    />
+                  );
+                })}
               </div>
             )}
           </div>
