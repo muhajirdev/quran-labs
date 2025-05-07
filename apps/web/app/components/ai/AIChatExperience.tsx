@@ -29,16 +29,12 @@ import { cn } from "~/lib/utils"
 import { DiscoverSidebar } from "./DiscoverSidebar"
 import { MainContentDiscover } from "./MainContentDiscover"
 import { getRegionCodeFromCountry } from "~/constants/regions"
-import { useAgent } from 'agents/react'
 
 interface AIChatExperienceProps {
   countryCode?: string;
 }
 
 export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
-  const agent = useAgent({
-    agent: "dialogue-agent",
-  });
 
 
   // State
