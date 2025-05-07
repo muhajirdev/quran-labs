@@ -7,7 +7,8 @@ import {
   XIcon,
   CompassIcon,
   BookOpenIcon,
-  DatabaseIcon
+  DatabaseIcon,
+  MapIcon
 } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { Button } from "~/components/ui/button"
@@ -287,6 +288,17 @@ export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
               <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">Read</span>
             </Button>
 
+            {/* Journey button - always visible */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/50 hover:text-white text-xs h-7 px-3 relative overflow-hidden group border-0 hover:bg-white/5"
+              onClick={() => window.location.href = '/journey'}
+            >
+              <MapIcon className="h-3 w-3 mr-1.5 text-accent/80" />
+              <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">The Journey</span>
+            </Button>
+
             {/* Explore Data button - only visible if chat is NOT active */}
             {!chatActive && (
               <Button
@@ -361,6 +373,20 @@ export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
             >
               <BookOpenIcon className="h-3 w-3 mr-1.5 text-accent/80" />
               <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">Read</span>
+            </Button>
+
+            {/* Journey button - always visible */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/50 hover:text-white text-xs h-8 px-3 justify-start relative overflow-hidden group border-0 hover:bg-white/5 w-full"
+              onClick={() => {
+                window.location.href = '/journey';
+                setMobileMenuOpen(false);
+              }}
+            >
+              <MapIcon className="h-3 w-3 mr-1.5 text-accent/80" />
+              <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">The Journey</span>
             </Button>
 
             {/* Explore Data button - only visible if chat is NOT active */}
