@@ -6,7 +6,6 @@ import {
   type Message,
   type StreamTextOnFinishCallback,
   type ToolSet,
-  type StepResult,
 } from "ai";
 import { z } from "zod";
 import { DEFAULT_SYSTEM_PROMPT } from "~/lib/system-prompt";
@@ -108,19 +107,34 @@ Respond with ONLY the category name, nothing else.
         console.log("Routing to SongWisdomAgent");
 
         // Process with SongWisdomAgent
+        // Convert messages to the format expected by SongWisdomAgent
+        const songWisdomMessages: SongWisdomMessage[] = chatHistory
+          .filter(
+            (msg) =>
+              msg.role === "user" ||
+              msg.role === "assistant" ||
+              msg.role === "system"
+          )
+          .map((msg) => ({
+            role: msg.role as "user" | "assistant" | "system",
+            content: msg.content,
+          }));
+
+        // Request a streaming response from the SongWisdomAgent
         const songWisdomResponse = await this.songWisdomAgent.processRequest({
-          messages: chatHistory,
-          apiKey: this.env.OPENROUTER_API_KEY,
+          messages: songWisdomMessages,
+          apiKey: this.env.OPENROUTER_API_KEY || "",
           temperature: 0.7,
           max_tokens: 1500,
+          stream: true, // Request streaming response
         });
 
-        // Call onFinish with the response
-        onFinish({
-          content: songWisdomResponse.choices[0].message.content,
-        });
+        // If the response is already a streaming Response, return it directly
+        if (songWisdomResponse instanceof Response) {
+          return songWisdomResponse;
+        }
 
-        // Create a response that mimics a stream
+        // If we got a regular response, convert it to a stream
         return new Response(songWisdomResponse.choices[0].message.content, {
           headers: {
             "Content-Type": "text/plain",
