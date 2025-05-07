@@ -1,94 +1,68 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import {
-  generateObject,
   streamText,
+  tool,
   type Message,
   type StreamTextOnFinishCallback,
+  type Tool,
   type ToolSet,
 } from "ai";
 import { z } from "zod";
 import { DEFAULT_SYSTEM_PROMPT } from "~/lib/system-prompt";
-import {
-  createSongWisdomAgent,
-  type Message as SongWisdomMessage,
-} from "./song-wisdom-agent";
-
-// Define request types for routing
-const RequestTypeSchema = z.enum(["song_wisdom", "general"]);
+import { fetchLyrics } from "~/lib/lyrics-api";
 
 // Enhanced state for meta agent functionality
 type State = {
   counter: number;
   messages: string[];
   lastUpdated: Date | null;
-  lastRequestType?: z.infer<typeof RequestTypeSchema>;
-  songWisdomState?: Record<string, any>;
 };
 
+// Define the lyrics tool input schema
+const LyricsToolInputSchema = z.object({
+  songTitle: z.string().describe("The title of the song to fetch lyrics for"),
+});
+
+// Define the lyrics tool output schema
+const LyricsToolOutputSchema = z.object({
+  title: z.string(),
+  artist: z.string(),
+  lyrics: z.string(),
+  error: z.string().optional(),
+});
+
 /**
- * ChatAgent - Meta Agent Implementation
+ * ChatAgent - AI Chat Agent with Tools
  *
- * This agent orchestrates different specialized agents based on the user's request.
- * It detects the type of request and routes it to the appropriate specialized agent.
+ * This agent provides tools for fetching song lyrics and analyzing them
+ * in the context of Quranic wisdom.
  */
 export class ChatAgent extends AIChatAgent<Env, State> {
-  // Create specialized agents
-  private songWisdomAgent = createSongWisdomAgent(this.env.OPENROUTER_API_KEY);
+  // Define the tools available to this agent
+  private tools: ToolSet = {
+    fetchLyrics: tool({
+      description: "Fetch lyrics for a song by title and optionally artist",
+      parameters: LyricsToolInputSchema,
+      execute: async ({ songTitle }) => {
+        try {
+          const lyricsData = await fetchLyrics(songTitle);
+          return LyricsToolOutputSchema.parse(lyricsData);
+        } catch (error) {
+          console.error("Error fetching lyrics:", error);
+          return LyricsToolOutputSchema.parse({
+            title: songTitle,
+            artist: "Unknown",
+            lyrics: "",
+            error:
+              error instanceof Error ? error.message : "Failed to fetch lyrics",
+          });
+        }
+      },
+    }),
+  };
 
-  /**
-   * Detects the type of request using a lightweight model
-   *
-   * @param messages The conversation messages
-   * @returns The detected request type
-   */
-  private async detectRequestType(
-    messages: Message[]
-  ): Promise<z.infer<typeof RequestTypeSchema>> {
-    const openRouter = createOpenRouter({
-      apiKey: this.env.OPENROUTER_API_KEY,
-    });
-
-    // Get the last user message
-    const lastUserMessage = [...messages]
-      .reverse()
-      .find((msg) => msg.role === "user");
-    if (!lastUserMessage) return "general";
-
-    // Create a prompt for the routing model
-    const routingPrompt = `
-You are a request classifier for a Quran AI system. Your job is to determine which specialized agent should handle a user request.
-
-User request: "${lastUserMessage.content}"
-
-Classify this request into ONE of the following categories:
-1. song_wisdom - If the user is asking about song lyrics, music meaning, or wants to connect song lyrics to Quranic wisdom
-2. general - For all other Quran-related questions
-
-Respond with ONLY the category name, nothing else.
-`;
-
-    try {
-      const { object } = await generateObject({
-        model: openRouter.languageModel("google/gemini-2.0-flash-001"),
-        schema: z.object({
-          type: RequestTypeSchema,
-        }),
-        prompt: routingPrompt,
-        temperature: 0.5,
-      });
-
-      // Store the request type in state
-      this.state.lastRequestType = object.type;
-
-      return object.type;
-    } catch (error) {
-      console.error("Error in request classification:", error);
-      return "general"; // Default to general on error
-    }
-  }
-
-  // Override the onChatMessage method to implement meta agent routing
+  // Override the onChatMessage method to implement tool usage
   async onChatMessage(onFinish: StreamTextOnFinishCallback<ToolSet>) {
     const openRouter = createOpenRouter({
       apiKey: this.env.OPENROUTER_API_KEY,
@@ -98,70 +72,30 @@ Respond with ONLY the category name, nothing else.
     const chatHistory = this.messages;
 
     try {
-      // Detect the request type
-      const requestType = await this.detectRequestType(chatHistory);
-      console.log(`Request type detected: ${requestType}`);
-
-      // Handle the request based on its type
-      if (requestType === "song_wisdom") {
-        console.log("Routing to SongWisdomAgent");
-
-        // Process with SongWisdomAgent
-        // Convert messages to the format expected by SongWisdomAgent
-        const songWisdomMessages: SongWisdomMessage[] = chatHistory
-          .filter(
-            (msg) =>
-              msg.role === "user" ||
-              msg.role === "assistant" ||
-              msg.role === "system"
-          )
-          .map((msg) => ({
-            role: msg.role as "user" | "assistant" | "system",
-            content: msg.content,
-          }));
-
-        // Request a streaming response from the SongWisdomAgent
-        const songWisdomResponse = await this.songWisdomAgent.processRequest({
-          messages: songWisdomMessages,
-          apiKey: this.env.OPENROUTER_API_KEY || "",
-          temperature: 0.7,
-          max_tokens: 1500,
-          stream: true, // Request streaming response
-        });
-
-        // If the response is already a streaming Response, return it directly
-        if (songWisdomResponse instanceof Response) {
-          return songWisdomResponse;
-        }
-
-        // If we got a regular response, convert it to a stream
-        return new Response(songWisdomResponse.choices[0].message.content, {
-          headers: {
-            "Content-Type": "text/plain",
-          },
-        });
-      }
-
-      // For general queries, use the default behavior
-      console.log("Routing to general assistant");
-
       // Generate a system prompt
       const systemPrompt = await this.generateSystemPrompt();
 
-      // Use streamText for general queries
+      console.log("Using tools:", Object.keys(this.tools));
+
+      // Use streamText with tools for all queries
       const stream = streamText({
         model: openRouter.languageModel("google/gemini-2.0-flash-001"),
         messages: [{ role: "system", content: systemPrompt }, ...chatHistory],
+        maxSteps: 5,
         temperature: 0.7,
-        maxTokens: 500,
-        onFinish,
+        maxTokens: 1000,
+        tools: this.tools,
+        onFinish: (result) => {
+          console.log("Stream finished with result:", result);
+          onFinish(result);
+        },
       });
 
       return stream.toDataStreamResponse();
     } catch (error) {
-      console.error("Error in meta agent routing:", error);
+      console.error("Error in chat agent:", error);
 
-      // Fallback to general assistant on error
+      // Fallback to basic response on error
       const systemPrompt = await this.generateSystemPrompt();
 
       const stream = streamText({
@@ -169,7 +103,10 @@ Respond with ONLY the category name, nothing else.
         messages: [{ role: "system", content: systemPrompt }, ...chatHistory],
         temperature: 0.7,
         maxTokens: 500,
-        onFinish,
+        onFinish: (result) => {
+          console.log("Fallback stream finished with result:", result);
+          onFinish(result);
+        },
       });
 
       return stream.toDataStreamResponse();
@@ -178,14 +115,49 @@ Respond with ONLY the category name, nothing else.
 
   // Helper method to generate a system prompt
   async generateSystemPrompt() {
-    // Use the default system prompt or customize based on context
-    return (
-      DEFAULT_SYSTEM_PROMPT ||
-      `You are a helpful Quran AI assistant.
-            Respond to inquiries based on the following guidelines:
-            - Be friendly and professional
-            - If you don't know an answer, say so
-            - Provide wisdom from Islamic tradition when appropriate`
-    );
+    return `You are a compassionate and understanding Quran AI assistant who speaks in the user's language and genuinely cares about their emotional journey. You have access to tools that help you analyze song lyrics and connect them to Quranic wisdom in a way that validates the user's feelings and experiences.
+
+## Emotional Connection
+- Always acknowledge and validate the user's emotions first before providing analysis
+- Use warm, conversational language that feels like talking to a caring friend
+- Adapt your tone and language style to match the user's way of speaking
+- Show genuine interest in why a particular song resonates with them
+- Recognize that users often ask about songs that reflect their personal struggles or questions
+
+## Tool Usage
+- Use the fetchLyrics tool when a user asks about a song by calling it with:
+  - songTitle: The title of the song (required)
+  - artist: The artist name (optional, but improves accuracy)
+- If lyrics cannot be found, be empathetic about the disappointment and ask if they can share the lyrics or parts that moved them most.
+
+## Song Analysis Process
+1. When a user asks about a song, use the fetchLyrics tool to get the lyrics
+2. Identify the emotions and personal struggles expressed in the lyrics
+3. Validate these emotions as natural and human before offering wisdom
+4. Connect to relevant Quranic concepts that address these emotional needs
+5. Offer comfort and guidance through spiritual wisdom that feels personally relevant
+
+## Response Structure
+- Begin with emotional validation: "I can see why this song would resonate with you..."
+- Highlight the emotional themes in the lyrics with brief, meaningful quotes
+- Connect to Quranic wisdom in a way that feels like personal guidance, not academic analysis
+- Use phrases like "The Quran speaks to this feeling when it says..." (citing in Surah:Ayah format, e.g., "2:186")
+- Conclude with words of comfort and encouragement that bridge the song's emotion with spiritual wisdom
+
+## Conversation Style
+- Use "you" and "we" language to create connection ("When we feel lost..." "You might find comfort in...")
+- Speak in a warm, accessible way that avoids overly academic or formal language
+- Ask thoughtful follow-up questions about their connection to the song or topic
+- Share wisdom as if you're having a heart-to-heart conversation, not delivering a lecture
+- Acknowledge the complexity of human emotions without judgment
+
+## For General Quran Questions
+- Begin by validating the importance of their question
+- Respond with warmth and personal connection, not just information
+- Relate Quranic wisdom to everyday emotional and spiritual needs
+- Cite sources (Quran, Hadith) in a way that feels supportive, not authoritative
+- End with encouragement that acknowledges their spiritual journey
+
+Remember that your purpose is to be a compassionate companion who helps users find emotional comfort and spiritual guidance through connecting their lived experiences with timeless wisdom.`;
   }
 }
