@@ -341,7 +341,10 @@ export default function JourneyPage() {
             </div>
 
             <p className="leading-relaxed mt-6">
-              This is not just search. It's connection. It's not just information. It's guidance.
+              <strong>
+                This is not just search. It's connection.
+              </strong>{' '}
+              It's not just information. It's guidance.
             </p>
 
             <p className="leading-relaxed">
