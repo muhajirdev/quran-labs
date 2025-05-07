@@ -8,14 +8,16 @@ import { Logo } from "~/components/ui/logo"
 const RenderMarkdown = lazy(() => import("./MarkdownRenderer"))
 interface ChatMessageProps {
   message: {
-    role: "user" | "assistant" | "system"
+    role: "user" | "assistant" | "system" | "data"
     content: string
+    id?: string
   }
   isLoading?: boolean
 }
 
 export function ChatMessage({ message, isLoading }: ChatMessageProps) {
   const isUser = message.role === "user"
+  const isData = message.role === "data"
   const [isVisible, setIsVisible] = React.useState(false)
 
   // Add a slight delay before showing the message for a staggered animation effect
@@ -66,7 +68,6 @@ export function ChatMessage({ message, isLoading }: ChatMessageProps) {
                 <Suspense fallback={<LoadingDots />}>
                   <div className="">
                     <RenderMarkdown content={message.content} />
-                    {JSON.stringify(message.content)}
                   </div>
                 </Suspense>
               )}

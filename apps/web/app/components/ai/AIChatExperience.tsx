@@ -16,66 +16,146 @@ import { Input } from "~/components/ui/input"
 import { HomeCommandDialog } from "~/components/command/HomeCommandDialog"
 import { useLocation } from "react-router"
 import { ChatMessage } from "./ChatMessage"
-import { createChatCompletion } from "~/lib/openrouter"
 import { GeometricDecoration } from "~/components/ui/geometric-background"
 import { Logo } from "~/components/ui/logo"
-import {
-  getOrCreateThread,
-  updateThread,
-  setCurrentThread,
-  INITIAL_MESSAGES,
-  type Message as ThreadMessage
-} from "~/lib/thread-manager"
 import { cn } from "~/lib/utils"
 import { DiscoverSidebar } from "./DiscoverSidebar"
 import { MainContentDiscover } from "./MainContentDiscover"
 import { getRegionCodeFromCountry } from "~/constants/regions"
+import { useAgent } from 'agents/react'
+import { useAgentChat } from "agents/ai-react"
+
+
 
 interface AIChatExperienceProps {
   countryCode?: string;
 }
 
-export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
+export default function AIChatExperience({ countryCode }: AIChatExperienceProps) {
+
+  const location = useLocation();
+
+  // Generate or retrieve a unique session ID from URL or localStorage
+  const [sessionId, setSessionId] = useState<string>(() => {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      // Return a placeholder during server-side rendering
+      return 'server-session';
+    }
+
+    // Check URL for session parameter
+    const urlParams = new URLSearchParams(location.search);
+    const urlSession = urlParams.get('session');
+
+    if (urlSession) {
+      return urlSession;
+    }
+
+    // Check localStorage for existing session
+    try {
+      const storedSession = localStorage.getItem('quran-ai-session-id');
+
+      if (storedSession) {
+        return storedSession;
+      }
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+    }
+
+    // Generate a new session ID if none exists
+    const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    try {
+      localStorage.setItem('quran-ai-session-id', newSessionId);
+    } catch (error) {
+      console.error('Error setting localStorage:', error);
+    }
+    return newSessionId;
+  });
+
+  // Connect to the ChatAgent using the useAgent hook with a unique name
+  const agentConnection = useAgent({
+    agent: "ChatAgent",
+    name: sessionId // Use the unique session ID as the agent name
+  })
+
+  // Use the useAgentChat hook with the agent connection
+  const {
+    messages: agentMessages,
+    input: agentInput,
+    append,
+    handleInputChange: agentHandleInputChange,
+    handleSubmit: agentHandleSubmit,
+
+    isLoading: agentIsLoading,
+    clearHistory: agentClearHistory
+  } = useAgentChat({
+    agent: agentConnection,
+  });
+
+  console.log(agentMessages)
 
 
   // State
   const [commandDialogOpen, setCommandDialogOpen] = useState(false);
   const [discoverSheetOpen, setDiscoverSheetOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [messages, setMessages] = useState<ThreadMessage[]>([...INITIAL_MESSAGES]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [threadId, setThreadId] = useState<string | null>(null);
-  const [chatActive, setChatActive] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // Set default content based on country code
   // This selects the appropriate content file (id.json for Indonesia, en.json for others)
   const [contentRegion, setContentRegion] = useState<string>(getRegionCodeFromCountry(countryCode));
 
+  // Determine if chat is active based on agent messages
+  const chatActive = agentMessages.length > 0;
+
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
 
-  // Initialize from URL parameters
+  // Initialize from URL parameters and update URL with session ID
   useEffect(() => {
+    // Skip during server-side rendering
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     const urlParams = new URLSearchParams(location.search);
     const urlQuery = urlParams.get('q');
-    const threadParam = urlParams.get('thread');
+    const urlSession = urlParams.get('session');
 
-    if (threadParam) {
-      // Load existing thread
-      const thread = getOrCreateThread(threadParam);
-      setThreadId(thread.id);
-      setMessages(thread.messages);
-      setChatActive(true);
-    } else if (urlQuery) {
-      // Handle query parameter
-      setQuery(urlQuery);
-      setChatActive(true);
-      handleQuerySubmission(urlQuery);
-      setQuery("");
+    // If there's a query parameter, submit it to the agent immediately without showing in input
+    if (urlQuery) {
+      console.log("URL query parameter found:", urlQuery);
+
+      // Set the suggestion as input
+      agentHandleInputChange({ target: { value: urlQuery } } as React.ChangeEvent<HTMLInputElement>);
+
+      // Use requestAnimationFrame to ensure the input value is set before submitting
+      requestAnimationFrame(() => {
+        // Create a simple form event
+        const event = {
+          preventDefault: () => { }
+        } as React.FormEvent<HTMLFormElement>;
+
+        // Submit the form
+        agentHandleSubmit(event);
+
+        // Clear the input field after submission
+        requestAnimationFrame(() => {
+          agentHandleInputChange({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+        });
+      });
     }
-  }, []);
+
+    // Update URL with session ID if not already present
+    if (!urlSession && sessionId && sessionId !== 'server-session') {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('session', sessionId);
+        window.history.replaceState({}, '', url.toString());
+      } catch (error) {
+        console.error('Error updating URL:', error);
+      }
+    }
+  }, [sessionId]);
 
   // Focus input on mount
   useEffect(() => {
@@ -84,141 +164,113 @@ export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
     }
   }, []);
 
-  // Scroll to bottom only when chat is active and there are messages to scroll to
+  // Scroll to bottom when messages change
   useEffect(() => {
     // Only scroll if chat is active and there are messages beyond the initial system messages
-    if (chatActive && messages.length > 2) {
+    if (chatActive) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, chatActive]);
+  }, [agentMessages, chatActive]);
 
-  // Handle form submission
+  // Handle form submission - delegate to agent
   const handleSubmit = (e: React.FormEvent) => {
+    // Prevent default form submission
     e.preventDefault();
-    if (query.trim()) {
-      const trimmedQuery = query.trim();
 
-      // Activate chat
-      if (!chatActive) {
-        setChatActive(true);
-      }
-
-      // Clear input immediately
-      setQuery("");
-
-      // Process the query
-      handleQuerySubmission(trimmedQuery);
-    }
+    // Use the agent's submit handler
+    agentHandleSubmit(e);
   };
 
-  // Process the query and get AI response
-  const handleQuerySubmission = async (queryText: string) => {
-    if (!queryText.trim() || isLoading) return;
-
-    // Create user message
-    const userMessage: ThreadMessage = {
-      role: "user",
-      content: queryText
-    };
-
-    // Get or create thread
-    let currentThreadId = threadId;
-    if (!currentThreadId) {
-      const newThread = getOrCreateThread(null);
-      currentThreadId = newThread.id;
-      setThreadId(newThread.id);
-    }
-
-    // Update messages and set loading state
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setIsLoading(true);
-
-    try {
-      // Add placeholder for loading state
-      setMessages([...updatedMessages, { role: "assistant", content: "" }]);
-
-      // Save to thread storage
-      updateThread(currentThreadId, updatedMessages);
-
-      // Get AI response
-      const response = await createChatCompletion({
-        messages: updatedMessages,
-        temperature: 0.7,
-        max_tokens: 500
-      });
-
-      // Get response message
-      const assistantMessage = response.choices[0].message;
-
-      // Update messages with response
-      const finalMessages = [...updatedMessages, assistantMessage];
-      setMessages(finalMessages);
-
-      // Save updated thread
-      updateThread(currentThreadId, finalMessages);
-      setCurrentThread(currentThreadId);
-
-      // Update URL without causing reload
-      const url = new URL(window.location.href);
-      url.searchParams.set('thread', currentThreadId);
-      window.history.replaceState({}, '', url.toString());
-    } catch (error) {
-      console.error("Error getting AI response:", error);
-
-      // Create error message
-      const errorMessage: ThreadMessage = {
-        role: "assistant",
-        content: "Sorry, I encountered an error. Please try again."
-      };
-
-      // Update messages with error
-      const messagesWithError = [...updatedMessages, errorMessage];
-      setMessages(messagesWithError);
-
-      // Save thread with error
-      updateThread(currentThreadId, messagesWithError);
-      setCurrentThread(currentThreadId);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle suggestion click
+  // Handle suggestion click - immediately send the message without showing in input
   const handleSuggestionClick = (suggestion: string) => {
-    // Use the same handler as the discover sheet for consistency
-    handleDiscoverSuggestion(suggestion);
+    append({
+      role: "user",
+      content: suggestion
+    })
+
+
+    // // Store the current input value
+    // const currentInput = agentInput;
+
+    // // Set the suggestion as input
+    // agentHandleInputChange({ target: { value: suggestion } } as React.ChangeEvent<HTMLInputElement>);
+
+    // // Use requestAnimationFrame to ensure the input value is set before submitting
+    // requestAnimationFrame(() => {
+    //   // Create a simple form event
+    //   const event = {
+    //     preventDefault: () => { }
+    //   } as React.FormEvent<HTMLFormElement>;
+
+    //   // Submit the form
+
+    //   // Restore the previous input value or clear it
+    //   requestAnimationFrame(() => {
+    //     agentHandleInputChange({ target: { value: currentInput } } as React.ChangeEvent<HTMLInputElement>);
+    //   });
+    // });
+
+    // // Close the discover sheet if it's open
+    setDiscoverSheetOpen(false);
   };
 
   // Create new chat
   const handleNewChat = () => {
-    // Create new thread
-    const newThread = getOrCreateThread(null);
+    // Generate a new session ID
+    const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-    // Update state
-    setThreadId(newThread.id);
-    setMessages(newThread.messages);
-    setChatActive(true);
-    setQuery("");
+    // Update localStorage and state
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('quran-ai-session-id', newSessionId);
+      }
+    } catch (error) {
+      console.error('Error setting localStorage:', error);
+    }
+
+    setSessionId(newSessionId);
+
+    // Clear the agent's chat history
+    agentClearHistory();
 
     // Update URL without causing reload
-    const url = new URL(window.location.href);
-    url.searchParams.set('thread', newThread.id);
-    url.searchParams.delete('q');
-    window.history.replaceState({}, '', url.toString());
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('thread');
+      url.searchParams.delete('q');
+      url.searchParams.set('session', newSessionId);
+      window.history.replaceState({}, '', url.toString());
+    }
   };
 
-  // Handle suggestion from DiscoverSheet
+  // Handle suggestion from DiscoverSheet - immediately send the message without showing in input
   const handleDiscoverSuggestion = (suggestion: string) => {
-    setQuery(suggestion);
-    setDiscoverSheetOpen(false);
+    console.log("Discover suggestion selected:", suggestion);
 
-    // If chat is not active, focus the input
-    if (!chatActive) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
-    }
+    // Store the current input value
+    const currentInput = agentInput;
+
+    // Set the suggestion as input
+    agentHandleInputChange({ target: { value: suggestion } } as React.ChangeEvent<HTMLInputElement>);
+
+    // Use requestAnimationFrame to ensure the input value is set before submitting
+    requestAnimationFrame(() => {
+      // Create a simple form event
+      const event = {
+        preventDefault: () => { }
+      } as React.FormEvent<HTMLFormElement>;
+
+      // Submit the form
+      agentHandleSubmit(event);
+
+      // Restore the previous input value or clear it
+      requestAnimationFrame(() => {
+        agentHandleInputChange({ target: { value: currentInput } } as React.ChangeEvent<HTMLInputElement>);
+      });
+    });
+
+    // Close the discover sheet
+    setDiscoverSheetOpen(false);
   };
 
   return (
@@ -251,12 +303,12 @@ export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
               <span className="group-hover:tracking-wider transition-all duration-300">Quran AI</span>
             </button>
 
-            {/* Thread ID - Hidden on very small screens */}
-            {threadId && (
+            {/* Session ID indicator - Hidden on very small screens */}
+            {agentConnection && sessionId && (
               <div className="hidden sm:flex items-center">
                 <span className="text-xs text-white/40 ml-2">•</span>
                 <span className="text-xs text-white/40 ml-2 truncate max-w-[80px] md:max-w-none">
-                  Thread {threadId.split('-')[0]}
+                  Session {sessionId.split('-')[0]}
                 </span>
               </div>
             )}
@@ -424,10 +476,10 @@ export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
       </header>
 
       {/* Main content - Centered when empty with padding for fixed header - Mobile friendly */}
-      <main className={`flex-1 flex flex-col ${!chatActive || messages.length <= 2 ? "justify-center" : "justify-start pt-8 sm:pt-10"
+      <main className={`flex-1 flex flex-col ${!chatActive ? "justify-center" : "justify-start pt-8 sm:pt-10"
         } overflow-hidden pt-12 pb-20 sm:pb-24`}>
         {/* Logo and title - Only visible when chat is not active - Mobile friendly */}
-        <div className={`flex flex-col items-center transition-all duration-500 ease-in-out px-3 sm:px-6 ${chatActive && messages.length > 2 ? "opacity-0 max-h-0 overflow-hidden" : "opacity-100 mb-10 sm:mb-16"
+        <div className={`flex flex-col items-center transition-all duration-500 ease-in-out px-3 sm:px-6 ${chatActive ? "opacity-0 max-h-0 overflow-hidden" : "opacity-100 mb-10 sm:mb-16"
           }`}>
           {/* Enhanced logo with detailed geometric pattern and animations */}
           <div className="mb-10 relative">
@@ -478,21 +530,21 @@ export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
         </div>
 
         {/* Chat Messages - Centered container with scroll indicator - Mobile friendly */}
-        <div className={`w-full max-w-3xl mx-auto transition-all duration-500 ease-in-out px-3 sm:px-6 relative ${chatActive && messages.length > 2 ? "opacity-100 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" : "opacity-0 max-h-0"
+        <div className={`w-full max-w-3xl mx-auto transition-all duration-500 ease-in-out px-3 sm:px-6 relative ${chatActive ? "opacity-100 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent" : "opacity-0 max-h-0"
           }`}>
           {/* Subtle scroll indicator */}
-          {messages.length > 4 && (
+          {agentMessages.length > 4 && (
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-6 flex justify-center items-center pointer-events-none opacity-30 animate-bounce">
               <div className="w-1 h-3 bg-white/20 rounded-full"></div>
             </div>
           )}
 
           <div className="space-y-8 py-6">
-            {messages.slice(2).map((message, index) => (
+            {agentMessages.map((message, index) => (
               <ChatMessage
                 key={index}
                 message={message}
-                isLoading={isLoading && index === messages.length - 3}
+                isLoading={agentIsLoading && index === agentMessages.length - 1 && agentMessages[index].content.length === 0}
               />
             ))}
             <div ref={messagesEndRef} />
@@ -515,8 +567,8 @@ export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
               <form onSubmit={handleSubmit} className="w-full relative z-10">
                 <Input
                   ref={inputRef}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  value={agentInput}
+                  onChange={agentHandleInputChange}
                   placeholder="Ask about the Quran..."
                   className="border-0 bg-transparent text-white py-2.5 sm:py-3 px-3 sm:px-4 text-sm focus-visible:ring-1 focus-visible:ring-accent/30 focus-visible:ring-offset-0 placeholder:text-white/30 transition-all duration-300 focus:placeholder:text-white/50"
                 />
@@ -525,8 +577,8 @@ export function AIChatExperience({ countryCode }: AIChatExperienceProps) {
                     type="submit"
                     size="icon"
                     variant="ghost"
-                    className={`h-6 w-6 rounded-full transition-all duration-300 ${!query.trim() || isLoading ? 'bg-white/5 text-white/20' : 'bg-accent/10 hover:bg-accent/20 hover:scale-110 text-accent'}`}
-                    disabled={!query.trim() || isLoading}
+                    className={`h-6 w-6 rounded-full transition-all duration-300 ${!agentInput.trim() || agentIsLoading ? 'bg-white/5 text-white/20' : 'bg-accent/10 hover:bg-accent/20 hover:scale-110 text-accent'}`}
+                    disabled={!agentInput.trim() || agentIsLoading}
                   >
                     <SendIcon className="h-3 w-3 transition-colors" />
                     <span className="sr-only">Send</span>

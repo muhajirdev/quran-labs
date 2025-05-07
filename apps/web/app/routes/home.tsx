@@ -1,6 +1,9 @@
 import type { Route } from "./+types/home";
-import { AIChatExperience } from "~/components/ai/AIChatExperience";
 import { useLoaderData } from "react-router";
+import { lazy, Suspense } from "react";
+import { LoadingScreen } from "~/components/ui/LoadingScreen";
+
+const AIChatExperience = lazy(() => import("../components/ai/AIChatExperience"));
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -16,5 +19,9 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
 
 export default function Home() {
   const { country } = useLoaderData<typeof loader>();
-  return <AIChatExperience countryCode={country} />;
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <AIChatExperience countryCode={country} />
+    </Suspense>
+  );
 }
