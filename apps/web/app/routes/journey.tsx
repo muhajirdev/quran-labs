@@ -264,7 +264,7 @@ export default function JourneyPage() {
             <p className="text-2xl font-medium my-8 leading-relaxed">
               It sounds like the future our predecessors dreamed of.
               <br />
-              <strong>But it's not the future we truly need.</strong>
+              <strong>But digital access alone isn't enough.</strong>
             </p>
 
             <p className="leading-relaxed">
