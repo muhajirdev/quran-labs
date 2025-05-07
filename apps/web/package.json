@@ -43,6 +43,7 @@
 		"@radix-ui/react-tooltip": "^1.2.4",
 		"@tailwindcss/typography": "^0.5.16",
 		"@types/uuid": "^10.0.0",
+		"agents": "^0.0.77",
 		"ai": "^4.3.13",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",

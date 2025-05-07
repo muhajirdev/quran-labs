@@ -5,12 +5,14 @@ interface GeometricBackgroundProps {
   className?: string;
   variant?: "default" | "subtle" | "elegant" | "animated";
   children?: React.ReactNode;
+  opacity?: number;
 }
 
 export function GeometricBackground({
   className,
   variant = "subtle",
   children,
+  opacity
 }: GeometricBackgroundProps) {
   const patternUrl = getPatternUrl(variant);
 
@@ -34,6 +36,7 @@ export function GeometricBackground({
 export function GeometricDecoration({
   className,
   variant = "default",
+  opacity,
 }: Omit<GeometricBackgroundProps, "children">) {
   const patternUrl = getPatternUrl(variant);
 
@@ -43,7 +46,7 @@ export function GeometricDecoration({
     : variant === "elegant"
       ? 0.2
       : variant === "animated"
-        ? 0.14
+        ? opacity ?? 0.14
         : 0.08;
 
   return (

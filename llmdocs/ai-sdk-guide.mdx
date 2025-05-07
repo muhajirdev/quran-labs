@@ -1,0 +1,148 @@
+# AI SDK Guide: generateText & generateObject
+
+## generateText Example
+
+```typescript
+import { generateText } from 'ai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+
+// Create OpenRouter provider
+const openRouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY || 'your-api-key'
+});
+
+// Generate text response
+const { text } = await generateText({
+  model: openRouter.languageModel("google/gemini-2.0-flash-001"),
+  messages: [
+    { role: 'system', content: 'You are a Quran AI assistant.' },
+    { role: 'user', content: 'What does the Quran say about kindness?' }
+  ],
+  temperature: 0.7,
+  maxTokens: 500,
+});
+
+console.log(text);
+```
+
+## generateObject Example
+
+```typescript
+import { generateObject } from 'ai';
+import { z } from 'zod';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+
+// Define schema for structured response
+const VerseAnalysisSchema = z.object({
+  mainTheme: z.string(),
+  keywords: z.array(z.string()),
+  relatedVerses: z.array(z.string()),
+  summary: z.string()
+});
+
+// Create OpenRouter provider
+const openRouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY || 'your-api-key'
+});
+
+// Generate structured response
+const { object } = await generateObject({
+  model: openRouter.languageModel("google/gemini-2.0-flash-001"),
+  schema: VerseAnalysisSchema,
+  prompt: `Analyze the following Quranic verse (1:1): "In the name of Allah, the Entirely Merciful, the Especially Merciful."`,
+  temperature: 0.3,
+});
+
+console.log(object);
+// Typed as: { mainTheme: string, keywords: string[], relatedVerses: string[], summary: string }
+```
+
+## Request Classification Example
+
+```typescript
+import { generateObject } from 'ai';
+import { z } from 'zod';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+
+// Define request types
+const RequestTypeSchema = z.enum(['song_wisdom', 'general']);
+
+// Detect request type
+async function detectRequestType(userMessage: string) {
+  const openRouter = createOpenRouter({ 
+    apiKey: process.env.OPENROUTER_API_KEY || 'your-api-key' 
+  });
+  
+  const routingPrompt = `
+User request: "${userMessage}"
+
+Classify this request into ONE of the following categories:
+1. song_wisdom - If about song lyrics or music meaning
+2. general - For all other Quran-related questions
+
+Respond with ONLY the category name, nothing else.
+`;
+
+  const { object } = await generateObject({
+    model: openRouter.languageModel("google/gemini-2.0-flash-lite-001"),
+    schema: z.object({
+      type: RequestTypeSchema
+    }),
+    prompt: routingPrompt,
+    temperature: 0.5,
+  });
+
+  return object.type; // 'song_wisdom' or 'general'
+}
+```
+
+## Complex Schema Example
+
+```typescript
+import { generateObject } from 'ai';
+import { z } from 'zod';
+
+// Define complex schema
+const SongWisdomSchema = z.object({
+  songAnalysis: z.object({
+    mainThemes: z.array(z.string()),
+    emotionalTone: z.string(),
+    keyMessages: z.array(z.string())
+  }),
+  quranicConnections: z.object({
+    relatedThemes: z.array(z.string()),
+    relevantVerses: z.array(z.object({
+      verseKey: z.string(),
+      verseText: z.string(),
+      relevance: z.string()
+    }))
+  })
+});
+
+// Use in agent
+async function analyzeSong(lyrics: string) {
+  const { object } = await generateObject({
+    model: openRouter.languageModel("google/gemini-2.0-flash-001"),
+    schema: SongWisdomSchema,
+    messages: [
+      { role: 'system', content: 'You connect song lyrics to Quranic wisdom.' },
+      { role: 'user', content: `Analyze these lyrics:\n\n${lyrics}` }
+    ],
+    temperature: 0.7,
+  });
+  
+  return object;
+}
+```
+
+## Best Practices
+
+- Use `generateText` for free-form responses
+- Use `generateObject` with Zod for structured, type-safe responses
+- Use lightweight models for simple classification tasks
+- Set appropriate temperature based on task:
+  - Low (0.1-0.3): Factual, deterministic tasks
+  - Medium (0.4-0.7): Balanced creativity and accuracy
+  - High (0.8-1.0): Creative outputs
+- Always implement proper error handling
+- Provide clear instructions in prompts

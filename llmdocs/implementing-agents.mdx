@@ -1,0 +1,195 @@
+# Implementing AI Agents
+
+## Basic Agent Structure
+
+```typescript
+// Agent factory pattern
+export const createSpecializedAgent = () => {
+  // Process user request
+  const processRequest = async (request: AgentRequest): Promise<AgentResponse> => {
+    try {
+      // 1. Extract information from request
+      // 2. Process the information
+      // 3. Generate response
+      // 4. Return formatted response
+    } catch (error) {
+      // Handle errors
+    }
+  };
+
+  // Return agent interface
+  return { processRequest };
+};
+```
+
+## Meta Agent Example
+
+```typescript
+import { generateObject, generateText } from 'ai';
+import { z } from 'zod';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { createSongWisdomAgent } from './song-wisdom-agent';
+
+// Define request types
+const RequestTypeSchema = z.enum(['song_wisdom', 'general']);
+
+// Create Meta Agent
+export const createMetaAgent = (apiKey?: string) => {
+  const songWisdomAgent = createSongWisdomAgent();
+  const openRouter = createOpenRouter({ apiKey: apiKey || 'x' });
+
+  // Detect request type
+  async function detectRequestType(messages: Message[]) {
+    const lastUserMessage = messages.filter(m => m.role === 'user').pop();
+    if (!lastUserMessage) return 'general';
+    
+    const { object } = await generateObject({
+      model: openRouter.languageModel("google/gemini-2.0-flash-lite-001"),
+      schema: z.object({ type: RequestTypeSchema }),
+      prompt: `User request: "${lastUserMessage.content}"\nClassify as: song_wisdom or general`,
+      temperature: 0.5,
+    });
+
+    return object.type;
+  }
+
+  // Process request
+  const processRequest = async (request: MetaAgentRequest): Promise<MetaAgentResponse> => {
+    try {
+      // Detect request type
+      const requestType = await detectRequestType(request.messages);
+
+      // Route to appropriate agent
+      if (requestType === 'song_wisdom') {
+        return await songWisdomAgent.processRequest({
+          messages: request.messages,
+          apiKey: apiKey || 'x',
+          temperature: request.temperature,
+          max_tokens: request.max_tokens
+        });
+      }
+
+      // For general queries
+      const { text } = await generateText({
+        model: openRouter.languageModel("google/gemini-2.0-flash-001"),
+        messages: request.messages,
+        temperature: request.temperature ?? 0.7,
+        maxTokens: request.max_tokens ?? 500,
+      });
+
+      return {
+        id: `general-${Date.now()}`,
+        choices: [{ message: { role: 'assistant', content: text }, finish_reason: 'stop' }]
+      };
+    } catch (error) {
+      // Return error response
+      return {
+        id: `error-${Date.now()}`,
+        choices: [{ 
+          message: { 
+            role: 'assistant', 
+            content: `Error: ${error instanceof Error ? error.message : String(error)}` 
+          }, 
+          finish_reason: 'error' 
+        }]
+      };
+    }
+  };
+
+  return { processRequest };
+};
+```
+
+## Specialized Agent Example
+
+```typescript
+import { generateObject } from 'ai';
+import { z } from 'zod';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+
+// Define schema for analysis
+const SongWisdomOutputSchema = z.object({
+  songAnalysis: z.object({
+    mainThemes: z.array(z.string()),
+    emotionalTone: z.string(),
+  }),
+  quranicConnections: z.object({
+    relevantVerses: z.array(z.object({
+      verseKey: z.string(),
+      verseText: z.string(),
+      relevance: z.string()
+    }))
+  })
+});
+
+// Create specialized agent
+export const createSongWisdomAgent = () => {
+  // Extract song info
+  const extractSongInfo = async (messages: Message[]) => {
+    // Implementation details...
+  };
+
+  // Analyze song
+  const analyzeSong = async (songInfo: { lyrics: string }) => {
+    const openRouter = createOpenRouter({ apiKey: 'x' });
+    
+    const { object } = await generateObject({
+      model: openRouter.languageModel("google/gemini-2.0-flash-001"),
+      schema: SongWisdomOutputSchema,
+      messages: [
+        { role: 'system', content: 'You connect song lyrics to Quranic wisdom.' },
+        { role: 'user', content: `Analyze these lyrics:\n\n${songInfo.lyrics}` }
+      ],
+      temperature: 0.7,
+      maxTokens: 1500,
+    });
+    
+    return object;
+  };
+
+  // Format response
+  const formatResponse = (analysis) => {
+    // Format the analysis into readable text
+    // ...
+  };
+
+  // Process request
+  const processRequest = async (request: SongWisdomAgentRequest): Promise<SongWisdomAgentResponse> => {
+    try {
+      const songInfo = await extractSongInfo(request.messages);
+      const analysisResult = await analyzeSong(songInfo);
+      const formattedResponse = formatResponse(analysisResult);
+      
+      return {
+        id: `song-wisdom-${Date.now()}`,
+        choices: [{ 
+          message: { role: 'assistant', content: formattedResponse }, 
+          finish_reason: 'stop' 
+        }]
+      };
+    } catch (error) {
+      return {
+        id: `error-${Date.now()}`,
+        choices: [{ 
+          message: { 
+            role: 'assistant', 
+            content: `Error: ${error instanceof Error ? error.message : String(error)}` 
+          }, 
+          finish_reason: 'error' 
+        }]
+      };
+    }
+  };
+  
+  return { processRequest };
+};
+```
+
+## Best Practices
+
+- Break down agent functionality into smaller functions
+- Use Zod schemas for structured, type-safe responses
+- Implement comprehensive error handling
+- Use lightweight models for classification tasks
+- Add detailed logging for debugging
+- Keep agent interfaces consistent
