@@ -3,7 +3,15 @@ import { GeometricDecoration } from "./geometric-background";
 import { Logo } from "./logo";
 import { cn } from "~/lib/utils";
 
-export function LoadingScreen() {
+interface LoadingScreenProps {
+  message?: string;
+  stage?: number;
+}
+
+export function LoadingScreen({
+  message = "Loading AI Experience...",
+  stage = 0
+}: LoadingScreenProps) {
   return (
     <div className="flex flex-col min-h-screen bg-[#0A0A0A] relative transition-all duration-300">
       {/* Animated Geometric Pattern Background */}
@@ -42,8 +50,9 @@ export function LoadingScreen() {
             }}></div>
           </div>
 
-          {/* Loading indicator */}
+          {/* Loading indicator with progress */}
           <div className="flex flex-col items-center mt-8">
+            {/* Animated dots */}
             <div className="flex space-x-2 mb-4">
               <div className={cn(
                 "w-2 h-2 rounded-full bg-accent/80",
@@ -58,7 +67,20 @@ export function LoadingScreen() {
                 "animate-[bounce_1.4s_ease-in-out_0.4s_infinite]"
               )} />
             </div>
-            <p className="text-white/50 text-sm">Loading AI Experience...</p>
+
+            {/* Progress bar */}
+            <div className="w-48 h-1 bg-white/10 rounded-full mb-3 overflow-hidden">
+              <div
+                className="h-full bg-accent/50 rounded-full transition-all duration-500 ease-out"
+                style={{
+                  width: `${Math.min(stage * 25, 100)}%`,
+                  opacity: stage > 0 ? 1 : 0.3
+                }}
+              />
+            </div>
+
+            {/* Loading message */}
+            <p className="text-white/50 text-sm">{message}</p>
           </div>
         </div>
       </main>

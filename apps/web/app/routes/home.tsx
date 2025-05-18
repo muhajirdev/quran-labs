@@ -1,6 +1,6 @@
 import type { Route } from "./+types/home";
 import { useLoaderData } from "react-router";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { LoadingScreen } from "~/components/ui/LoadingScreen";
 
 const AIChatExperience = lazy(() => import("../components/ai/AIChatExperience"));
@@ -19,8 +19,31 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
 
 export default function Home() {
   const { country } = useLoaderData<typeof loader>();
+  const [loadingMessage, setLoadingMessage] = useState("Initializing...");
+  const [loadingStage, setLoadingStage] = useState(0);
+
+  useEffect(() => {
+    // Update loading message progressively to show activity
+    const stages = [
+      { message: "Preparing AI Experience...", delay: 500 },
+      { message: "Loading components...", delay: 1500 },
+      { message: "Connecting to AI...", delay: 2500 },
+      { message: "Almost ready...", delay: 4000 }
+    ];
+
+    // Set up sequential timers for each loading stage
+    const timers = stages.map((stage, index) => {
+      return setTimeout(() => {
+        setLoadingStage(index + 1);
+        setLoadingMessage(stage.message);
+      }, stage.delay);
+    });
+
+    return () => timers.forEach(timer => clearTimeout(timer));
+  }, []);
+
   return (
-    <Suspense fallback={<LoadingScreen />}>
+    <Suspense fallback={<LoadingScreen message={loadingMessage} stage={loadingStage} />}>
       <AIChatExperience countryCode={country} />
     </Suspense>
   );

@@ -32,7 +32,6 @@ interface AIChatExperienceProps {
 }
 
 export default function AIChatExperience({ countryCode }: AIChatExperienceProps) {
-
   const location = useLocation();
 
   // Generate or retrieve a unique session ID from URL or localStorage
@@ -76,7 +75,7 @@ export default function AIChatExperience({ countryCode }: AIChatExperienceProps)
   const agentConnection = useAgent({
     agent: "ChatAgent",
     name: sessionId // Use the unique session ID as the agent name
-  })
+  });
 
   // Use the useAgentChat hook with the agent connection
   const {
@@ -85,14 +84,11 @@ export default function AIChatExperience({ countryCode }: AIChatExperienceProps)
     append,
     handleInputChange: agentHandleInputChange,
     handleSubmit: agentHandleSubmit,
-
     isLoading: agentIsLoading,
     clearHistory: agentClearHistory
   } = useAgentChat({
-    agent: agentConnection,
+    agent: agentConnection
   });
-
-  console.log(agentMessages)
 
 
   // State
@@ -157,8 +153,11 @@ export default function AIChatExperience({ countryCode }: AIChatExperienceProps)
     }
   }, [sessionId]);
 
-  // Focus input on mount
+  // Measure component mount time
   useEffect(() => {
+    console.log("AIChatExperience component mounted at:", performance.now());
+
+    // Focus input on mount
     if (inputRef.current) {
       inputRef.current.focus();
     }

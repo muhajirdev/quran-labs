@@ -1,3 +1,4 @@
+@import "@silk-hq/components/unlayered-styles" layer(silk);
 @import "tailwindcss" source(".");
 @import "tw-animate-css";
 @import "./styles/satoshi.css";
