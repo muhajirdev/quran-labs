@@ -17,8 +17,8 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "ChatAgent",
-        "class_name": "ChatAgent"
+        "name": "MetaAgent",
+        "class_name": "MetaAgent"
       }
     ]
   },
@@ -27,6 +27,11 @@
     {
       "tag": "v1",
       "new_sqlite_classes": ["ChatAgent"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["MetaAgent"],
+      "deleted_classes": []
     }
   ]
   /**

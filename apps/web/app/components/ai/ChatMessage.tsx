@@ -11,6 +11,7 @@ const RenderMarkdown = lazy(() => import("./MarkdownRenderer"))
 interface ChatMessageProps {
   message: UIMessage
   isLoading?: boolean
+  isLastMessage?: boolean // Added to support the isLastMessage prop
 }
 
 function LoadingDots() {
@@ -23,7 +24,7 @@ function LoadingDots() {
   )
 }
 
-export function ChatMessage({ message, isLoading }: ChatMessageProps) {
+export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessageProps) {
   const isUser = message.role === "user"
   const [isVisible, setIsVisible] = React.useState(false)
   const [activeToolInvocation, setActiveToolInvocation] = React.useState<{

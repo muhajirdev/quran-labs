@@ -1,7 +1,7 @@
 import { routeAgentRequest } from "agents";
 import { createRequestHandler } from "react-router";
 
-import { ChatAgent } from "../app/agents/cf-agent";
+import { MetaAgent } from "../app/agents/meta-agent";
 
 declare module "react-router" {
   export interface AppLoadContext {
@@ -36,4 +36,5 @@ export default {
   },
 } satisfies ExportedHandler<Env>;
 
-export { ChatAgent };
+// Export the MetaAgent class
+export { MetaAgent };
