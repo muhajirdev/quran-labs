@@ -2,7 +2,6 @@ import { useState, useCallback } from "react";
 import { useAgentChat } from "agents/ai-react";
 import { useAgent } from "agents/react";
 import type { AgentState } from "~/agents/meta-agent";
-import type { UIMessage } from "ai";
 
 // Default agent state
 const DEFAULT_AGENT_STATE: AgentState = {
@@ -40,21 +39,11 @@ export function useAgentConnection(
   // Handle agent type changes
   const setAgentType = useCallback(
     async (agentId: string) => {
-      console.log("Setting agent type to:", agentId);
-      try {
-        if (agentConnection?.setState) {
-          // Update the agent type using setState, preserving other state properties
-          agentConnection.setState({
-            ...agentState, // Spread current state
-            agentId: agentId,
-          });
-          console.log(`Backend agent set to: ${agentId}`);
-          return true;
-        }
-      } catch (error) {
-        console.error("Error setting agent:", error);
-      }
-      return false;
+      agentConnection.setState({
+        ...agentState,
+        agentId,
+      });
+      return true;
     },
     [agentConnection, agentState]
   );
