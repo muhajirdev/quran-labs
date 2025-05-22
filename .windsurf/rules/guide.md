@@ -1,0 +1,12 @@
+---
+trigger: manual
+---
+
+- Everytime you create new component / functionality, create it new file.
+- Always try to use design tokens from app.css, dont use hardcoded values if possible.
+- Always try to keep the file size small under 50 lines of code. If the components becomes bigger extract it into smaller components, and make new files.
+- Remember that we're using "react-router" , not remix and not "react-router-dom" , so import from "react-router"
+- We can use `export const clientLoader` for client-side data fetching before page is loaded and `export consts loader` for server-side data fetching
+- Always try to zoom out first, make plan, before implementing
+- Remember we have jotai if you need global state management
+- Avoid using regex for LLM related works

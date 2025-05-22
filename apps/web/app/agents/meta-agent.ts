@@ -1,5 +1,6 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { AIChatAgent } from "agents/ai-chat-agent";
+import type { Agent, AgentContext as AgentContextType } from "agents";
 import {
   streamText,
   tool,
@@ -65,49 +66,23 @@ const VerseReferenceOutputSchema = z.object({
  * appropriate system prompt and tools based on the agent type.
  */
 export class MetaAgent extends AIChatAgent<Env, State> {
-  // The agent type (extracted from the connection name)
-  private agentType: string = "general";
-
   // Initialize the agent
-  constructor(ctx: AgentContext, env: Env) {
+  constructor(ctx: AgentContextType, env: Env) {
     super(ctx, env);
-
-    // Extract agent type from the connection name
-    // Format: {sessionId}-{agentType} where sessionId is session-{timestamp}-{random}
-    const connectionName = ctx.name || "";
-
-    // Find the last hyphen in the connection name
-    const lastHyphenIndex = connectionName.lastIndexOf("-");
-
-    if (lastHyphenIndex !== -1 && lastHyphenIndex < connectionName.length - 1) {
-      // Extract everything after the last hyphen as the agent type
-      this.agentType = connectionName.substring(lastHyphenIndex + 1);
-
-      // Store the agent type in the state
-      this.state = {
+    // Initialize agentType in state
+    this.setState({
         ...this.state,
-        agentType: this.agentType,
-      };
-
-      console.log(
-        `Extracted agent type from connection name: ${this.agentType}`
-      );
-    } else {
-      console.log(
-        `Could not extract agent type from connection name: ${connectionName}, using default: ${this.agentType}`
-      );
-    }
-
-    console.log(`MetaAgent initialized with agent type: ${this.agentType}`);
+      agentType: "general",
+    });
   }
 
   // Define the tools available to this agent
   private getTools(): ToolSet {
     // Use the current agent type (which should be updated in onChatMessage)
-    console.log(`Getting tools for agent type: ${this.agentType}`);
+    console.log(`Getting tools for agent type: ${this.state.agentType}`);
 
     // Get the agent configuration from the factory
-    const agentConfig = getAgentConfig(this.agentType);
+    const agentConfig = getAgentConfig(this.state.agentType);
 
     // Base tools available to all agent types
     const tools: ToolSet = {
@@ -188,7 +163,7 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
     try {
       // Check if the latest message contains an agent type indicator
-      let agentType = this.agentType;
+      let agentType = this.state.agentType;
 
       // Check the latest user message for an agent type indicator
       if (chatHistory.length > 0) {
@@ -208,19 +183,16 @@ export class MetaAgent extends AIChatAgent<Env, State> {
             console.log(`Found agent type in message: ${extractedAgentType}`);
             agentType = extractedAgentType;
 
-            // Update the agent type in the state
-            this.agentType = extractedAgentType;
-
             // Update the state
-            this.state = {
+            this.setState({
               ...this.state,
               agentType: extractedAgentType,
-            };
+            });
 
             // Remove the agent type indicator from the message
             latestMessage.content = actualContent.trim();
 
-            console.log(`Updated agent type to: ${this.agentType}`);
+            console.log(`Updated agent type to: ${this.state.agentType}`);
             console.log(`Updated message content: ${latestMessage.content}`);
           }
         }
@@ -234,20 +206,17 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
           if (urlAgent && agentType === "general") {
             console.log(
-              `Found agent type in URL: ${urlAgent}, overriding current type: ${this.agentType}`
+              `Found agent type in URL: ${urlAgent}, overriding current type: ${this.state.agentType}`
             );
             agentType = urlAgent;
 
-            // Update the agent type in the state
-            this.agentType = urlAgent;
-
             // Update the state
-            this.state = {
+            this.setState({
               ...this.state,
               agentType: urlAgent,
-            };
+            });
 
-            console.log(`Updated agent type to: ${this.agentType}`);
+            console.log(`Updated agent type to: ${this.state.agentType}`);
           }
         } catch (error) {
           console.error("Error getting agent type from URL:", error);
@@ -286,7 +255,7 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
       return stream.toDataStreamResponse();
     } catch (error) {
-      console.error(`Error in ${this.agentType} agent:`, error);
+      console.error(`Error in ${this.state.agentType} agent:`, error);
 
       // Check if the latest message contains an agent type indicator
       if (chatHistory.length > 0) {
@@ -307,19 +276,16 @@ export class MetaAgent extends AIChatAgent<Env, State> {
               `Found agent type in message (fallback): ${extractedAgentType}`
             );
 
-            // Update the agent type in the state
-            this.agentType = extractedAgentType;
-
             // Update the state
-            this.state = {
+            this.setState({
               ...this.state,
               agentType: extractedAgentType,
-            };
+            });
 
             // Remove the agent type indicator from the message
             latestMessage.content = actualContent.trim();
 
-            console.log(`Updated agent type to (fallback): ${this.agentType}`);
+            console.log(`Updated agent type to (fallback): ${this.state.agentType}`);
             console.log(
               `Updated message content (fallback): ${latestMessage.content}`
             );
@@ -333,19 +299,16 @@ export class MetaAgent extends AIChatAgent<Env, State> {
           const urlParams = new URLSearchParams(window.location.search);
           const urlAgent = urlParams.get("agent");
 
-          if (urlAgent && this.agentType === "general") {
+          if (urlAgent && this.state.agentType === "general") {
             console.log(
-              `Found agent type in URL (fallback): ${urlAgent}, overriding current type: ${this.agentType}`
+              `Found agent type in URL (fallback): ${urlAgent}, overriding current type: ${this.state.agentType}`
             );
-            this.agentType = urlAgent;
-
-            // Update the state
-            this.state = {
+            this.setState({
               ...this.state,
               agentType: urlAgent,
-            };
+            });
 
-            console.log(`Updated agent type to (fallback): ${this.agentType}`);
+            console.log(`Updated agent type to (fallback): ${this.state.agentType}`);
           }
         } catch (fallbackError) {
           console.error(
@@ -376,10 +339,10 @@ export class MetaAgent extends AIChatAgent<Env, State> {
   // Helper method to generate a system prompt based on agent type
   async generateSystemPrompt() {
     // Use the current agent type (which should be updated in onChatMessage)
-    console.log(`Generating system prompt for agent type: ${this.agentType}`);
+    console.log(`Generating system prompt for agent type: ${this.state.agentType}`);
 
     // Get the agent configuration from the factory
-    const agentConfig = getAgentConfig(this.agentType);
+    const agentConfig = getAgentConfig(this.state.agentType);
 
     console.log(
       `Retrieved agent config for ${agentConfig.name} (${agentConfig.id})`
@@ -393,5 +356,17 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
     // Return the system prompt from the configuration
     return agentConfig.systemPrompt;
+  }
+
+  // Add an explicit RPC method to set the agent type
+  async setAgent(agentId: string) {
+    this.setState({
+      ...this.state,
+      agentType: agentId,
+    });
+    console.log(`Agent type set via RPC to: ${agentId}`);
+    // Optionally: clear chat history or reset state if needed
+    // this.setState({ ...this.state, messages: [], lastUpdated: new Date() });
+    return { success: true, agentType: agentId };
   }
 }
