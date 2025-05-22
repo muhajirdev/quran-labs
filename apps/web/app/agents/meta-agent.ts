@@ -1,11 +1,7 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import { type AgentContext as AgentContextType } from "agents";
-import {
-  streamText,
-  type StreamTextOnFinishCallback,
-  type ToolSet,
-} from "ai";
+import { streamText, type StreamTextOnFinishCallback, type ToolSet } from "ai";
 import { getAgentById } from "./agent-registry";
 import { getToolImplementations } from "./tools";
 
@@ -27,10 +23,9 @@ export class MetaAgent extends AIChatAgent<Env, State> {
   // Initialize the agent
   constructor(ctx: AgentContextType, env: Env) {
     super(ctx, env);
-    // Initialize agentType in state
+    // Only set default agentId if it's not already set in the state
     this.setState({
-      ...this.state,
-      agentId: "general",
+      agentId: this.state.agentId || "general",
     });
   }
 
@@ -48,7 +43,9 @@ export class MetaAgent extends AIChatAgent<Env, State> {
     }
 
     // Get tool IDs from the agent definition
-    const toolIds = agentDef.tools?.map(tool => tool.id) || ["verseReference"];
+    const toolIds = agentDef.tools?.map((tool) => tool.id) || [
+      "verseReference",
+    ];
 
     // Get tool implementations for this agent
     return getToolImplementations(toolIds);
@@ -97,31 +94,6 @@ export class MetaAgent extends AIChatAgent<Env, State> {
             console.log(`Updated agent type to: ${this.state.agentId}`);
             console.log(`Updated message content: ${latestMessage.content}`);
           }
-        }
-      }
-
-      // If we're in a browser environment, try to get the agent type from the URL as a fallback
-      if (typeof window !== "undefined") {
-        try {
-          const urlParams = new URLSearchParams(window.location.search);
-          const urlAgent = urlParams.get("agent");
-
-          if (urlAgent && agentType === "general") {
-            console.log(
-              `Found agent type in URL: ${urlAgent}, overriding current type: ${this.state.agentId}`
-            );
-            agentType = urlAgent;
-
-            // Update the state
-            this.setState({
-              ...this.state,
-              agentId: urlAgent,
-            });
-
-            console.log(`Updated agent type to: ${this.state.agentId}`);
-          }
-        } catch (error) {
-          console.error("Error getting agent type from URL:", error);
         }
       }
 
@@ -254,8 +226,11 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
     // Default system prompt if agent not found
     if (!agentDef) {
-      const defaultPrompt = "You are the General Assistant for Quran AI, a compassionate guide who helps users explore and understand Islamic teachings with wisdom and empathy.";
-      console.log(`Using default system prompt for unknown agent type: ${this.state.agentId}`);
+      const defaultPrompt =
+        "You are the General Assistant for Quran AI, a compassionate guide who helps users explore and understand Islamic teachings with wisdom and empathy.";
+      console.log(
+        `Using default system prompt for unknown agent type: ${this.state.agentId}`
+      );
       return defaultPrompt;
     }
 
