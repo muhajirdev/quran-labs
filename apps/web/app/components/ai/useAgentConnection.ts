@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useAgentChat } from "agents/ai-react";
 import type { AgentDefinition } from "~/agents/agent-types";
 import { useAgent } from "agents/react";
+import type { AgentState } from "~/agents/meta-agent";
 
 interface UseAgentConnectionReturn {
   selectedAgentId: string;
@@ -22,8 +23,8 @@ export function useAgentConnection(
   const [selectedAgentId, setSelectedAgentId] =
     useState<string>(initialAgentId);
 
-  // Connect to the MetaAgent
-  const agentConnection = useAgent({
+  // Connect to the MetaAgent with proper typing
+  const agentConnection = useAgent<AgentState>({
     agent: "MetaAgent",
     name: sessionId,
   });

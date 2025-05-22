@@ -1,10 +1,9 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { AIChatAgent } from "agents/ai-chat-agent";
-import type { Agent, AgentContext as AgentContextType } from "agents";
+import { type AgentContext as AgentContextType } from "agents";
 import {
   streamText,
   tool,
-  type Message,
   type StreamTextOnFinishCallback,
   type ToolSet,
 } from "ai";
@@ -14,12 +13,14 @@ import { fetchLyrics } from "~/lib/lyrics-api";
 import { fetchVerseData } from "~/lib/quran-api";
 
 // Enhanced state for meta agent functionality
-type State = {
+export type AgentState = {
   counter: number;
   messages: string[];
   lastUpdated: Date | null;
   agentType: string; // Store the agent type in the state
 };
+
+type State = AgentState;
 
 // Define the lyrics tool input schema
 const LyricsToolInputSchema = z.object({
@@ -71,7 +72,7 @@ export class MetaAgent extends AIChatAgent<Env, State> {
     super(ctx, env);
     // Initialize agentType in state
     this.setState({
-        ...this.state,
+      ...this.state,
       agentType: "general",
     });
   }
@@ -285,7 +286,9 @@ export class MetaAgent extends AIChatAgent<Env, State> {
             // Remove the agent type indicator from the message
             latestMessage.content = actualContent.trim();
 
-            console.log(`Updated agent type to (fallback): ${this.state.agentType}`);
+            console.log(
+              `Updated agent type to (fallback): ${this.state.agentType}`
+            );
             console.log(
               `Updated message content (fallback): ${latestMessage.content}`
             );
@@ -308,7 +311,9 @@ export class MetaAgent extends AIChatAgent<Env, State> {
               agentType: urlAgent,
             });
 
-            console.log(`Updated agent type to (fallback): ${this.state.agentType}`);
+            console.log(
+              `Updated agent type to (fallback): ${this.state.agentType}`
+            );
           }
         } catch (fallbackError) {
           console.error(
@@ -339,7 +344,9 @@ export class MetaAgent extends AIChatAgent<Env, State> {
   // Helper method to generate a system prompt based on agent type
   async generateSystemPrompt() {
     // Use the current agent type (which should be updated in onChatMessage)
-    console.log(`Generating system prompt for agent type: ${this.state.agentType}`);
+    console.log(
+      `Generating system prompt for agent type: ${this.state.agentType}`
+    );
 
     // Get the agent configuration from the factory
     const agentConfig = getAgentConfig(this.state.agentType);
@@ -359,14 +366,20 @@ export class MetaAgent extends AIChatAgent<Env, State> {
   }
 
   // Add an explicit RPC method to set the agent type
-  async setAgent(agentId: string) {
+  public async setAgent(agentId: string) {
+    console.log("setAgent called with:", agentId);
+
+    if (!agentId) {
+      console.error("No agentId provided");
+      return { success: false };
+    }
+
     this.setState({
       ...this.state,
       agentType: agentId,
     });
-    console.log(`Agent type set via RPC to: ${agentId}`);
-    // Optionally: clear chat history or reset state if needed
-    // this.setState({ ...this.state, messages: [], lastUpdated: new Date() });
-    return { success: true, agentType: agentId };
+
+    console.log("Agent type set to:", agentId);
+    return { success: true };
   }
 }
