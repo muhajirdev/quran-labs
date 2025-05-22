@@ -43,18 +43,18 @@ export default function AIChatExperience({
 
   // Use custom hook for agent connection and chat state
   const {
-    selectedAgentId,
-    agentMessages = [],
-    agentInput = "",
-    agentIsLoading = false,
-    agentClearHistory = () => {},
-    handleSelectAgent,
-    handleInputChange: agentHandleInputChange = () => {},
-    handleSubmit: agentHandleSubmit = () => Promise.resolve(),
+    agentState,
+    messages: agentMessages = [],
+    input: agentInput = "",
+    isLoading,
+    clearHistory,
+    setAgentType,
+    handleInputChange,
+    handleSubmit,
   } = useAgentConnection(sessionId);
 
-  // Get the agent class based on the selected agent ID
-  const selectedAgent = getAgentById(selectedAgentId);
+  // Get the agent class based on the selected agent type
+  const selectedAgent = getAgentById(agentState.agentId);
 
   // Determine if chat is active based on agent messages
   const chatActive = agentMessages.length > 0;
@@ -67,14 +67,13 @@ export default function AIChatExperience({
   useFocusInputOnMount(inputRef);
 
   // Form submission is now handled by useAgentConnection
-  const handleSubmit = agentHandleSubmit;
 
   // Handle suggestion from DiscoverSheet - immediately send the message without showing in input
   const handleDiscoverSuggestion = (suggestion: string) => {
     console.log("Discover suggestion selected:", suggestion);
 
     // Set the suggestion as the input and submit
-    agentHandleInputChange({
+    handleInputChange({
       target: { value: suggestion },
     } as React.ChangeEvent<HTMLInputElement>);
 
@@ -84,7 +83,7 @@ export default function AIChatExperience({
     } as React.FormEvent<HTMLFormElement>;
 
     // Submit the form
-    agentHandleSubmit(event);
+    handleSubmit(event);
 
     // Close the discover sheet
     setDiscoverSheetOpen(false);
@@ -93,18 +92,7 @@ export default function AIChatExperience({
   // Create new chat
   const handleNewChat = () => {
     createNewSession();
-    agentClearHistory();
-  };
-
-  // Handle agent selection from marketplace
-  const handleSelectAgentFromMarketplace = async (agentId: string) => {
-    const success = await handleSelectAgent(agentId);
-    if (success) {
-      setAgentMarketplaceOpen(false);
-    } else {
-      console.error("Failed to select agent");
-      // Optionally show an error to the user
-    }
+    clearHistory();
   };
 
   return (
@@ -139,15 +127,15 @@ export default function AIChatExperience({
         {/* Logo and title - Only visible when chat is not active - Mobile friendly */}
         <InitialStateView
           chatActive={chatActive}
-          selectedAgentId={selectedAgentId}
-          handleSelectAgent={handleSelectAgent}
+          selectedAgentId={agentState.agentId}
+          handleSelectAgent={setAgentType}
           setAgentMarketplaceOpen={setAgentMarketplaceOpen}
         />
 
         {/* Chat Messages - Centered container with scroll indicator - Mobile friendly */}
         <ChatMessagesView
           messages={agentMessages}
-          isLoading={agentIsLoading}
+          isLoading={isLoading}
           chatActive={chatActive}
           messagesEndRef={messagesEndRef}
         />
@@ -161,8 +149,8 @@ export default function AIChatExperience({
           handleSubmit={handleSubmit}
           inputRef={inputRef}
           agentInput={agentInput}
-          agentHandleInputChange={agentHandleInputChange}
-          agentIsLoading={agentIsLoading}
+          agentHandleInputChange={handleInputChange}
+          agentIsLoading={isLoading}
         />
       </main>
 
@@ -185,8 +173,8 @@ export default function AIChatExperience({
       <AgentMarketplace
         open={agentMarketplaceOpen}
         onClose={() => setAgentMarketplaceOpen(false)}
-        onSelectAgent={handleSelectAgent}
-        selectedAgentId={selectedAgentId}
+        onSelectAgent={setAgentType}
+        selectedAgentId={agentState.agentId}
       />
     </div>
   );

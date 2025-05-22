@@ -14,10 +14,7 @@ import { fetchVerseData } from "~/lib/quran-api";
 
 // Enhanced state for meta agent functionality
 export type AgentState = {
-  counter: number;
-  messages: string[];
-  lastUpdated: Date | null;
-  agentType: string; // Store the agent type in the state
+  agentId: string; // Store the agent type in the state
 };
 
 type State = AgentState;
@@ -73,17 +70,17 @@ export class MetaAgent extends AIChatAgent<Env, State> {
     // Initialize agentType in state
     this.setState({
       ...this.state,
-      agentType: "general",
+      agentId: "general",
     });
   }
 
   // Define the tools available to this agent
   private getTools(): ToolSet {
     // Use the current agent type (which should be updated in onChatMessage)
-    console.log(`Getting tools for agent type: ${this.state.agentType}`);
+    console.log(`Getting tools for agent type: ${this.state.agentId}`);
 
     // Get the agent configuration from the factory
-    const agentConfig = getAgentConfig(this.state.agentType);
+    const agentConfig = getAgentConfig(this.state.agentId);
 
     // Base tools available to all agent types
     const tools: ToolSet = {
@@ -164,7 +161,7 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
     try {
       // Check if the latest message contains an agent type indicator
-      let agentType = this.state.agentType;
+      let agentType = this.state.agentId;
 
       // Check the latest user message for an agent type indicator
       if (chatHistory.length > 0) {
@@ -187,13 +184,13 @@ export class MetaAgent extends AIChatAgent<Env, State> {
             // Update the state
             this.setState({
               ...this.state,
-              agentType: extractedAgentType,
+              agentId: extractedAgentType,
             });
 
             // Remove the agent type indicator from the message
             latestMessage.content = actualContent.trim();
 
-            console.log(`Updated agent type to: ${this.state.agentType}`);
+            console.log(`Updated agent type to: ${this.state.agentId}`);
             console.log(`Updated message content: ${latestMessage.content}`);
           }
         }
@@ -207,17 +204,17 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
           if (urlAgent && agentType === "general") {
             console.log(
-              `Found agent type in URL: ${urlAgent}, overriding current type: ${this.state.agentType}`
+              `Found agent type in URL: ${urlAgent}, overriding current type: ${this.state.agentId}`
             );
             agentType = urlAgent;
 
             // Update the state
             this.setState({
               ...this.state,
-              agentType: urlAgent,
+              agentId: urlAgent,
             });
 
-            console.log(`Updated agent type to: ${this.state.agentType}`);
+            console.log(`Updated agent type to: ${this.state.agentId}`);
           }
         } catch (error) {
           console.error("Error getting agent type from URL:", error);
@@ -256,7 +253,7 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
       return stream.toDataStreamResponse();
     } catch (error) {
-      console.error(`Error in ${this.state.agentType} agent:`, error);
+      console.error(`Error in ${this.state.agentId} agent:`, error);
 
       // Check if the latest message contains an agent type indicator
       if (chatHistory.length > 0) {
@@ -280,14 +277,14 @@ export class MetaAgent extends AIChatAgent<Env, State> {
             // Update the state
             this.setState({
               ...this.state,
-              agentType: extractedAgentType,
+              agentId: extractedAgentType,
             });
 
             // Remove the agent type indicator from the message
             latestMessage.content = actualContent.trim();
 
             console.log(
-              `Updated agent type to (fallback): ${this.state.agentType}`
+              `Updated agent type to (fallback): ${this.state.agentId}`
             );
             console.log(
               `Updated message content (fallback): ${latestMessage.content}`
@@ -302,17 +299,17 @@ export class MetaAgent extends AIChatAgent<Env, State> {
           const urlParams = new URLSearchParams(window.location.search);
           const urlAgent = urlParams.get("agent");
 
-          if (urlAgent && this.state.agentType === "general") {
+          if (urlAgent && this.state.agentId === "general") {
             console.log(
-              `Found agent type in URL (fallback): ${urlAgent}, overriding current type: ${this.state.agentType}`
+              `Found agent type in URL (fallback): ${urlAgent}, overriding current type: ${this.state.agentId}`
             );
             this.setState({
               ...this.state,
-              agentType: urlAgent,
+              agentId: urlAgent,
             });
 
             console.log(
-              `Updated agent type to (fallback): ${this.state.agentType}`
+              `Updated agent type to (fallback): ${this.state.agentId}`
             );
           }
         } catch (fallbackError) {
@@ -345,11 +342,11 @@ export class MetaAgent extends AIChatAgent<Env, State> {
   async generateSystemPrompt() {
     // Use the current agent type (which should be updated in onChatMessage)
     console.log(
-      `Generating system prompt for agent type: ${this.state.agentType}`
+      `Generating system prompt for agent type: ${this.state.agentId}`
     );
 
     // Get the agent configuration from the factory
-    const agentConfig = getAgentConfig(this.state.agentType);
+    const agentConfig = getAgentConfig(this.state.agentId);
 
     console.log(
       `Retrieved agent config for ${agentConfig.name} (${agentConfig.id})`

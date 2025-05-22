@@ -2,18 +2,24 @@ import { useState, useCallback } from "react";
 import { useAgentChat } from "agents/ai-react";
 import { useAgent } from "agents/react";
 import type { AgentState } from "~/agents/meta-agent";
+import type { UIMessage } from "ai";
 
 // Default agent state
 const DEFAULT_AGENT_STATE: AgentState = {
-  agentType: "general",
+  agentId: "general",
   counter: 0,
   messages: [],
   lastUpdated: null,
 };
 
-type UseAgentConnectionReturn = { agentState: AgentState } & ReturnType<
-  typeof useAgentChat
->;
+// Extend the return type of useAgentChat with our custom properties
+type UseAgentConnectionReturn = ReturnType<typeof useAgentChat> & {
+  // Our custom properties
+  agentState: AgentState;
+  setAgentType: (agentId: string) => Promise<boolean>;
+  // Re-export the chat properties with more specific types if needed
+  messages: UIMessage[];
+};
 
 export function useAgentConnection(
   sessionId: string,
@@ -21,7 +27,7 @@ export function useAgentConnection(
 ): UseAgentConnectionReturn {
   const [agentState, setAgentState] = useState<AgentState>({
     ...DEFAULT_AGENT_STATE,
-    agentType: initialAgentId,
+    agentId: initialAgentId,
   });
 
   // Connect to the agent
@@ -46,7 +52,7 @@ export function useAgentConnection(
           // Update the agent type using setState, preserving other state properties
           agentConnection.setState({
             ...agentState, // Spread current state
-            agentType: agentId,
+            agentId: agentId,
             lastUpdated: new Date(),
           });
           console.log(`Backend agent set to: ${agentId}`);
@@ -60,8 +66,15 @@ export function useAgentConnection(
     [agentConnection, agentState]
   );
 
+  // Return all chat properties plus our custom ones with proper defaults
   return {
+    // Spread chat properties first
     ...chat,
+
+    // Our custom properties
     agentState,
-  };
+
+    // Ensure all required properties have proper defaults
+    messages: chat?.messages ?? [],
+  } as UseAgentConnectionReturn;
 }
