@@ -25,13 +25,9 @@
   "ai": { "binding": "AI" },
   "migrations": [
     {
-      "tag": "v1",
-      "new_sqlite_classes": ["ChatAgent"]
-    },
-    {
       "tag": "v2",
       "new_sqlite_classes": ["MetaAgent"],
-      "deleted_classes": []
+      "deleted_classes": ["ChatAgent"]
     }
   ]
   /**

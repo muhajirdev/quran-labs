@@ -3,14 +3,11 @@ import { AIChatAgent } from "agents/ai-chat-agent";
 import { type AgentContext as AgentContextType } from "agents";
 import {
   streamText,
-  tool,
   type StreamTextOnFinishCallback,
   type ToolSet,
 } from "ai";
-import { z } from "zod";
-import { getAgentConfig } from "./agent-factory";
-import { fetchLyrics } from "~/lib/lyrics-api";
-import { fetchVerseData } from "~/lib/quran-api";
+import { getAgentById } from "./agent-registry";
+import { getToolImplementations } from "./tools";
 
 // Enhanced state for meta agent functionality
 export type AgentState = {
@@ -18,43 +15,6 @@ export type AgentState = {
 };
 
 type State = AgentState;
-
-// Define the lyrics tool input schema
-const LyricsToolInputSchema = z.object({
-  songTitle: z.string().describe("The title of the song to fetch lyrics for"),
-  artist: z.string().optional().describe("The artist of the song (optional)"),
-});
-
-// Define the lyrics tool output schema
-const LyricsToolOutputSchema = z.object({
-  title: z.string(),
-  artist: z.string(),
-  lyrics: z.string(),
-  error: z.string().optional(),
-});
-
-// Define the verse reference tool input schema
-const VerseReferenceInputSchema = z.object({
-  verseReference: z
-    .string()
-    .describe("The verse reference in format chapter:verse (e.g., '2:255')"),
-});
-
-// Define the verse reference tool output schema
-const VerseReferenceOutputSchema = z.object({
-  verse_key: z.string(),
-  arabic_text: z.string(),
-  chapter_name: z.string().optional(),
-  translations: z
-    .array(
-      z.object({
-        text: z.string(),
-        translator: z.string().optional(),
-      })
-    )
-    .optional(),
-  error: z.string().optional(),
-});
 
 /**
  * MetaAgent - A single agent that can behave as different specialized agents
@@ -79,75 +39,19 @@ export class MetaAgent extends AIChatAgent<Env, State> {
     // Use the current agent type (which should be updated in onChatMessage)
     console.log(`Getting tools for agent type: ${this.state.agentId}`);
 
-    // Get the agent configuration from the factory
-    const agentConfig = getAgentConfig(this.state.agentId);
+    // Get the agent definition from the registry
+    const agentDef = getAgentById(this.state.agentId);
 
-    // Base tools available to all agent types
-    const tools: ToolSet = {
-      verseReference: tool({
-        description:
-          "Reference a specific verse from the Quran by its chapter and verse number",
-        parameters: VerseReferenceInputSchema,
-        execute: async ({ verseReference }) => {
-          try {
-            // Fetch verse data directly using our utility function
-            const verseData = await fetchVerseData(verseReference);
-
-            if (verseData.error) {
-              throw new Error(verseData.error);
-            }
-
-            return VerseReferenceOutputSchema.parse({
-              verse_key: verseData.verse_key,
-              arabic_text: verseData.arabic_text,
-              chapter_name: verseData.chapter_name,
-              translations: verseData.translations,
-            });
-          } catch (error) {
-            console.error("Error fetching verse:", error);
-            return VerseReferenceOutputSchema.parse({
-              verse_key: verseReference,
-              arabic_text: "",
-              error:
-                error instanceof Error
-                  ? error.message
-                  : "Failed to fetch verse data",
-            });
-          }
-        },
-      }),
-    };
-
-    // Add lyrics tool only for agents that have it enabled in their configuration
-    if (
-      agentConfig.tools.some(
-        (tool) => tool.id === "fetchLyrics" && tool.enabled
-      )
-    ) {
-      tools.fetchLyrics = tool({
-        description: "Fetch lyrics for a song by title and optionally artist",
-        parameters: LyricsToolInputSchema,
-        execute: async ({ songTitle, artist }) => {
-          try {
-            const lyricsData = await fetchLyrics(songTitle, artist);
-            return LyricsToolOutputSchema.parse(lyricsData);
-          } catch (error) {
-            console.error("Error fetching lyrics:", error);
-            return LyricsToolOutputSchema.parse({
-              title: songTitle,
-              artist: artist || "Unknown",
-              lyrics: "",
-              error:
-                error instanceof Error
-                  ? error.message
-                  : "Failed to fetch lyrics",
-            });
-          }
-        },
-      });
+    // Default tools if agent not found
+    if (!agentDef) {
+      return getToolImplementations(["verseReference"]);
     }
 
-    return tools;
+    // Get tool IDs from the agent definition
+    const toolIds = agentDef.tools?.map(tool => tool.id) || ["verseReference"];
+
+    // Get tool implementations for this agent
+    return getToolImplementations(toolIds);
   }
 
   // Override the onChatMessage method to implement tool usage
@@ -345,20 +249,27 @@ export class MetaAgent extends AIChatAgent<Env, State> {
       `Generating system prompt for agent type: ${this.state.agentId}`
     );
 
-    // Get the agent configuration from the factory
-    const agentConfig = getAgentConfig(this.state.agentId);
+    // Get the agent definition from the registry
+    const agentDef = getAgentById(this.state.agentId);
+
+    // Default system prompt if agent not found
+    if (!agentDef) {
+      const defaultPrompt = "You are the General Assistant for Quran AI, a compassionate guide who helps users explore and understand Islamic teachings with wisdom and empathy.";
+      console.log(`Using default system prompt for unknown agent type: ${this.state.agentId}`);
+      return defaultPrompt;
+    }
 
     console.log(
-      `Retrieved agent config for ${agentConfig.name} (${agentConfig.id})`
+      `Retrieved agent definition for ${agentDef.name} (${agentDef.id})`
     );
     console.log(
-      `System prompt (first 100 chars): ${agentConfig.systemPrompt.substring(
+      `System prompt (first 100 chars): ${agentDef.systemPrompt.substring(
         0,
         100
       )}...`
     );
 
-    // Return the system prompt from the configuration
-    return agentConfig.systemPrompt;
+    // Return the system prompt from the agent definition
+    return agentDef.systemPrompt;
   }
 }

@@ -2,6 +2,8 @@
  * Agent Types - Type definitions for the agent marketplace
  */
 
+import type { ToolConfig } from "./tools";
+
 /**
  * AgentCapability - Represents a specific capability of an agent
  */
@@ -26,6 +28,7 @@ export interface AgentDefinition {
   capabilities: AgentCapability[];
   systemPrompt: string;
   exampleQueries: string[];
+  tools?: ToolConfig[];
   isAvailable: boolean;
   isNew?: boolean;
   isPopular?: boolean;
