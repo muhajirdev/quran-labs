@@ -49,7 +49,7 @@ export const InitialStateView: React.FC<InitialStateViewProps> = ({
 
       <div className="relative mb-3">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white relative z-10">
-          Quran AI
+          SuperQuran
         </h1>
         {/* Title decoration */}
         <div

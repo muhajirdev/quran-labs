@@ -18,7 +18,7 @@ export function LogoUsageExamples() {
           <CardContent className="p-6 border-t">
             <div className="flex items-center gap-2 p-4 bg-background rounded-lg">
               <Logo size="sm" />
-              <span className="font-medium">Quran AI</span>
+              <span className="font-medium">SuperQuran</span>
             </div>
 
             <div className="mt-6 flex items-center gap-2 p-4 bg-background rounded-lg">
@@ -66,7 +66,7 @@ export function LogoUsageExamples() {
               <div className="flex items-center gap-3">
                 <Logo size="md" />
                 <div>
-                  <h3 className="font-medium">Quran AI</h3>
+                  <h3 className="font-medium">SuperQuran</h3>
                   <p className="text-xs text-muted-foreground">Exploring Quranic knowledge through AI</p>
                 </div>
               </div>

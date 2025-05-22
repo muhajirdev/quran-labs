@@ -18,7 +18,7 @@ type State = AgentState;
 // Default agent ID if none is specified
 const DEFAULT_AGENT_ID = "general";
 const DEFAULT_SYSTEM_PROMPT =
-  "You are the General Assistant for Quran AI, a compassionate guide who helps users explore and understand Islamic teachings with wisdom and empathy.";
+  "You are the General Assistant for SuperQuran, a compassionate guide who helps users explore and understand Islamic teachings with wisdom and empathy.";
 
 /**
  * MetaAgent - A single agent that can behave as different specialized agents

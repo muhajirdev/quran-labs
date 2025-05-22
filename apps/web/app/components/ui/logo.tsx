@@ -50,12 +50,12 @@ export function Logo({
     )}>
       <img
         src={darkLogoPath}
-        alt="Quran AI Logo"
+        alt="SuperQuran Logo"
         className="w-full h-full object-cover hidden dark:block"
       />
       <img
         src={lightLogoPath}
-        alt="Quran AI Logo"
+        alt="SuperQuran Logo"
         className="w-full h-full object-cover block dark:hidden"
       />
     </div>

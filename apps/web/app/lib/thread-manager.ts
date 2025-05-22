@@ -14,15 +14,15 @@ export interface Thread {
   updatedAt: number;
 }
 
-const THREADS_STORAGE_KEY = 'quran-ai-threads';
-const CURRENT_THREAD_KEY = 'quran-ai-current-thread';
+const THREADS_STORAGE_KEY = 'superquran-threads';
+const CURRENT_THREAD_KEY = 'superquran-current-thread';
 
 // Initial system messages for new threads
 export const INITIAL_MESSAGES: Message[] = [
   getSystemMessage(),
   {
     role: 'assistant',
-    content: 'I\'m your Quran AI Assistant. Ask me anything about the Quran, its verses, chapters, themes, or interpretations. I\'ll do my best to provide accurate, helpful information.'
+    content: 'I\'m your SuperQuran Assistant. Ask me anything about the Quran, its verses, chapters, themes, or interpretations. I\'ll do my best to provide accurate, helpful information.'
   }
 ];
 

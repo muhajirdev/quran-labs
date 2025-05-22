@@ -258,10 +258,10 @@ export default function VerseDetailPage() {
                     <SparklesIcon className="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform duration-300" />
                     <span className="absolute inset-0 bg-accent/20 rounded-full blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300"></span>
                   </span>
-                  <span className="group-hover:tracking-wider transition-all duration-300">Quran AI</span>
+                  <span className="group-hover:tracking-wider transition-all duration-300">SuperQuran</span>
                 </button>
                 <div className="absolute left-0 -bottom-10 w-48 px-2 py-1 bg-[#1c1c1c] rounded-md text-xs font-normal text-white/70 shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                  Quranic verse details
+                  SuperQuran verse details
                 </div>
               </div>
 

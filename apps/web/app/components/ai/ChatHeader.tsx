@@ -59,7 +59,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
               <span className="absolute inset-0 bg-accent/20 rounded-full blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300"></span>
             </span>
             <span className="group-hover:tracking-wider transition-all duration-300">
-              Quran AI
+              SuperQuran
             </span>
           </button>
 

@@ -39,7 +39,7 @@ export function LoadingScreen({
 
           <div className="relative mb-3">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white relative z-10">
-              Quran AI
+              SuperQuran
             </h1>
             {/* Title decoration */}
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 sm:w-64 h-8 opacity-60" style={{

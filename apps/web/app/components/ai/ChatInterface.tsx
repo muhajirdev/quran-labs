@@ -8,6 +8,7 @@ import { ChatMessage } from "./ChatMessage"
 import { createChatCompletion } from "~/lib/openrouter"
 import { Separator } from "~/components/ui/separator"
 import { getSystemMessage } from "~/lib/system-prompt"
+import type { UIMessage } from "ai"
 
 interface Message {
   role: "user" | "assistant" | "system"
@@ -18,7 +19,7 @@ const INITIAL_MESSAGES: Message[] = [
   getSystemMessage(),
   {
     role: "assistant",
-    content: "I'm your Quran AI Assistant. Ask me anything about the Quran, its verses, chapters, themes, or interpretations. I'll do my best to provide accurate, helpful information."
+    content: "I'm SuperQuran. Ask me anything about the Quran, its verses, chapters, themes, or interpretations. I'll do my best to provide accurate, helpful information."
   }
 ]
 
@@ -134,7 +135,7 @@ export function ChatInterface({ initialQuery }: ChatInterfaceProps) {
           {messages.slice(1).map((message, index) => (
             <ChatMessage
               key={index}
-              message={message}
+              message={message as UIMessage}
               isLoading={isLoading && index === messages.length - 2}
             />
           ))}
