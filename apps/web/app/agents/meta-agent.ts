@@ -17,7 +17,8 @@ type State = AgentState;
 
 // Default agent ID if none is specified
 const DEFAULT_AGENT_ID = "general";
-const DEFAULT_SYSTEM_PROMPT = "You are the General Assistant for Quran AI, a compassionate guide who helps users explore and understand Islamic teachings with wisdom and empathy.";
+const DEFAULT_SYSTEM_PROMPT =
+  "You are the General Assistant for Quran AI, a compassionate guide who helps users explore and understand Islamic teachings with wisdom and empathy.";
 
 /**
  * MetaAgent - A single agent that can behave as different specialized agents
@@ -32,11 +33,16 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
   private getTools(): ToolSet {
     const agentDef = getAgentById(this.state.agentId);
-    const toolIds = agentDef?.tools?.map((tool) => tool.id) || ["verseReference"];
+    const toolIds = agentDef?.tools?.map((tool) => tool.id) || [
+      "verseReference",
+    ];
     return getToolImplementations(toolIds);
   }
 
-  private extractAgentInfo(message: { role: string; content: string }): { agentId: string; content: string } | null {
+  private extractAgentInfo(message: {
+    role: string;
+    content: string;
+  }): { agentId: string; content: string } | null {
     if (message.role !== "user" || typeof message.content !== "string") {
       return null;
     }
@@ -76,7 +82,10 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
     return streamText({
       model: openRouter.languageModel("google/gemini-2.0-flash-001"),
-      messages: [{ role: "system" as const, content: systemPrompt }, ...messages],
+      messages: [
+        { role: "system" as const, content: systemPrompt },
+        ...messages,
+      ],
       maxSteps: 5,
       temperature: 0.7,
       maxTokens: 1000,
@@ -94,7 +103,7 @@ export class MetaAgent extends AIChatAgent<Env, State> {
     if (chatHistory.length > 0) {
       const latestMessage = chatHistory[chatHistory.length - 1];
       const agentInfo = this.extractAgentInfo(latestMessage);
-      
+
       if (agentInfo) {
         agentType = this.updateAgentType(agentInfo.agentId);
         latestMessage.content = agentInfo.content;
