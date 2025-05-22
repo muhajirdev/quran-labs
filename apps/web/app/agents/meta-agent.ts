@@ -26,7 +26,7 @@ export class MetaAgent extends AIChatAgent<Env, State> {
   constructor(ctx: AgentContextType, env: Env) {
     super(ctx, env);
     this.setState({
-      agentId: this.state.agentId || DEFAULT_AGENT_ID,
+      agentId: this.state?.agentId || DEFAULT_AGENT_ID, // ? is important because sometime this.state is undefined
     });
   }
 
