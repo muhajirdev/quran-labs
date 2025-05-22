@@ -1,60 +1,55 @@
 import { useState, useCallback } from "react";
 import { useAgentChat } from "agents/ai-react";
-import type { AgentDefinition } from "~/agents/agent-types";
 import { useAgent } from "agents/react";
 import type { AgentState } from "~/agents/meta-agent";
 
-interface UseAgentConnectionReturn {
-  selectedAgentId: string;
-  agentMessages: any[]; // Replace 'any' with the actual message type
-  agentInput: string;
-  agentIsLoading: boolean;
-  agentClearHistory: () => void;
-  handleSelectAgent: (agentId: string) => Promise<boolean>;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (e: React.FormEvent) => void;
-  agentConnection: any; // Replace 'any' with the actual agent connection type
-}
+// Default agent state
+const DEFAULT_AGENT_STATE: AgentState = {
+  agentType: "general",
+  counter: 0,
+  messages: [],
+  lastUpdated: null,
+};
+
+type UseAgentConnectionReturn = { agentState: AgentState } & ReturnType<
+  typeof useAgentChat
+>;
 
 export function useAgentConnection(
   sessionId: string,
   initialAgentId: string = "general"
 ): UseAgentConnectionReturn {
-  const [selectedAgentId, setSelectedAgentId] =
-    useState<string>(initialAgentId);
+  const [agentState, setAgentState] = useState<AgentState>({
+    ...DEFAULT_AGENT_STATE,
+    agentType: initialAgentId,
+  });
 
-  // Connect to the MetaAgent with proper typing
+  // Connect to the agent
   const agentConnection = useAgent<AgentState>({
     agent: "MetaAgent",
     name: sessionId,
+    onStateUpdate: (state) => {
+      console.log("[Agent State Update]", state);
+      setAgentState((prev) => ({ ...prev, ...state }));
+    },
   });
 
-  // Use the useAgentChat hook with the agent connection
-  const {
-    messages: agentMessages,
-    input: agentInput,
-    handleInputChange: agentHandleInputChange,
-    handleSubmit: agentHandleSubmit,
-    isLoading: agentIsLoading,
-    clearHistory: agentClearHistory,
-  } = useAgentChat({
-    agent: agentConnection,
-  });
+  // Use the chat functionality
+  const chat = useAgentChat({ agent: agentConnection });
 
-  // Handle agent selection
-  const handleSelectAgent = useCallback(
+  // Handle agent type changes
+  const setAgentType = useCallback(
     async (agentId: string) => {
-      console.log("Agent selected:", agentId);
-
+      console.log("Setting agent type to:", agentId);
       try {
-        // Check if agentConnection and the setAgent method are available
-        if (
-          agentConnection &&
-          typeof (agentConnection as any).setAgent === "function"
-        ) {
-          await (agentConnection as any).setAgent(agentId);
+        if (agentConnection?.setState) {
+          // Update the agent type using setState, preserving other state properties
+          agentConnection.setState({
+            ...agentState, // Spread current state
+            agentType: agentId,
+            lastUpdated: new Date(),
+          });
           console.log(`Backend agent set to: ${agentId}`);
-          setSelectedAgentId(agentId);
           return true;
         }
       } catch (error) {
@@ -62,38 +57,11 @@ export function useAgentConnection(
       }
       return false;
     },
-    [agentConnection]
-  );
-
-  // Handle input change with debouncing if needed
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      agentHandleInputChange(e);
-    },
-    [agentHandleInputChange]
-  );
-
-  // Handle form submission
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      if (agentInput.trim()) {
-        agentHandleSubmit(e);
-      }
-    },
-    [agentInput, agentHandleSubmit]
+    [agentConnection, agentState]
   );
 
   return {
-    selectedAgentId,
-    agentMessages,
-    agentInput,
-    agentIsLoading,
-    agentClearHistory,
-    handleSelectAgent,
-    handleInputChange,
-    handleSubmit,
-    // Raw agent connection for any direct access needed
-    agentConnection,
+    ...chat,
+    agentState,
   };
 }

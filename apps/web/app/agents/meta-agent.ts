@@ -364,22 +364,4 @@ export class MetaAgent extends AIChatAgent<Env, State> {
     // Return the system prompt from the configuration
     return agentConfig.systemPrompt;
   }
-
-  // Add an explicit RPC method to set the agent type
-  public async setAgent(agentId: string) {
-    console.log("setAgent called with:", agentId);
-
-    if (!agentId) {
-      console.error("No agentId provided");
-      return { success: false };
-    }
-
-    this.setState({
-      ...this.state,
-      agentType: agentId,
-    });
-
-    console.log("Agent type set to:", agentId);
-    return { success: true };
-  }
 }
