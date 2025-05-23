@@ -19,7 +19,7 @@ const INITIAL_MESSAGES: Message[] = [
   getSystemMessage(),
   {
     role: "assistant",
-    content: "I'm SuperQuran. Ask me anything about the Quran, its verses, chapters, themes, or interpretations. I'll do my best to provide accurate, helpful information."
+    content: "I'm your SuperQuran Assistant. Ask me anything about the Quran, its verses, chapters, themes, or interpretations. I'll do my best to provide accurate, helpful information."
   }
 ]
 
