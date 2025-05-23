@@ -53,6 +53,13 @@ export default function AIChatExperience({
     handleSubmit,
   } = useAgentConnection(sessionId);
 
+  // Set default agent to song-wisdom if no agent is selected
+  React.useEffect(() => {
+    if (!agentState.agentId) {
+      setAgentType("song-wisdom");
+    }
+  }, [agentState.agentId, setAgentType]);
+
   // Get the agent class based on the selected agent type
   const selectedAgent = getAgentById(agentState.agentId);
 
@@ -66,28 +73,23 @@ export default function AIChatExperience({
   // Use custom hook to focus input on mount
   useFocusInputOnMount(inputRef);
 
-  // Form submission is now handled by useAgentConnection
+  // Handle suggestion click - submit the suggestion directly
+  const handleSuggestionClick = (suggestion: string) => {
+    console.log("Suggestion selected:", suggestion);
 
-  // Handle suggestion from DiscoverSheet - immediately send the message without showing in input
-  // const handleDiscoverSuggestion = (suggestion: string) => {
-  //   console.log("Discover suggestion selected:", suggestion);
+    // Set the suggestion as the input
+    handleInputChange({
+      target: { value: suggestion },
+    } as React.ChangeEvent<HTMLInputElement>);
 
-  //   // Set the suggestion as the input and submit
-  //   handleInputChange({
-  //     target: { value: suggestion },
-  //   } as React.ChangeEvent<HTMLInputElement>);
+    // Create a simple form event and submit
+    const event = {
+      preventDefault: () => {},
+    } as React.FormEvent<HTMLFormElement>;
 
-  //   // Create a simple form event
-  //   const event = {
-  //     preventDefault: () => {},
-  //   } as React.FormEvent<HTMLFormElement>;
-
-  //   // Submit the form
-  //   handleSubmit(event);
-
-  //   // Close the discover sheet
-  //   setDiscoverSheetOpen(false);
-  // };
+    // Submit the form
+    handleSubmit(event);
+  };
 
   // Create new chat
   const handleNewChat = () => {
@@ -98,7 +100,7 @@ export default function AIChatExperience({
   return (
     <div
       className={cn(
-        "flex flex-col min-h-screen bg-[#0A0A0A] relative transition-all duration-300",
+        "flex flex-col min-h-screen bg-[#0A0A0A] relative transition-all duration-300"
         // discoverSheetOpen && "md:pl-[350px]" // Add padding when sidebar is open on desktop
       )}
     >
@@ -130,6 +132,7 @@ export default function AIChatExperience({
           selectedAgentId={agentState.agentId}
           handleSelectAgent={setAgentType}
           setAgentMarketplaceOpen={setAgentMarketplaceOpen}
+          onSuggestionClick={handleSuggestionClick}
         />
 
         {/* Chat Messages - Centered container with scroll indicator - Mobile friendly */}

@@ -81,6 +81,14 @@ export const AGENT_REGISTRY: AgentDefinition[] = [
         icon: "Search",
       },
     ],
+    suggestions: [
+      "Analisis lagu 'Ayah' - Seventeen dong",
+      "Makna spiritual di lagu 'Menghapus Jejakmu' - Peterpan",
+      "Coba bahas lagu 'Mungkin' - Melly Goeslaw",
+      "Ada hikmah apa di lagu 'Kangen' - Dewa 19?",
+      "Lagu 'Semua Tentang Kita' - Peterpan gimana?",
+      "Bahas dong lagu 'Aku dan Serigala' - Efek Rumah Kaca"
+    ],
     systemPrompt: generateSystemPrompt("Song Wisdom Agent", `You are a thoughtful guide who helps people discover spiritual wisdom in the music they love. Your approach is natural, insightful, and deeply empathetic.
 
 CORE MISSION:

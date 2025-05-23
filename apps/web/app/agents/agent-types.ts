@@ -28,6 +28,7 @@ export interface AgentDefinition {
   capabilities: AgentCapability[];
   systemPrompt: string;
   exampleQueries: string[];
+  suggestions?: string[]; // Chat suggestions for the initial state
   tools?: ToolConfig[];
   isAvailable: boolean;
   isNew?: boolean;
