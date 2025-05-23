@@ -59,6 +59,33 @@ export function VerseReferenceCard({
     .split(":")
     .map((num) => parseInt(num));
 
+  // Get gradient background based on verse key seed
+  const getVerseGradient = (verseKey: string) => {
+    const gradients = [
+      "from-slate-500 via-blue-600 to-indigo-700", // Contemplative
+      "from-emerald-600 via-teal-700 to-cyan-800", // Quranic wisdom
+      "from-rose-500 via-purple-600 to-indigo-700", // Emotional reflection
+      "from-amber-500 via-orange-600 to-pink-700", // Uplifting energy
+      "from-purple-500 via-pink-600 to-red-600", // Comforting
+      "from-green-500 via-teal-600 to-blue-700", // Inspiring
+      "from-orange-500 via-red-600 to-pink-700", // Personal story
+      "from-blue-500 via-cyan-600 to-teal-700", // Hope message
+      "from-violet-500 via-purple-600 to-indigo-700", // Spiritual insight
+      "from-yellow-500 via-green-600 to-emerald-700", // Uplifting wisdom
+      "from-cyan-500 via-blue-600 to-indigo-700", // Contemplative depth
+      "from-lime-500 via-green-600 to-emerald-700", // Practical guidance
+      "from-pink-500 via-rose-600 to-purple-700", // Comforting reflection
+      "from-stone-600 via-gray-700 to-slate-800", // Grounding
+      "from-indigo-500 via-purple-600 to-pink-700", // Reflective hope
+    ];
+
+    // Create consistent seed from verse key
+    const seed = verseKey
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return gradients[seed % gradients.length];
+  };
+
   // Fetch verse data when component mounts
   React.useEffect(() => {
     if ((state === "call" || state === "result") && chapter && verse) {
@@ -162,19 +189,36 @@ export function VerseReferenceCard({
     ? verseData.translations[translationKey]
     : null;
 
+  // Get the gradient for this verse
+  const selectedGradient = getVerseGradient(
+    verseData.verse_key || verseReference
+  );
+
   return (
     <div className="w-full max-w-3xl mx-auto my-4">
       <div className="relative rounded-2xl shadow-xl overflow-hidden">
-        {/* Beautiful Gradient Background - Quranic theme */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600" />
+        {/* Beautiful Gradient Background - Dynamic based on verse */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${selectedGradient}`}
+        />
 
         {/* Static Grain Texture Overlay */}
         <div className="absolute inset-0">
+          {/* Primary grain */}
           <div
-            className="absolute inset-0 opacity-30 mix-blend-soft-light pointer-events-none"
+            className="absolute inset-0 opacity-50 mix-blend-soft-light pointer-events-none"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='verseGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='3' seed='42' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23verseGrain)'/%3E%3C/svg%3E")`,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='primaryGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='3' seed='42' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23primaryGrain)'/%3E%3C/svg%3E")`,
               backgroundSize: "800px 800px",
+            }}
+          />
+
+          {/* Fine grain layer */}
+          <div
+            className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='fineGrain'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.6' numOctaves='2' seed='17' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23fineGrain)'/%3E%3C/svg%3E")`,
+              backgroundSize: "600px 600px",
             }}
           />
         </div>
@@ -182,13 +226,13 @@ export function VerseReferenceCard({
         {/* Subtle Depth Overlay */}
         <div className="absolute inset-0">
           <div
-            className="absolute inset-0 opacity-20"
+            className="absolute inset-0 opacity-30"
             style={{
               background:
                 "radial-gradient(circle at center, transparent 0%, transparent 60%, rgba(0,0,0,0.3) 100%)",
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
         </div>
 
         {/* Main Content */}
@@ -212,7 +256,7 @@ export function VerseReferenceCard({
 
           {/* Arabic Text */}
           {verseData.arabic_text && (
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-4">
+            <div className="mb-4">
               <p className="text-right font-arabic text-xl md:text-2xl leading-relaxed text-white">
                 {verseData.arabic_text}
               </p>
@@ -221,7 +265,7 @@ export function VerseReferenceCard({
 
           {/* Translation */}
           {translation && (
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 mb-4">
+            <div className="mb-4">
               <p className="text-sm md:text-base text-white/90 leading-relaxed">
                 {translation.text}
               </p>
