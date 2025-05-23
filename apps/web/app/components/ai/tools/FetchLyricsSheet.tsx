@@ -1,75 +1,90 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { cn } from "~/lib/utils"
-import { Button } from "~/components/ui/button"
-import { ExternalLink, Music, Search } from "lucide-react"
+import * as React from "react";
+import { cn } from "~/lib/utils";
+import { Button } from "~/components/ui/button";
+import { ExternalLink, Music, Search } from "lucide-react";
 
 interface FetchLyricsResultProps {
-  state: string
+  state: string;
   args: {
-    songTitle?: string
-    artist?: string
-  }
-  result?: any
+    songTitle?: string;
+    artist?: string;
+    lyrics?: string;
+    lineAnalysis?: any;
+    themes?: any[];
+    connections?: any[];
+    overallMessage?: string;
+  };
+  result?: any;
 }
 
 interface ParsedLyrics {
-  title: string
-  artist: string
-  lyrics: string
-  error?: string
+  title: string;
+  artist: string;
+  lyrics: string;
+  error?: string;
 }
 
-export function FetchLyricsResult({ state, args, result }: FetchLyricsResultProps) {
-  const [activeSection, setActiveSection] = React.useState<'lyrics' | 'analysis'>('lyrics');
+export function FetchLyricsResult({
+  state,
+  args,
+  result,
+}: FetchLyricsResultProps) {
+  const [activeSection, setActiveSection] = React.useState<
+    "lyrics" | "analysis"
+  >("lyrics");
 
   // Parse the lyrics result
   const parseLyricsResult = (): ParsedLyrics => {
     if (!result) {
       return {
-        title: args.songTitle || 'Unknown Song',
-        artist: args.artist || 'Unknown Artist',
-        lyrics: '',
-        error: 'No lyrics data available'
+        title: args.songTitle || "Unknown Song",
+        artist: args.artist || "Unknown Artist",
+        lyrics: "",
+        error: "No lyrics data available",
       };
     }
 
     try {
       // If result is a string that looks like JSON, try to parse it
-      if (typeof result === 'string' && result.startsWith('{') && result.endsWith('}')) {
+      if (
+        typeof result === "string" &&
+        result.startsWith("{") &&
+        result.endsWith("}")
+      ) {
         const parsed = JSON.parse(result);
         return {
-          title: parsed.title || args.songTitle || 'Unknown Song',
-          artist: parsed.artist || args.artist || 'Unknown Artist',
-          lyrics: parsed.lyrics || '',
-          error: parsed.error
+          title: parsed.title || args.songTitle || "Unknown Song",
+          artist: parsed.artist || args.artist || "Unknown Artist",
+          lyrics: parsed.lyrics || "",
+          error: parsed.error,
         };
       }
 
       // If result is already an object
-      if (typeof result === 'object') {
+      if (typeof result === "object") {
         return {
-          title: result.title || args.songTitle || 'Unknown Song',
-          artist: result.artist || args.artist || 'Unknown Artist',
-          lyrics: result.lyrics || '',
-          error: result.error
+          title: result.title || args.songTitle || "Unknown Song",
+          artist: result.artist || args.artist || "Unknown Artist",
+          lyrics: result.lyrics || "",
+          error: result.error,
         };
       }
 
       // Otherwise, just return the string as lyrics
       return {
-        title: args.songTitle || 'Unknown Song',
-        artist: args.artist || 'Unknown Artist',
-        lyrics: String(result)
+        title: args.songTitle || "Unknown Song",
+        artist: args.artist || "Unknown Artist",
+        lyrics: String(result),
       };
     } catch (e) {
       // If parsing fails, just return the original string as lyrics
       return {
-        title: args.songTitle || 'Unknown Song',
-        artist: args.artist || 'Unknown Artist',
-        lyrics: typeof result === 'string' ? result : '',
-        error: e instanceof Error ? e.message : 'Failed to parse lyrics'
+        title: args.songTitle || "Unknown Song",
+        artist: args.artist || "Unknown Artist",
+        lyrics: typeof result === "string" ? result : "",
+        error: e instanceof Error ? e.message : "Failed to parse lyrics",
       };
     }
   };
@@ -77,10 +92,10 @@ export function FetchLyricsResult({ state, args, result }: FetchLyricsResultProp
   const parsedResult = parseLyricsResult();
 
   // Format lyrics for display (replace \n with line breaks)
-  const formattedLyrics = parsedResult.lyrics.replace(/\\n/g, '\n');
+  const formattedLyrics = parsedResult.lyrics.replace(/\\n/g, "\n");
 
   // Loading state
-  if (state === 'partial-call' || state === 'call') {
+  if (state === "partial-call" || state === "call") {
     return (
       <div className="p-4 flex flex-col items-center justify-center min-h-[200px]">
         <div className="animate-pulse flex flex-col items-center">
@@ -113,8 +128,12 @@ export function FetchLyricsResult({ state, args, result }: FetchLyricsResultProp
               <span className="text-2xl relative z-10">⚠️</span>
             </div>
             <div>
-              <h3 className="text-lg font-medium text-foreground dark:text-white">Lyrics Not Found</h3>
-              <p className="text-sm text-muted-foreground dark:text-white/60">{parsedResult.title} - {parsedResult.artist}</p>
+              <h3 className="text-lg font-medium text-foreground dark:text-white">
+                Lyrics Not Found
+              </h3>
+              <p className="text-sm text-muted-foreground dark:text-white/60">
+                {parsedResult.title} - {parsedResult.artist}
+              </p>
             </div>
           </div>
           <div className="bg-secondary/50 dark:bg-black/30 rounded-md p-5 border border-border/50 dark:border-[rgba(58,58,58,0.5)]">
@@ -124,7 +143,9 @@ export function FetchLyricsResult({ state, args, result }: FetchLyricsResultProp
           </div>
           <div className="mt-5">
             <a
-              href={`https://www.google.com/search?q=${encodeURIComponent(`${parsedResult.title} ${parsedResult.artist} lyrics`)}`}
+              href={`https://www.google.com/search?q=${encodeURIComponent(
+                `${parsedResult.title} ${parsedResult.artist} lyrics`
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors text-sm"
@@ -149,8 +170,12 @@ export function FetchLyricsResult({ state, args, result }: FetchLyricsResultProp
             <span className="text-2xl relative z-10">🎵</span>
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-medium text-foreground dark:text-white">{parsedResult.title}</h3>
-            <p className="text-sm text-muted-foreground dark:text-white/60">{parsedResult.artist}</p>
+            <h3 className="text-lg font-medium text-foreground dark:text-white">
+              {parsedResult.title}
+            </h3>
+            <p className="text-sm text-muted-foreground dark:text-white/60">
+              {parsedResult.artist}
+            </p>
           </div>
         </div>
 
@@ -159,55 +184,97 @@ export function FetchLyricsResult({ state, args, result }: FetchLyricsResultProp
           <button
             className={cn(
               "pb-2 px-4 text-sm font-medium transition-colors relative",
-              activeSection === 'lyrics'
+              activeSection === "lyrics"
                 ? "text-foreground dark:text-white"
                 : "text-muted-foreground dark:text-white/50 hover:text-foreground/70 dark:hover:text-white/70"
             )}
-            onClick={() => setActiveSection('lyrics')}
+            onClick={() => setActiveSection("lyrics")}
           >
             Lyrics
-            {activeSection === 'lyrics' && (
+            {activeSection === "lyrics" && (
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-accent"></span>
             )}
           </button>
           <button
             className={cn(
               "pb-2 px-4 text-sm font-medium transition-colors relative",
-              activeSection === 'analysis'
+              activeSection === "analysis"
                 ? "text-foreground dark:text-white"
                 : "text-muted-foreground dark:text-white/50 hover:text-foreground/70 dark:hover:text-white/70"
             )}
-            onClick={() => setActiveSection('analysis')}
+            onClick={() => setActiveSection("analysis")}
           >
-            Analysis
-            {activeSection === 'analysis' && (
+            Deep Analysis
+            {activeSection === "analysis" && (
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-accent"></span>
             )}
           </button>
         </div>
 
         {/* Content */}
-        {activeSection === 'lyrics' ? (
+        {activeSection === "lyrics" ? (
           <div className="bg-secondary/50 dark:bg-black/30 rounded-md p-5 overflow-y-auto max-h-[400px] border border-border/50 dark:border-[rgba(58,58,58,0.5)]">
             <pre className="text-sm text-foreground dark:text-white/80 whitespace-pre-wrap font-sans leading-relaxed">
               {formattedLyrics}
             </pre>
           </div>
         ) : (
-          <div className="bg-secondary/50 dark:bg-black/30 rounded-md p-5 border border-border/50 dark:border-[rgba(58,58,58,0.5)]">
+          <div className="bg-secondary/50 dark:bg-black/30 rounded-md p-5 border border-border/50 dark:border-[rgba(58,58,58,0.5)] space-y-6">
             <div className="flex items-center gap-2 mb-3">
               <Music className="h-4 w-4 text-accent" />
-              <h4 className="text-sm font-medium text-foreground dark:text-white">Song Analysis</h4>
+              <h4 className="text-sm font-medium text-foreground dark:text-white">
+                Song Analysis & Spiritual Exploration
+              </h4>
             </div>
-            <p className="text-sm text-foreground dark:text-white/80 leading-relaxed">
-              This song explores themes that may relate to Quranic wisdom. The lyrics can be analyzed
-              for connections to spiritual concepts, ethical teachings, and reflections on human nature
-              that align with Islamic principles.
-            </p>
+
+            {/* Analysis possibilities */}
+            <div className="space-y-4">
+              <div className="border-l-2 border-accent/30 pl-4">
+                <h5 className="text-sm font-medium text-foreground dark:text-white mb-2">
+                  🎯 Literary & Structural Analysis
+                </h5>
+                <p className="text-sm text-foreground dark:text-white/80">
+                  Exploring rhythm, literary devices, and emotional flow through
+                  the lyrics...
+                </p>
+              </div>
+
+              <div className="border-l-2 border-accent/30 pl-4">
+                <h5 className="text-sm font-medium text-foreground dark:text-white mb-2">
+                  💎 Themes & Deeper Meanings
+                </h5>
+                <p className="text-sm text-foreground dark:text-white/80">
+                  Discovering universal themes, metaphors, and life wisdom
+                  within the song...
+                </p>
+              </div>
+
+              <div className="border-l-2 border-accent/30 pl-4">
+                <h5 className="text-sm font-medium text-foreground dark:text-white mb-2">
+                  📖 Spiritual Connections
+                </h5>
+                <p className="text-sm text-foreground dark:text-white/80">
+                  Finding relevant Quranic verses and Islamic wisdom that
+                  resonate with the song's message...
+                </p>
+              </div>
+
+              <div className="border-l-2 border-accent/30 pl-4">
+                <h5 className="text-sm font-medium text-foreground dark:text-white mb-2">
+                  🌱 Practical Applications
+                </h5>
+                <p className="text-sm text-foreground dark:text-white/80">
+                  Creating actionable insights for spiritual growth and daily
+                  life practice...
+                </p>
+              </div>
+            </div>
+
             <div className="mt-4 pt-4 border-t border-border/50 dark:border-white/10">
               <p className="text-xs text-muted-foreground dark:text-white/50 italic">
-                For a deeper analysis of how this song connects to Quranic wisdom,
-                ask the AI about specific themes or verses that might relate to these lyrics.
+                This comprehensive analysis connects artistic expression with
+                spiritual wisdom, helping you find deeper meaning in the music
+                you love.
               </p>
             </div>
           </div>
@@ -216,7 +283,7 @@ export function FetchLyricsResult({ state, args, result }: FetchLyricsResultProp
         {/* Footer */}
         <div className="mt-5 text-xs text-muted-foreground dark:text-white/40 flex justify-between items-center">
           <span>Lyrics may be subject to copyright</span>
-          <span>{formattedLyrics.split('\n').length} lines</span>
+          <span>{formattedLyrics.split("\n").length} lines</span>
         </div>
       </div>
     </div>

@@ -40,7 +40,7 @@ export class MetaAgent extends AIChatAgent<Env, State> {
     const toolIds = agentDef?.tools?.map((tool) => tool.id) || [
       "verseReference",
     ];
-    return getToolImplementations(toolIds);
+    return getToolImplementations(toolIds, openRouter.languageModel("google/gemini-2.0-flash-001"));
   }
 
   private extractAgentInfo(message: {

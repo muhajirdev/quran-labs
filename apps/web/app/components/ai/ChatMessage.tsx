@@ -1,17 +1,18 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { cn } from "~/lib/utils"
-import { lazy, Suspense } from "react"
-import { Logo } from "~/components/ui/logo"
-import type { UIMessage } from "ai"
-import { ToolInvocationSheet } from "./ToolInvocationSheet"
-const RenderMarkdown = lazy(() => import("./MarkdownRenderer"))
+import * as React from "react";
+import { cn } from "~/lib/utils";
+import { lazy, Suspense } from "react";
+import { Logo } from "~/components/ui/logo";
+import type { UIMessage } from "ai";
+import { ToolInvocationSheet } from "./ToolInvocationSheet";
+import { SongAnalysisCard } from "./tools/SongAnalysisCard";
+const RenderMarkdown = lazy(() => import("./MarkdownRenderer"));
 
 interface ChatMessageProps {
-  message: UIMessage
-  isLoading?: boolean
-  isLastMessage?: boolean // Added to support the isLastMessage prop
+  message: UIMessage;
+  isLoading?: boolean;
+  isLastMessage?: boolean; // Added to support the isLastMessage prop
 }
 
 function LoadingDots() {
@@ -21,28 +22,32 @@ function LoadingDots() {
       <div className="h-1.5 w-1.5 animate-[pulse_1.2s_ease-in-out_160ms_infinite] rounded-full bg-gradient-to-r from-accent to-accent/80"></div>
       <div className="h-1.5 w-1.5 animate-[pulse_1.2s_ease-in-out_320ms_infinite] rounded-full bg-gradient-to-r from-accent to-accent/80"></div>
     </div>
-  )
+  );
 }
 
-export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessageProps) {
-  const isUser = message.role === "user"
-  const [isVisible, setIsVisible] = React.useState(false)
+export function ChatMessage({
+  message,
+  isLoading,
+  isLastMessage,
+}: ChatMessageProps) {
+  const isUser = message.role === "user";
+  const [isVisible, setIsVisible] = React.useState(false);
   const [activeToolInvocation, setActiveToolInvocation] = React.useState<{
     isOpen: boolean;
     toolName: string;
-    toolState: 'partial-call' | 'call' | 'result';
+    toolState: "partial-call" | "call" | "result";
     args: any;
     result?: any;
-  } | null>(null)
+  } | null>(null);
 
   // Add a slight delay before showing the message for a staggered animation effect
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      setIsVisible(true)
-    }, 150)
+      setIsVisible(true);
+    }, 150);
 
-    return () => clearTimeout(timer)
-  }, [])
+    return () => clearTimeout(timer);
+  }, []);
 
   // Render message parts
   const renderMessageParts = () => {
@@ -51,11 +56,11 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
     }
 
     return message.parts.map((part, index) => {
-      if (part.type === 'text') {
+      if (part.type === "text") {
         return <RenderMarkdown key={index} content={part.text} />;
       }
 
-      if (part.type === 'step-start') {
+      if (part.type === "step-start") {
         return index > 0 ? (
           <div key={index} className="my-3">
             <hr className="border-white/10" />
@@ -63,23 +68,45 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
         ) : null;
       }
 
-      if (part.type === 'tool-invocation') {
+      if (part.type === "tool-invocation") {
         const toolInvocation = part.toolInvocation;
 
+        // Special case: render comprehensive song analysis directly inline
+        if (toolInvocation.toolName === "comprehensiveSongAnalysis") {
+          return (
+            <div key={index} className="my-4">
+              <SongAnalysisCard
+                state={toolInvocation.state}
+                args={toolInvocation.args}
+                result={
+                  toolInvocation.state === "result"
+                    ? toolInvocation.result
+                    : undefined
+                }
+              />
+            </div>
+          );
+        }
+
         // Render different tool invocations based on tool name
-        if (toolInvocation.toolName === 'fetchLyrics') {
+        if (toolInvocation.toolName === "fetchLyrics") {
           // Lyrics tool invocation
           return (
             <div key={index} className="my-3">
               <div
                 className="p-3 bg-black/20 border border-accent/10 rounded-lg cursor-pointer hover:bg-black/30 transition-colors"
-                onClick={() => setActiveToolInvocation({
-                  isOpen: true,
-                  toolName: toolInvocation.toolName,
-                  toolState: toolInvocation.state,
-                  args: toolInvocation.args,
-                  result: toolInvocation.state === 'result' ? toolInvocation.result : undefined
-                })}
+                onClick={() =>
+                  setActiveToolInvocation({
+                    isOpen: true,
+                    toolName: toolInvocation.toolName,
+                    toolState: toolInvocation.state,
+                    args: toolInvocation.args,
+                    result:
+                      toolInvocation.state === "result"
+                        ? toolInvocation.result
+                        : undefined,
+                  })
+                }
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
@@ -90,15 +117,19 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
                       <h4 className="text-sm font-medium text-white">
                         {toolInvocation.args.songTitle || "Song Lyrics"}
                       </h4>
-                      {toolInvocation.state === 'partial-call' && (
-                        <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">Loading...</span>
+                      {toolInvocation.state === "partial-call" && (
+                        <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                          Loading...
+                        </span>
                       )}
-                      {toolInvocation.state === 'result' && (
-                        <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">View lyrics</span>
+                      {toolInvocation.state === "result" && (
+                        <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                          View lyrics
+                        </span>
                       )}
                     </div>
                     <p className="text-xs text-white/60 mt-1">
-                      {toolInvocation.state === 'result'
+                      {toolInvocation.state === "result"
                         ? "Click to view full lyrics"
                         : "Fetching lyrics..."}
                     </p>
@@ -109,7 +140,7 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
           );
         }
 
-        if (toolInvocation.toolName === 'verseReference') {
+        if (toolInvocation.toolName === "verseReference") {
           // Verse reference tool invocation
           const verseRef = toolInvocation.args.verseReference || "";
 
@@ -117,13 +148,18 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
             <div key={index} className="my-3">
               <div
                 className="p-3 bg-black/20 border border-accent/10 rounded-lg cursor-pointer hover:bg-black/30 transition-colors"
-                onClick={() => setActiveToolInvocation({
-                  isOpen: true,
-                  toolName: toolInvocation.toolName,
-                  toolState: toolInvocation.state,
-                  args: toolInvocation.args,
-                  result: toolInvocation.state === 'result' ? toolInvocation.result : undefined
-                })}
+                onClick={() =>
+                  setActiveToolInvocation({
+                    isOpen: true,
+                    toolName: toolInvocation.toolName,
+                    toolState: toolInvocation.state,
+                    args: toolInvocation.args,
+                    result:
+                      toolInvocation.state === "result"
+                        ? toolInvocation.result
+                        : undefined,
+                  })
+                }
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
@@ -134,15 +170,19 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
                       <h4 className="text-sm font-medium text-white">
                         Quran {verseRef}
                       </h4>
-                      {toolInvocation.state === 'partial-call' && (
-                        <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">Loading...</span>
+                      {toolInvocation.state === "partial-call" && (
+                        <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                          Loading...
+                        </span>
                       )}
-                      {toolInvocation.state === 'result' && (
-                        <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">View verse</span>
+                      {toolInvocation.state === "result" && (
+                        <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                          View verse
+                        </span>
                       )}
                     </div>
                     <p className="text-xs text-white/60 mt-1">
-                      {toolInvocation.state === 'result'
+                      {toolInvocation.state === "result"
                         ? "Click to read the verse"
                         : "Loading verse..."}
                     </p>
@@ -158,13 +198,18 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
           <div key={index} className="my-3">
             <div
               className="p-3 bg-black/20 border border-accent/10 rounded-lg cursor-pointer hover:bg-black/30 transition-colors"
-              onClick={() => setActiveToolInvocation({
-                isOpen: true,
-                toolName: toolInvocation.toolName,
-                toolState: toolInvocation.state,
-                args: toolInvocation.args,
-                result: toolInvocation.state === 'result' ? toolInvocation.result : undefined
-              })}
+              onClick={() =>
+                setActiveToolInvocation({
+                  isOpen: true,
+                  toolName: toolInvocation.toolName,
+                  toolState: toolInvocation.state,
+                  args: toolInvocation.args,
+                  result:
+                    toolInvocation.state === "result"
+                      ? toolInvocation.result
+                      : undefined,
+                })
+              }
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
@@ -173,17 +218,23 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-white capitalize">
-                      {toolInvocation.toolName.replace(/([A-Z])/g, ' $1').trim()}
+                      {toolInvocation.toolName
+                        .replace(/([A-Z])/g, " $1")
+                        .trim()}
                     </h4>
-                    {toolInvocation.state === 'partial-call' && (
-                      <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">Processing...</span>
+                    {toolInvocation.state === "partial-call" && (
+                      <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                        Processing...
+                      </span>
                     )}
-                    {toolInvocation.state === 'result' && (
-                      <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">View results</span>
+                    {toolInvocation.state === "result" && (
+                      <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                        View results
+                      </span>
                     )}
                   </div>
                   <p className="text-xs text-white/60 mt-1">
-                    {toolInvocation.state === 'result'
+                    {toolInvocation.state === "result"
                       ? "Click to view details"
                       : "Processing request..."}
                   </p>
@@ -194,7 +245,7 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
         );
       }
 
-      if (part.type === 'file' && part.mimeType?.startsWith('image/')) {
+      if (part.type === "file" && part.mimeType?.startsWith("image/")) {
         return (
           <div key={index} className="my-2">
             <img
@@ -218,7 +269,7 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
     }
 
     return message.parts.map((part, index) => {
-      if (part.type === 'text') {
+      if (part.type === "text") {
         return <span key={index}>{part.text}</span>;
       }
       return null;
@@ -240,7 +291,9 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
       <div
         className={cn(
           "w-full transition-all duration-300 ease-out",
-          isVisible ? "opacity-100 transform translate-y-0" : "opacity-0 transform translate-y-2"
+          isVisible
+            ? "opacity-100 transform translate-y-0"
+            : "opacity-0 transform translate-y-2"
         )}
       >
         {isUser ? (
@@ -258,10 +311,7 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
                 {/* Subtle glow effect */}
                 <div className="absolute inset-[-2px] bg-accent rounded-full blur-[6px] opacity-40 group-hover:opacity-70 transition-opacity duration-300"></div>
                 <div className="relative">
-                  <Logo
-                    size="sm"
-                    className="w-6 h-6"
-                  />
+                  <Logo size="sm" className="w-6 h-6" />
                 </div>
               </div>
               <div className="flex-1">
@@ -269,9 +319,7 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
                   <LoadingDots />
                 ) : (
                   <Suspense fallback={<LoadingDots />}>
-                    <div className="">
-                      {renderMessageParts()}
-                    </div>
+                    <div className="">{renderMessageParts()}</div>
                   </Suspense>
                 )}
               </div>
@@ -280,5 +328,5 @@ export function ChatMessage({ message, isLoading, isLastMessage }: ChatMessagePr
         )}
       </div>
     </>
-  )
+  );
 }
