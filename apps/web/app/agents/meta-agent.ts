@@ -1,9 +1,13 @@
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import {
+  createOpenRouter,
+  type OpenRouterProvider,
+} from "@openrouter/ai-sdk-provider";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import { type AgentContext as AgentContextType } from "agents";
 import { streamText, type StreamTextOnFinishCallback, type ToolSet } from "ai";
 import { getAgentById } from "./agent-registry";
 import { getToolImplementations } from "./tools";
+import { TOOL_USAGE_INSTRUCTIONS } from "./shared-prompts";
 
 /**
  * Agent state interface
@@ -16,9 +20,9 @@ export type AgentState = {
 type State = AgentState;
 
 // Default agent ID if none is specified
-const DEFAULT_AGENT_ID = "general";
+const DEFAULT_AGENT_ID = "song-wisdom";
 const DEFAULT_SYSTEM_PROMPT =
-  "You are the General Assistant for SuperQuran, a compassionate guide who helps users explore and understand Islamic teachings with wisdom and empathy.";
+  "You are the Song Wisdom Agent for SuperQuran, a creative guide who connects popular music with Quranic wisdom, helping users discover spiritual insights within the songs they love.";
 
 /**
  * MetaAgent - A single agent that can behave as different specialized agents
@@ -31,7 +35,7 @@ export class MetaAgent extends AIChatAgent<Env, State> {
     });
   }
 
-  private getTools(): ToolSet {
+  private getTools(openRouter: OpenRouterProvider): ToolSet {
     const agentDef = getAgentById(this.state.agentId);
     const toolIds = agentDef?.tools?.map((tool) => tool.id) || [
       "verseReference",
@@ -110,8 +114,12 @@ export class MetaAgent extends AIChatAgent<Env, State> {
       }
     }
 
+    const openRouter = createOpenRouter({
+      apiKey: this.env.OPENROUTER_API_KEY,
+    });
+
     const systemPrompt = await this.generateSystemPrompt();
-    const tools = this.getTools();
+    const tools = this.getTools(openRouter);
 
     return this.createStreamResponse({
       systemPrompt,
@@ -123,6 +131,13 @@ export class MetaAgent extends AIChatAgent<Env, State> {
 
   private async generateSystemPrompt(): Promise<string> {
     const agentDef = getAgentById(this.state.agentId);
-    return agentDef?.systemPrompt || DEFAULT_SYSTEM_PROMPT;
+    let systemPrompt = agentDef?.systemPrompt || DEFAULT_SYSTEM_PROMPT;
+
+    // Ensure the system prompt includes tool usage instructions
+    if (!systemPrompt.includes("TOOL USAGE INSTRUCTIONS")) {
+      systemPrompt += "\n\n" + TOOL_USAGE_INSTRUCTIONS;
+    }
+
+    return systemPrompt;
   }
 }
