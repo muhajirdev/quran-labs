@@ -6,6 +6,7 @@ import {
   DatabaseIcon,
   XIcon,
   MenuIcon,
+  PlusIcon,
 } from "lucide-react";
 import type { AgentDefinition } from "~/agents/agent-types";
 import { cn } from "~/lib/utils";
@@ -15,12 +16,12 @@ import { Button } from "../ui/button";
 interface ChatHeaderProps {
   mobileMenuOpen: boolean;
   setMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  discoverSheetOpen: boolean;
+  discoverSheetOpen?: boolean;
   sessionId: string;
   selectedAgent: AgentDefinition | undefined;
   chatActive: boolean;
   setAgentMarketplaceOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setDiscoverSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setDiscoverSheetOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   handleNewChat: () => void;
 }
 
@@ -121,19 +122,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             </div>
           )}
 
-          {/* Discover button - secondary importance */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white/50 hover:text-white text-xs h-7 px-3 relative overflow-hidden group border-0 hover:bg-white/5"
-            onClick={() => setDiscoverSheetOpen(true)}
-          >
-            <CompassIcon className="h-3 w-3 mr-1.5 text-white/50" />
-            <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">
-              Discover
-            </span>
-          </Button>
-
           {/* Read button - always visible */}
           <Button
             variant="ghost"
@@ -183,9 +171,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
               className="text-white/50 hover:text-white text-xs h-7 px-3 relative overflow-hidden group border-0 hover:bg-white/5"
               onClick={handleNewChat}
             >
-              <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">
-                New Chat
-              </span>
+              <PlusIcon className="h-3 w-3 mr-1.5" />
+              <span className="sr-only">New Chat</span>
             </Button>
           )}
         </div>
@@ -246,22 +233,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
               </span>
             </div>
           )}
-
-          {/* Discover button - secondary importance */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white/50 hover:text-white text-xs h-8 px-3 justify-start relative overflow-hidden group border-0 hover:bg-white/5 w-full"
-            onClick={() => {
-              setDiscoverSheetOpen(true);
-              setMobileMenuOpen(false);
-            }}
-          >
-            <CompassIcon className="h-3 w-3 mr-1.5 text-white/50" />
-            <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">
-              Discover
-            </span>
-          </Button>
 
           {/* Read button - always visible */}
           <Button
@@ -324,9 +295,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 setMobileMenuOpen(false);
               }}
             >
-              <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">
-                New Chat
-              </span>
+              <PlusIcon className="h-3 w-3 mr-1.5" />
+              <span className="sr-only">New Chat</span>
             </Button>
           )}
         </div>

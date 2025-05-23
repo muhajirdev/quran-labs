@@ -6,7 +6,7 @@ import { HomeCommandDialog } from "~/components/command/HomeCommandDialog";
 import { useLocation } from "react-router";
 import { GeometricDecoration } from "~/components/ui/geometric-background";
 import { cn } from "~/lib/utils";
-import { DiscoverSidebar } from "./DiscoverSidebar";
+// import { DiscoverSidebar } from "./DiscoverSidebar";
 import { getRegionCodeFromCountry } from "~/constants/regions";
 import { AgentMarketplace } from "./AgentMarketplace";
 import { getAgentById } from "~/agents/agent-registry";
@@ -29,7 +29,7 @@ export default function AIChatExperience({
 }: AIChatExperienceProps) {
   // State
   const [commandDialogOpen, setCommandDialogOpen] = React.useState(false);
-  const [discoverSheetOpen, setDiscoverSheetOpen] = React.useState(false);
+  // const [discoverSheetOpen, setDiscoverSheetOpen] = React.useState(false);
   const [agentMarketplaceOpen, setAgentMarketplaceOpen] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -69,25 +69,25 @@ export default function AIChatExperience({
   // Form submission is now handled by useAgentConnection
 
   // Handle suggestion from DiscoverSheet - immediately send the message without showing in input
-  const handleDiscoverSuggestion = (suggestion: string) => {
-    console.log("Discover suggestion selected:", suggestion);
+  // const handleDiscoverSuggestion = (suggestion: string) => {
+  //   console.log("Discover suggestion selected:", suggestion);
 
-    // Set the suggestion as the input and submit
-    handleInputChange({
-      target: { value: suggestion },
-    } as React.ChangeEvent<HTMLInputElement>);
+  //   // Set the suggestion as the input and submit
+  //   handleInputChange({
+  //     target: { value: suggestion },
+  //   } as React.ChangeEvent<HTMLInputElement>);
 
-    // Create a simple form event
-    const event = {
-      preventDefault: () => {},
-    } as React.FormEvent<HTMLFormElement>;
+  //   // Create a simple form event
+  //   const event = {
+  //     preventDefault: () => {},
+  //   } as React.FormEvent<HTMLFormElement>;
 
-    // Submit the form
-    handleSubmit(event);
+  //   // Submit the form
+  //   handleSubmit(event);
 
-    // Close the discover sheet
-    setDiscoverSheetOpen(false);
-  };
+  //   // Close the discover sheet
+  //   setDiscoverSheetOpen(false);
+  // };
 
   // Create new chat
   const handleNewChat = () => {
@@ -99,7 +99,7 @@ export default function AIChatExperience({
     <div
       className={cn(
         "flex flex-col min-h-screen bg-[#0A0A0A] relative transition-all duration-300",
-        discoverSheetOpen && "md:pl-[350px]" // Add padding when sidebar is open on desktop
+        // discoverSheetOpen && "md:pl-[350px]" // Add padding when sidebar is open on desktop
       )}
     >
       {/* Animated Geometric Pattern Background */}
@@ -109,12 +109,12 @@ export default function AIChatExperience({
       <ChatHeader
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
-        discoverSheetOpen={discoverSheetOpen}
+        // discoverSheetOpen={discoverSheetOpen}
         sessionId={sessionId}
         selectedAgent={selectedAgent}
         chatActive={chatActive}
         setAgentMarketplaceOpen={setAgentMarketplaceOpen}
-        setDiscoverSheetOpen={setDiscoverSheetOpen}
+        // setDiscoverSheetOpen={setDiscoverSheetOpen}
         handleNewChat={handleNewChat}
       />
 
@@ -142,7 +142,7 @@ export default function AIChatExperience({
 
         {/* Chat Input - Fixed at bottom with backdrop blur - Mobile friendly */}
         <ChatInputArea
-          discoverSheetOpen={discoverSheetOpen}
+          // discoverSheetOpen={discoverSheetOpen}
           selectedAgent={selectedAgent}
           chatActive={chatActive}
           setAgentMarketplaceOpen={setAgentMarketplaceOpen}
@@ -161,13 +161,13 @@ export default function AIChatExperience({
       />
 
       {/* Discover Sidebar */}
-      <DiscoverSidebar
+      {/* <DiscoverSidebar
         open={discoverSheetOpen}
         onClose={() => setDiscoverSheetOpen(false)}
         onSelectSuggestion={handleDiscoverSuggestion}
         currentLanguage={contentRegion}
         setCurrentLanguage={setContentRegion}
-      />
+      /> */}
 
       {/* Agent Marketplace */}
       <AgentMarketplace

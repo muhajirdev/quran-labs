@@ -7,7 +7,7 @@ import type { RefObject } from "react";
 import React from "react";
 
 interface ChatInputAreaProps {
-  discoverSheetOpen: boolean;
+  discoverSheetOpen?: boolean;
   selectedAgent: AgentDefinition | undefined;
   chatActive: boolean;
   setAgentMarketplaceOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -32,8 +32,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 right-0 z-10 w-full px-3 sm:px-6 py-3 sm:py-4 transition-all duration-300",
-        discoverSheetOpen && "md:left-[350px] md:w-[calc(100%-350px)]" // Shift input area and adjust width when sidebar is open
+        "fixed bottom-0 left-0 right-0 z-10 w-full px-3 sm:px-6 py-3 sm:py-4 transition-all duration-300"
       )}
     >
       <div className="absolute inset-0 blur-layer"></div>
