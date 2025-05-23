@@ -305,26 +305,26 @@ export function ChatMessage({
             </div>
           </div>
         ) : (
-          <div className="mb-5">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 mt-0.5 relative group">
-                {/* Subtle glow effect */}
-                <div className="absolute inset-[-2px] bg-accent rounded-full blur-[6px] opacity-40 group-hover:opacity-70 transition-opacity duration-300"></div>
-                <div className="relative">
-                  <Logo size="sm" className="w-6 h-6" />
-                </div>
-              </div>
-              <div className="flex-1">
-                {isLoading ? (
-                  <LoadingDots />
-                ) : (
-                  <Suspense fallback={<LoadingDots />}>
-                    <div className="">{renderMessageParts()}</div>
-                  </Suspense>
-                )}
-              </div>
-            </div>
+          <div className="flex-1">
+            {isLoading ? (
+              <LoadingDots />
+            ) : (
+              <Suspense fallback={<LoadingDots />}>
+                <div className="">{renderMessageParts()}</div>
+              </Suspense>
+            )}
           </div>
+          // <div className="mb-5">
+          //   <div className="flex items-start gap-3">
+          //     <div className="flex-shrink-0 mt-0.5 relative group">
+          //       {/* Subtle glow effect */}
+          //       <div className="absolute inset-[-2px] bg-accent rounded-full blur-[6px] opacity-40 group-hover:opacity-70 transition-opacity duration-300"></div>
+          //       <div className="relative">
+          //         <Logo size="sm" className="w-6 h-6" />
+          //       </div>
+          //     </div>
+          //   </div>
+          // </div>
         )}
       </div>
     </>
