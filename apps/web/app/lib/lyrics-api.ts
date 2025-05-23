@@ -1,7 +1,7 @@
 /**
- * Lyrics API utilities
+ * Lyrics API utilities with Cloudflare KV caching
  *
- * This module provides functions for fetching song lyrics from external APIs.
+ * This module provides functions for fetching song lyrics from external APIs with caching.
  */
 
 import { z } from 'zod';
@@ -9,6 +9,9 @@ import { parse } from 'node-html-parser';
 
 // Genius API access token
 const GENIUS_ACCESS_TOKEN = "shU6DraV3Yl9AwdLhG36vCwUoYTbsSV0V3qWyy3keapRqWJ87CsPeZY2XcUeZGEf";
+
+// Cache TTL (Time To Live) in seconds - 1 year for lyrics
+const CACHE_TTL = 365 * 24 * 60 * 60; // 1 year
 
 // Define the schema for the lyrics API response
 export const LyricsResponseSchema = z.object({
@@ -46,6 +49,80 @@ export const GeniusSearchResponseSchema = z.object({
 export type LyricsResponse = z.infer<typeof LyricsResponseSchema>;
 
 /**
+ * Generates a cache key for lyrics
+ *
+ * @param title - The song title
+ * @param artist - The artist name
+ * @returns A cache key string
+ */
+function generateCacheKey(title: string, artist: string): string {
+  // Normalize the key to handle case and spacing variations
+  const normalizedTitle = title.toLowerCase().trim().replace(/\s+/g, '-');
+  const normalizedArtist = artist.toLowerCase().trim().replace(/\s+/g, '-');
+  return `lyrics:${normalizedArtist}:${normalizedTitle}`;
+}
+
+/**
+ * Retrieves lyrics from Cloudflare KV cache
+ *
+ * @param kv - Cloudflare KV namespace
+ * @param title - The song title
+ * @param artist - The artist name
+ * @returns Cached lyrics response or null if not found
+ */
+async function getCachedLyrics(kv: KVNamespace, title: string, artist: string): Promise<LyricsResponse | null> {
+  try {
+    const cacheKey = generateCacheKey(title, artist);
+    console.log('Checking cache for key:', cacheKey);
+    
+    const cachedData = await kv.get(cacheKey, 'json');
+    
+    if (cachedData) {
+      console.log('Cache hit for lyrics');
+      // Validate cached data
+      const validatedData = LyricsResponseSchema.parse(cachedData);
+      return validatedData;
+    }
+    
+    console.log('Cache miss for lyrics');
+    return null;
+  } catch (error) {
+    console.error('Error retrieving from cache:', error);
+    return null;
+  }
+}
+
+/**
+ * Stores lyrics in Cloudflare KV cache
+ *
+ * @param kv - Cloudflare KV namespace
+ * @param title - The song title
+ * @param artist - The artist name
+ * @param lyricsData - The lyrics response to cache
+ */
+async function cacheLyrics(kv: KVNamespace, title: string, artist: string, lyricsData: LyricsResponse): Promise<void> {
+  try {
+    // Only cache successful results (non-empty lyrics)
+    if (!lyricsData.lyrics || lyricsData.lyrics.trim().length === 0 || lyricsData.error) {
+      console.log('Skipping cache for empty/error result');
+      return;
+    }
+
+    const cacheKey = generateCacheKey(title, artist);
+    console.log('Caching lyrics with key:', cacheKey);
+    
+    await kv.put(cacheKey, JSON.stringify(lyricsData), {
+      expirationTtl: CACHE_TTL,
+    });
+    
+    console.log('Successfully cached lyrics');
+  } catch (error) {
+    console.error('Error caching lyrics:', error);
+    // Don't throw - caching failures shouldn't break the API
+  }
+}
+
+/**
  * Scrapes lyrics from a Genius URL using node-html-parser
  * WARNING: This may violate Genius Terms of Service. Use at your own risk.
  *
@@ -78,80 +155,87 @@ async function scrapeLyricsFromGenius(geniusUrl: string): Promise<string | null>
     // Parse the HTML using node-html-parser
     const root = parse(html);
     
-    // Try to find lyrics containers using various selectors
-    const lyricsSelectors = [
-      // Primary: Current Genius lyrics container
-      'div[class*="Lyrics__Container"]',
-      // Alternatives
-      '[data-lyrics-container="true"]',
-      '.lyrics',
-      '.Lyrics__Container',
-      'div[class*="lyrics"]',
-      'div[class*="Lyrics"]'
-    ];
-
-    let allLyrics = '';
-
-    for (const selector of lyricsSelectors) {
-      const lyricsContainers = root.querySelectorAll(selector);
-      
-      if (lyricsContainers.length > 0) {
-        console.log(`Found ${lyricsContainers.length} lyrics containers using selector: ${selector}`);
-        
-        for (const container of lyricsContainers) {
-          // Get the text content, preserving line breaks
-          let content = container.innerHTML;
-          
-          // Replace <br> tags with newlines before getting text
-          content = content
-            .replace(/<br\s*\/?>/gi, '\n')
-            .replace(/<\/p>/gi, '\n')
-            .replace(/<\/div>/gi, '\n');
-          
-          // Parse the modified content and get text
-          const tempRoot = parse(content);
-          const textContent = tempRoot.text
-            .replace(/\s+/g, ' ')
-            .replace(/\n\s+/g, '\n')
-            .trim();
-          
-          if (textContent.length > 10) {
-            allLyrics += textContent + '\n\n';
-          }
-        }
-        
-        // If we found lyrics, break out of the selector loop
-        if (allLyrics.trim().length > 20) {
-          break;
-        }
-      }
+    // Target the specific path: #lyrics-root > div.Lyrics__Container-sc-3d1d18a3-1.bjajog > p
+    const lyricsRoot = root.querySelector('#lyrics-root');
+    
+    if (!lyricsRoot) {
+      console.log('lyrics-root not found');
+      return null;
     }
 
-    if (allLyrics.trim().length > 20) {
-      console.log('Successfully scraped lyrics from Genius', allLyrics);
+    // Look for the specific Lyrics__Container class
+    const lyricsContainer = lyricsRoot.querySelector('div.Lyrics__Container-sc-3d1d18a3-1.bjajog');
+    
+    if (!lyricsContainer) {
+      console.log('Lyrics__Container not found');
+      return null;
+    }
+
+    // Get all paragraph elements within the container
+    const paragraphs = lyricsContainer.querySelectorAll('p');
+    
+    if (paragraphs.length === 0) {
+      console.log('No paragraphs found, trying to extract text content directly');
+      
+      // Parse the container content with node-html-parser
+      const containerRoot = parse(lyricsContainer.innerHTML);
+      
+      // Remove UI elements using DOM methods
+      containerRoot.querySelectorAll('div[class*="LyricsHeader"]').forEach(el => el.remove());
+      containerRoot.querySelectorAll('div[class]').forEach(el => el.remove());
+      containerRoot.querySelectorAll('button').forEach(el => el.remove());
+      containerRoot.querySelectorAll('span[class]').forEach(el => el.remove());
+      containerRoot.querySelectorAll('svg').forEach(el => el.remove());
+      containerRoot.querySelectorAll('path').forEach(el => el.remove());
+      containerRoot.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => el.remove());
+      
+      // Get the remaining content and convert <br> to newlines
+      let cleanedContent = containerRoot.innerHTML;
+      cleanedContent = cleanedContent.replace(/<br\s*\/?>/gi, '\n');
+      
+      // Parse again to get clean text
+      const textRoot = parse(cleanedContent);
+      let textContent = textRoot.text
+        .replace(/\n\s*\n/g, '\n\n')  // Normalize double line breaks
+        .replace(/^\s+|\s+$/g, '')     // Trim whitespace
+        .trim();
+      
+      if (textContent.length > 10) {
+        console.log('Successfully extracted pure lyrics using DOM manipulation');
+        console.log('Extracted lyrics preview:', textContent.substring(0, 200) + '...');
+        return textContent;
+      }
+      
+      console.log('No lyrics content found after cleaning');
+      return null;
+    }
+
+    console.log(`Found ${paragraphs.length} paragraph(s) in lyrics container`);
+    
+    let allLyrics = '';
+    
+    for (const paragraph of paragraphs) {
+      // Get the HTML content to preserve <br> tags
+      let content = paragraph.innerHTML;
+      
+      // Replace <br> tags with newlines
+      content = content.replace(/<br\s*\/?>/gi, '\n');
+      
+      // Parse and get clean text
+      const tempRoot = parse(content);
+      const textContent = tempRoot.text.trim();
+      
+      if (textContent.length > 0) {
+        allLyrics += textContent + '\n';
+      }
+    }
+    
+    if (allLyrics.trim().length > 10) {
+      console.log('Successfully scraped lyrics from paragraphs');
       return allLyrics.trim();
     }
 
-    // Fallback: Look for JSON-LD structured data
-    const scriptTags = root.querySelectorAll('script[type="application/ld+json"]');
-    
-    for (const script of scriptTags) {
-      try {
-        const jsonContent = script.innerHTML;
-        const data = JSON.parse(jsonContent);
-        
-        if (data.lyrics || (data['@type'] === 'MusicComposition' && data.text)) {
-          const lyricsText = data.lyrics || data.text;
-          console.log('Successfully scraped lyrics from Genius (JSON-LD)');
-          return lyricsText;
-        }
-      } catch (e) {
-        // Continue to next script tag
-        continue;
-      }
-    }
-
-    console.log('Could not extract lyrics from Genius page');
+    console.log('No lyrics content found');
     return null;
 
   } catch (error) {
@@ -274,14 +358,24 @@ async function fetchLyricsFromOvh(title: string, artist: string): Promise<Lyrics
 }
 
 /**
- * Fetches lyrics for a song from the lyrics API
+ * Fetches lyrics for a song from the lyrics API with caching
  *
  * @param title - The title of the song
  * @param artist - Optional artist name to improve search accuracy
+ * @param kv - Optional Cloudflare KV namespace for caching
  * @returns The lyrics data or an error message
  */
-export async function fetchLyrics(title: string, artist?: string): Promise<LyricsResponse> {
+export async function fetchLyrics(title: string, artist?: string, kv?: KVNamespace): Promise<LyricsResponse> {
   try {
+    // If we have both title, artist, and KV, try cache first
+    if (artist && kv) {
+      const cachedResult = await getCachedLyrics(kv, title, artist);
+      if (cachedResult) {
+        console.log('Returning cached lyrics', cachedResult);
+        return cachedResult;
+      }
+    }
+
     // Encode the title for the URL
     const encodedTitle = encodeURIComponent(title);
     console.log('title ', encodedTitle);
@@ -294,7 +388,6 @@ export async function fetchLyrics(title: string, artist?: string): Promise<Lyric
 
     // Try primary API first
     const response = await fetch(url);
-    console.log('Primary API response:', response);
 
     // Check if the request was successful
     if (response.ok) {
@@ -304,6 +397,12 @@ export async function fetchLyrics(title: string, artist?: string): Promise<Lyric
 
       // Validate the response with Zod
       const validatedData = LyricsResponseSchema.parse(data);
+      
+      // Cache successful result
+      if (artist && kv && validatedData.lyrics && !validatedData.error) {
+        await cacheLyrics(kv, title, artist, validatedData);
+      }
+      
       return validatedData;
     }
 
@@ -313,28 +412,36 @@ export async function fetchLyrics(title: string, artist?: string): Promise<Lyric
       const ovhResult = await fetchLyricsFromOvh(title, artist);
       
       if (ovhResult && ovhResult.lyrics.trim()) {
+        // Cache successful result
+        if (kv) {
+          await cacheLyrics(kv, title, artist, ovhResult);
+        }
         return ovhResult;
       }
 
       console.log('lyrics.ovh failed, trying Genius API fallback...');
       const geniusResult = await fetchLyricsFromGenius(title, artist);
       
-      if (geniusResult) {
+      if (geniusResult && geniusResult.lyrics && !geniusResult.error) {
+        // Cache successful result
+        if (kv) {
+          await cacheLyrics(kv, title, artist, geniusResult);
+        }
         return geniusResult;
       }
     }
 
     // All APIs failed or no artist provided for fallbacks
-      if (response.status === 404) {
-        return {
-          title,
-          artist: artist || 'Unknown',
-          lyrics: '',
-          error: 'Lyrics not found for this song.'
-        };
-      }
+    if (response.status === 404) {
+      return {
+        title,
+        artist: artist || 'Unknown',
+        lyrics: '',
+        error: 'Lyrics not found for this song.'
+      };
+    }
 
-      throw new Error(`API request failed with status ${response.status}`);
+    throw new Error(`API request failed with status ${response.status}`);
 
   } catch (error) {
     console.error('Error fetching lyrics:', error);
@@ -353,10 +460,11 @@ export async function fetchLyrics(title: string, artist?: string): Promise<Lyric
  * Searches for song lyrics by title and optionally artist
  *
  * @param query - The search query (song title and optionally artist)
+ * @param kv - Optional Cloudflare KV namespace for caching
  * @returns The lyrics data or an error message
  */
-export async function searchLyrics(query: string): Promise<LyricsResponse> {
+export async function searchLyrics(query: string, kv?: KVNamespace): Promise<LyricsResponse> {
   // Use the query directly as the title
   // The API will handle the search
-  return fetchLyrics(query);
+  return fetchLyrics(query, undefined, kv);
 }

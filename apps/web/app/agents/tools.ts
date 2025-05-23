@@ -149,10 +149,11 @@ export function getAllTools(): ToolConfig[] {
  * 
  * @param toolIds Array of tool IDs that the agent can use
  * @param llm Language model instance for AI-powered tool operations
+ * @param env Cloudflare environment for accessing KV and other services
  * @returns A set of tool implementations
  */
-export function getToolImplementations(toolIds: string[], llm: LanguageModel): ToolSet {
-  const allTools = getAllToolImplementations(llm);
+export function getToolImplementations(toolIds: string[], llm: LanguageModel, env?: Env): ToolSet {
+  const allTools = getAllToolImplementations(llm, env);
   
   // Filter tools based on provided tool IDs
   const filteredTools: ToolSet = {};
@@ -170,9 +171,10 @@ export function getToolImplementations(toolIds: string[], llm: LanguageModel): T
  * Get all tool implementations
  * 
  * @param llm Language model instance for AI-powered tool operations
+ * @param env Cloudflare environment for accessing KV and other services
  * @returns A set of all tool implementations
  */
-export function getAllToolImplementations(llm: LanguageModel): ToolSet {
+export function getAllToolImplementations(llm: LanguageModel, env?: Env): ToolSet {
   return {
     // Verse reference tool
     verseReference: tool({
@@ -213,7 +215,8 @@ export function getAllToolImplementations(llm: LanguageModel): ToolSet {
       parameters: LyricsInputSchema,
       execute: async ({ songTitle, artist }) => {
         try {
-          const lyricsData = await fetchLyrics(songTitle, artist);
+          // Pass KV namespace from environment if available
+          const lyricsData = await fetchLyrics(songTitle, artist, env?.superquran);
           return LyricsToolOutputSchema.parse(lyricsData);
         } catch (error) {
           console.error("Error fetching lyrics:", error);
@@ -243,7 +246,8 @@ export function getAllToolImplementations(llm: LanguageModel): ToolSet {
           // Fetch lyrics if not provided
           if (!songLyrics) {
             try {
-              lyricsData = await fetchLyrics(songTitle, artist);
+              // Pass KV namespace from environment if available
+              lyricsData = await fetchLyrics(songTitle, artist, env?.superquran);
               songLyrics = lyricsData.lyrics;
               if (!songLyrics) {
                 throw new Error("Could not fetch lyrics for this song");
