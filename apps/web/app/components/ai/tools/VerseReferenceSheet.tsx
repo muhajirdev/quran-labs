@@ -206,19 +206,19 @@ export function VerseReferenceCard({
         <div className="absolute inset-0">
           {/* Primary grain */}
           <div
-            className="absolute inset-0 opacity-50 mix-blend-soft-light pointer-events-none"
+            className="absolute inset-0 opacity-60 mix-blend-soft-light pointer-events-none"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='primaryGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='3' seed='42' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23primaryGrain)'/%3E%3C/svg%3E")`,
-              backgroundSize: "800px 800px",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 1200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='primaryGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.25' numOctaves='3' seed='42' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23primaryGrain)'/%3E%3C/svg%3E")`,
+              backgroundSize: "1000px 1000px",
             }}
           />
 
           {/* Fine grain layer */}
           <div
-            className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
+            className="absolute inset-0 opacity-25 mix-blend-overlay pointer-events-none"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='fineGrain'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.6' numOctaves='2' seed='17' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23fineGrain)'/%3E%3C/svg%3E")`,
-              backgroundSize: "600px 600px",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 900 900' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='fineGrain'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.4' numOctaves='2' seed='17' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23fineGrain)'/%3E%3C/svg%3E")`,
+              backgroundSize: "700px 700px",
             }}
           />
         </div>

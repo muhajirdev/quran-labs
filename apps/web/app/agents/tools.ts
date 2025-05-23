@@ -27,10 +27,11 @@ export const VerseReferenceOutputSchema = z.object({
   arabic_text: z.string(),
   chapter_name: z.string().optional(),
   translations: z
-    .array(
+    .record(
+      z.string(), // language key
       z.object({
         text: z.string(),
-        translator: z.string().optional(),
+        translator: z.string(),
       })
     )
     .optional(),
