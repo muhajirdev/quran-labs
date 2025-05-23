@@ -4,7 +4,7 @@ import * as React from "react";
 import { Sheet } from "@silk-hq/components";
 import { cn } from "~/lib/utils";
 import { FetchLyricsResult } from "./tools/FetchLyricsSheet";
-import { VerseReferenceSheet } from "./tools/VerseReferenceSheet";
+import { VerseReferenceCard } from "./tools/VerseReferenceSheet";
 import { X } from "lucide-react";
 import { SongAnalysisCard } from "./tools/SongAnalysisCard";
 
@@ -34,7 +34,7 @@ export function ToolInvocationSheet({
         );
       case "verseReference":
         return (
-          <VerseReferenceSheet state={toolState} args={args} result={result} />
+          <VerseReferenceCard state={toolState} args={args} result={result} />
         );
       case "comprehensiveSongAnalysis":
         return (

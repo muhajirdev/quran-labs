@@ -182,10 +182,10 @@ export function SongAnalysisCard({
   const renderSlideContent = (slide: SongAnalysisResult["slides"][0]) => {
     return (
       <div className="relative z-10 h-full flex flex-col justify-between p-8 md:p-12">
-        {/* Content Type Label - Top Left */}
+        {/* Song Info - Always visible */}
         <div className="mb-8">
           <span className="text-white/60 text-xs uppercase tracking-widest font-medium">
-            {slide.type.replace("_", " ")} • {slide.emotion}
+            {analysis.songInfo.title} • {analysis.songInfo.artist}
           </span>
         </div>
 
@@ -194,7 +194,7 @@ export function SongAnalysisCard({
           {/* Featured Quote */}
           {slide.content.quote && (
             <div className="space-y-3 mb-8">
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] tracking-tight">
+              <h1 className="text-2xl md:text-4xl lg:text-4xl font-bold text-white leading-[1.1] tracking-tight">
                 {slide.content.quote}
               </h1>
               {slide.content.attribution && (
@@ -207,7 +207,7 @@ export function SongAnalysisCard({
 
           {/* Title for non-quote content */}
           {!slide.content.quote && (
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-[0.9] tracking-tight mb-8">
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-[1.1] tracking-tight mb-8">
               {slide.title}
             </h1>
           )}

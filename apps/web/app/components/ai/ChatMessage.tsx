@@ -7,6 +7,7 @@ import { Logo } from "~/components/ui/logo";
 import type { UIMessage } from "ai";
 import { ToolInvocationSheet } from "./ToolInvocationSheet";
 import { SongAnalysisCard } from "./tools/SongAnalysisCard";
+import { VerseReferenceCard } from "./tools/VerseReferenceSheet";
 const RenderMarkdown = lazy(() => import("./MarkdownRenderer"));
 
 interface ChatMessageProps {
@@ -141,54 +142,18 @@ export function ChatMessage({
         }
 
         if (toolInvocation.toolName === "verseReference") {
-          // Verse reference tool invocation
-          const verseRef = toolInvocation.args.verseReference || "";
-
+          // Render VerseReferenceCard directly inline
           return (
-            <div key={index} className="my-3">
-              <div
-                className="p-3 bg-black/20 border border-accent/10 rounded-lg cursor-pointer hover:bg-black/30 transition-colors"
-                onClick={() =>
-                  setActiveToolInvocation({
-                    isOpen: true,
-                    toolName: toolInvocation.toolName,
-                    toolState: toolInvocation.state,
-                    args: toolInvocation.args,
-                    result:
-                      toolInvocation.state === "result"
-                        ? toolInvocation.result
-                        : undefined,
-                  })
+            <div key={index} className="my-6">
+              <VerseReferenceCard
+                state={toolInvocation.state}
+                args={toolInvocation.args}
+                result={
+                  toolInvocation.state === "result"
+                    ? toolInvocation.result
+                    : undefined
                 }
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                    <span className="text-lg">📖</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium text-white">
-                        Quran {verseRef}
-                      </h4>
-                      {toolInvocation.state === "partial-call" && (
-                        <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
-                          Loading...
-                        </span>
-                      )}
-                      {toolInvocation.state === "result" && (
-                        <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
-                          View verse
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-white/60 mt-1">
-                      {toolInvocation.state === "result"
-                        ? "Click to read the verse"
-                        : "Loading verse..."}
-                    </p>
-                  </div>
-                </div>
-              </div>
+              />
             </div>
           );
         }
