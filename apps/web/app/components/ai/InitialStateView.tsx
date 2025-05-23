@@ -80,18 +80,16 @@ export const InitialStateView: React.FC<InitialStateViewProps> = ({
         ></div>
       </div>
 
-      {/* Current Agent Info with enhanced presentation */}
-      {currentAgent && (
-        <div className="text-center mb-10 sm:mb-12 max-w-2xl">
-          <div className="relative group">
-            <p className="text-white/70 text-base sm:text-lg text-center leading-relaxed px-6 group-hover:text-white/80 transition-colors duration-300">
-              {currentAgent.description}
-            </p>
-            {/* Subtle underline decoration */}
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-16 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          </div>
+      {/* Generic Quran Info with enhanced presentation */}
+      <div className="text-center mb-10 sm:mb-12 max-w-2xl">
+        <div className="relative group">
+          <p className="text-white/70 text-base sm:text-lg text-center leading-relaxed px-6 group-hover:text-white/80 transition-colors duration-300">
+            Temukan hikmah Al-Quran dalam kehidupan sehari-hari kamu
+          </p>
+          {/* Subtle underline decoration */}
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-16 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         </div>
-      )}
+      </div>
 
       {/* Chat Suggestions Section with enhanced layout */}
       {suggestions.length > 0 && (

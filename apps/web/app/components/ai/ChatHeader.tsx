@@ -149,7 +149,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           </Button>
 
           {/* Explore Data button - only visible if chat is NOT active */}
-          {!chatActive && (
+          {/* {!chatActive && (
             <Button
               variant="ghost"
               size="sm"
@@ -161,7 +161,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 Explore Data
               </span>
             </Button>
-          )}
+          )} */}
 
           {/* New Chat button - only visible if chat is active */}
           {chatActive && (
@@ -218,7 +218,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
               Agents
             </span>
           </Button>
-
           {/* Current Agent indicator - only visible if an agent is selected */}
           {selectedAgent && chatActive && (
             <div className="flex items-center px-3 py-1.5 rounded-md bg-white/5 border border-white/10 mx-1 mb-1">
@@ -233,7 +232,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
               </span>
             </div>
           )}
-
           {/* Read button - always visible */}
           <Button
             variant="ghost"
@@ -249,7 +247,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
               Read
             </span>
           </Button>
-
           {/* Journey button - always visible */}
           <Button
             variant="ghost"
@@ -265,9 +262,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
               The Journey
             </span>
           </Button>
-
           {/* Explore Data button - only visible if chat is NOT active */}
-          {!chatActive && (
+          {/* {!chatActive && (
             <Button
               variant="ghost"
               size="sm"
@@ -282,7 +278,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 Explore Data
               </span>
             </Button>
-          )}
+          )} */}
 
           {/* New Chat button - only visible if chat is active */}
           {chatActive && (

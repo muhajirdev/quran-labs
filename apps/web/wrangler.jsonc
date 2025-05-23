@@ -22,6 +22,12 @@
       }
     ]
   },
+  "kv_namespaces": [
+    {
+      "binding": "superquran",
+      "id": "d1ec219b857143e9ab129ebb999cd81c"
+    }
+  ],
   "ai": { "binding": "AI" },
   "migrations": [
     {

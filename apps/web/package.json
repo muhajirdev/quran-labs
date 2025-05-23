@@ -8,8 +8,8 @@
     "cf-typegen": "wrangler types",
     "deploy": "pnpm run build && wrangler deploy",
     "dev": "react-router dev",
-    "preview": "yarn run build && vite preview",
-    "typecheck": "yarn run cf-typegen && react-router typegen && tsc -b"
+    "preview": "pnpm run build && vite preview",
+    "typecheck": "pnpm run cf-typegen && react-router typegen && tsc -b"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -58,6 +58,7 @@
     "jotai": "^2.12.3",
     "lucide-react": "^0.503.0",
     "next-themes": "^0.4.6",
+    "node-html-parser": "^6.1.13",
     "react": "^19.0.0",
     "react-day-picker": "8.10.1",
     "react-dom": "^19.0.0",

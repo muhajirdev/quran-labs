@@ -238,6 +238,7 @@ export function getAllToolImplementations(llm: LanguageModel): ToolSet {
         try {
           let songLyrics = lyrics;
           let lyricsData = null;
+          console.log(songLyrics)
           
           // Fetch lyrics if not provided
           if (!songLyrics) {
