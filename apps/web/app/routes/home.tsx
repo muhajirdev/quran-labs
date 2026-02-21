@@ -3,12 +3,12 @@ import { useLoaderData } from "react-router";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { LoadingScreen } from "~/components/ui/LoadingScreen";
 
-const AIChatExperience = lazy(() => import("../components/ai/AIChatExperience"));
+const GraphLandingExperience = lazy(() => import("../components/graph/GraphLandingExperience").then(module => ({ default: module.GraphLandingExperience })));
 
 export function meta({ }: Route.MetaArgs) {
   return [
     { title: "Quran Knowledge Graph" },
-    { name: "description", content: "Explore the Quran through AI and knowledge graphs" },
+    { name: "description", content: "Explore the Quran through knowledge graphs" },
   ];
 }
 
@@ -25,9 +25,9 @@ export default function Home() {
   useEffect(() => {
     // Update loading message progressively to show activity
     const stages = [
-      { message: "Preparing AI Experience...", delay: 500 },
+      { message: "Preparing Graph Experience...", delay: 500 },
       { message: "Loading components...", delay: 1500 },
-      { message: "Connecting to AI...", delay: 2500 },
+      { message: "Connecting to Knowledge Graph...", delay: 2500 },
       { message: "Almost ready...", delay: 4000 }
     ];
 
@@ -44,7 +44,7 @@ export default function Home() {
 
   return (
     <Suspense fallback={<LoadingScreen message={loadingMessage} stage={loadingStage} />}>
-      <AIChatExperience countryCode={country} />
+      <GraphLandingExperience />
     </Suspense>
   );
 }

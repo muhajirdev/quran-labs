@@ -151,6 +151,9 @@ importers:
       node-html-parser:
         specifier: ^6.1.13
         version: 6.1.13
+      posthog-js:
+        specifier: ^1.246.0
+        version: 1.246.0
       react:
         specifier: ^19.0.0
         version: 19.1.0
@@ -3886,6 +3889,11 @@ packages:
     resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
     engines: {node: '>=18'}
 
+  /core-js@3.42.0:
+    resolution: {integrity: sha512-Sz4PP4ZA+Rq4II21qkNqOEDTDrCvcANId3xpIgB34NDkWc3UduWj2dqEtN9yZIq8Dk3HyPI33x9sqqU5C8sr0g==}
+    requiresBuild: true
+    dev: false
+
   /cors@2.8.5:
     resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
     engines: {node: '>= 0.10'}
@@ -4650,6 +4658,10 @@ packages:
     dependencies:
       picomatch: 4.0.2
     dev: true
+
+  /fflate@0.4.8:
+    resolution: {integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==}
+    dev: false
 
   /finalhandler@2.1.0:
     resolution: {integrity: sha512-/t88Ty3d5JWQbWYgaOGCCYfXRwV1+be02WqYYlL6h0lEiUAMPM8o8qKGO01YIkOHzka2up08wvgYD0mDiI+q3Q==}
@@ -6228,6 +6240,23 @@ packages:
       source-map-js: 1.2.1
     dev: true
 
+  /posthog-js@1.246.0:
+    resolution: {integrity: sha512-5lN/UMqDfxsLeSnT3LsY4P+eD1H+P9qxgN/iUk473LmhCM7IV8TAfdjJj23nnXk/euGNQtvyINYoD2DG+d4eEw==}
+    peerDependencies:
+      '@rrweb/types': 2.0.0-alpha.17
+      rrweb-snapshot: 2.0.0-alpha.17
+    peerDependenciesMeta:
+      '@rrweb/types':
+        optional: true
+      rrweb-snapshot:
+        optional: true
+    dependencies:
+      core-js: 3.42.0
+      fflate: 0.4.8
+      preact: 10.26.5
+      web-vitals: 4.2.4
+    dev: false
+
   /preact@10.26.5:
     resolution: {integrity: sha512-fmpDkgfGU6JYux9teDWLhj9mKN55tyepwYbxHgQuIxbWQzgFg5vk7Mrrtfx7xRxq798ynkY4DDDxZr235Kk+4w==}
     dev: false
@@ -7450,6 +7479,10 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
+
+  /web-vitals@4.2.4:
+    resolution: {integrity: sha512-r4DIlprAGwJ7YM11VZp4R884m0Vmgr6EAKe3P+kO0PPj3Unqyvv59rczf6UiGcb9Z8QxZVcqKNwv/g0WNdWwsw==}
+    dev: false
 
   /which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
