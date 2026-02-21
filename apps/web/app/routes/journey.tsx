@@ -70,7 +70,67 @@ function useReadingProgress() {
   return completion;
 }
 
+const TAB_ORDER = [
+  { id: "temporal", name: "Temporal Loop" },
+  { id: "ethical", name: "Ethical Framework" },
+  { id: "grief", name: "Impossible Question" },
+  { id: "leadership", name: "Hidden Parallel" },
+  { id: "science", name: "Scientific Bridge" },
+  { id: "verse", name: "Verse Exploration" },
+  { id: "daily", name: "Daily Life" },
+  { id: "root", name: "Root Word" }
+];
+
+function ScenarioPagination({
+  activeTab,
+  setActiveTab
+}: {
+  activeTab: string,
+  setActiveTab: (val: string) => void
+}) {
+  const currentIndex = TAB_ORDER.findIndex(t => t.id === activeTab);
+  const prevTab = currentIndex > 0 ? TAB_ORDER[currentIndex - 1] : null;
+  const nextTab = currentIndex < TAB_ORDER.length - 1 ? TAB_ORDER[currentIndex + 1] : null;
+
+  return (
+    <div className="mt-12 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="w-full sm:w-auto">
+        {prevTab ? (
+          <Button
+            variant="ghost"
+            className="w-full sm:w-auto text-white/50 hover:text-white group justify-start px-2"
+            onClick={() => setActiveTab(prevTab.id)}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+            <div className="flex flex-col items-start text-left">
+              <span className="text-[10px] uppercase tracking-wider opacity-50 font-bold mb-0.5">Previous</span>
+              <span className="text-sm">{prevTab.name}</span>
+            </div>
+          </Button>
+        ) : <div className="hidden sm:block w-[140px]"></div>}
+      </div>
+
+      <div className="w-full sm:w-auto flex justify-end">
+        {nextTab ? (
+          <Button
+            variant="ghost"
+            className="w-full sm:w-auto text-white/50 hover:text-white group justify-end px-2"
+            onClick={() => setActiveTab(nextTab.id)}
+          >
+            <div className="flex flex-col items-end text-right">
+              <span className="text-[10px] uppercase tracking-wider opacity-50 font-bold mb-0.5">Next Example</span>
+              <span className="text-sm">{nextTab.name}</span>
+            </div>
+            <ArrowLeft className="w-4 h-4 ml-2 rotate-180 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        ) : <div className="hidden sm:block w-[140px]"></div>}
+      </div>
+    </div>
+  );
+}
+
 export default function JourneyPage() {
+  const [activeTab, setActiveTab] = useState<string>("temporal");
   const [activeSection, setActiveSection] = useState<string>("past");
   const pastRef = useRef<HTMLDivElement>(null);
   const presentRef = useRef<HTMLDivElement>(null);
@@ -341,63 +401,63 @@ export default function JourneyPage() {
                 Imagine a computational foundation where...
               </h3>
 
-              <Tabs defaultValue="temporal" className="w-full">
-                <TabsList className="bg-white/[0.03] border border-white/10 rounded-xl p-1 h-auto flex-wrap w-full gap-1">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="bg-white/[0.03] border border-white/10 rounded-xl p-1 w-full gap-1 flex overflow-x-auto overflow-y-hidden flex-nowrap justify-start hide-scrollbar snap-x snap-mandatory">
                   <TabsTrigger
                     value="temporal"
-                    className="data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
+                    className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
                   >
                     <HeartHandshake className="w-4 h-4" />
-                    <span className="hidden sm:inline">Temporal Loop</span>
+                    <span className="inline">Temporal Loop</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="ethical"
-                    className="data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
+                    className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
                   >
                     <Database className="w-4 h-4" />
-                    <span className="hidden sm:inline">Ethical Framework</span>
+                    <span className="inline">Ethical Framework</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="grief"
-                    className="data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
+                    className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
                   >
                     <Search className="w-4 h-4" />
-                    <span className="hidden sm:inline">Impossible Question</span>
+                    <span className="inline">Impossible Question</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="leadership"
-                    className="data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
+                    className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
                   >
                     <Shield className="w-4 h-4" />
-                    <span className="hidden sm:inline">Hidden Parallel</span>
+                    <span className="inline">Hidden Parallel</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="science"
-                    className="data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
+                    className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
                   >
                     <Microscope className="w-4 h-4" />
-                    <span className="hidden sm:inline">Scientific Bridge</span>
+                    <span className="inline">Scientific Bridge</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="verse"
-                    className="data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
+                    className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
                   >
                     <BookOpen className="w-4 h-4" />
-                    <span className="hidden sm:inline">Verse Exploration</span>
+                    <span className="inline">Verse Exploration</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="daily"
-                    className="data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
+                    className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
                   >
                     <Compass className="w-4 h-4" />
-                    <span className="hidden sm:inline">Daily Life</span>
+                    <span className="inline">Daily Life</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="root"
-                    className="data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
+                    className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
                   >
                     <BrainCircuit className="w-4 h-4" />
-                    <span className="hidden sm:inline">Root Word</span>
+                    <span className="inline">Root Word</span>
                   </TabsTrigger>
                 </TabsList>
 
@@ -456,6 +516,8 @@ export default function JourneyPage() {
                           <p className="text-white/80 text-sm leading-relaxed mt-1">You typed 10 words about your brothers. The graph traversed <strong className="text-white">3,800 years</strong> — from Yaqub's tears, to Muhammad ﷺ's darkest hour, to your screen — and revealed: Allah has been answering this exact pain since the beginning of prophethood.</p>
                         </div>
                       </div>
+
+                      <ScenarioPagination activeTab={activeTab} setActiveTab={setActiveTab} />
                     </div>
                   </TabsContent>
 
@@ -512,6 +574,8 @@ export default function JourneyPage() {
                           <p className="text-white/80 text-sm leading-relaxed mt-1">She didn't get "Islam says don't waste time." She got the <strong className="text-white">full context</strong> — from Quranic text → classical Arabic lexicography → Islamic legal philosophy — allowing her to see her vague discomfort within a 1,200-year intellectual tradition she can now explore, discuss with scholars, and form her own informed understanding.</p>
                         </div>
                       </div>
+
+                      <ScenarioPagination activeTab={activeTab} setActiveTab={setActiveTab} />
                     </div>
                   </TabsContent>
 
@@ -568,6 +632,8 @@ export default function JourneyPage() {
                           <p className="text-white/80 text-sm leading-relaxed mt-1">She didn't get a platitude about God's plan. She got the Prophet ﷺ crying over his own son — modeling that her tears are sunnah, not sin. She got Allah personally asking the angels about <em className="text-white/80">her</em> — and building <em className="text-white/80">her</em> a house in Paradise named after her patience.</p>
                         </div>
                       </div>
+
+                      <ScenarioPagination activeTab={activeTab} setActiveTab={setActiveTab} />
                     </div>
                   </TabsContent>
 
@@ -624,6 +690,8 @@ export default function JourneyPage() {
                           <p className="text-white/80 text-sm leading-relaxed mt-1">He didn't get "trust Allah's plan." He got a complete Quranic theology of leadership — his guilt <em className="text-white/80">proves</em> his faith, even prophets struggled with the weight, and the measure of a leader isn't permanence but faithfulness to the trust.</p>
                         </div>
                       </div>
+
+                      <ScenarioPagination activeTab={activeTab} setActiveTab={setActiveTab} />
                     </div>
                   </TabsContent>
 
@@ -655,7 +723,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Quranic Invitation</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph surfaces something remarkable: the Quran <em className="text-white/80">invites</em> empirical observation. <strong className="text-white">Surah Al-Ghashiyah 88:17–20</strong> — <em className="text-white/80">"Do they not look at the camels, how they are created? And at the sky, how it is raised?"</em> — uses the exact verb <strong className="text-white">أَفَلَا يَنظُرُونَ</strong> ("do they not <em>investigate</em>"). The Quran doesn't say "just believe." It says "look harder."</p>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Because the Shubha node is linked to Quranic verses on empirical observation, the graph surfaces something remarkable: the Quran <em className="text-white/80">invites</em> empirical observation. <strong className="text-white">Surah Al-Ghashiyah 88:17–20</strong> — <em className="text-white/80">"Do they not look at the camels, how they are created? And at the sky, how it is raised?"</em> — uses the exact verb <strong className="text-white">أَفَلَا يَنظُرُونَ</strong> ("do they not <em>investigate</em>"). The Quran doesn't say "just believe." It says "look harder."</p>
                           </div>
                         </div>
 
@@ -663,7 +731,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Scholarly Tradition</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5"><strong className="text-white">Ibn Rushd</strong> (Averroes), the 12th-century polymath, wrote in his <em className="text-white/80">Fasl al-Maqal</em>: <em className="text-white/80">"If philosophy leads to conclusions that agree with Scripture, revelation confirms reason. If they appear to conflict, Scripture must be interpreted."</em> The graph surfaces this — not as a ruling, but as historical context: <strong className="text-white">one of Islam's greatest minds already navigated this exact tension 800 years ago.</strong></p>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Through the 'faith and reason' concept node, the graph surfaces the scholarly tradition: <strong className="text-white">Ibn Rushd</strong> (Averroes), the 12th-century polymath, wrote in his <em className="text-white/80">Fasl al-Maqal</em>: <em className="text-white/80">"If philosophy leads to conclusions that agree with Scripture, revelation confirms reason. If they appear to conflict, Scripture must be interpreted."</em> The graph surfaces this — not as a ruling, but as historical context: <strong className="text-white">one of Islam's greatest minds already navigated this exact tension 800 years ago.</strong></p>
                           </div>
                         </div>
 
@@ -671,7 +739,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
                           <div>
                             <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Structural Insight ✦</span>
-                            <p className="text-white/80 text-sm leading-relaxed mt-0.5">The graph reveals the Quran's unique approach: it rarely gives <em className="text-white/80">mechanisms</em> of creation — it gives <em className="text-white/80">meanings</em>. <strong className="text-white">Surah At-Tin 95:4</strong> — <em className="text-white/80">"We created the human being in the best of forms"</em> — uses the word <strong className="text-white">تقويم</strong> (Taqwim), which classically means "to bring to its most complete, balanced state" — a word about <em className="text-white/80">destination and purpose</em>, not method. Evolution describes <em>how</em>. The Quran describes <em>why</em>.</p>
+                            <p className="text-white/80 text-sm leading-relaxed mt-0.5">From the creation narrative, the graph examines the specific Arabic used: the Quran rarely gives <em className="text-white/80">mechanisms</em> of creation — it gives <em className="text-white/80">meanings</em>. <strong className="text-white">Surah At-Tin 95:4</strong> — <em className="text-white/80">"We created the human being in the best of forms"</em> — uses the word <strong className="text-white">تقويم</strong> (Taqwim), which classically means "to bring to its most complete, balanced state" — a word about <em className="text-white/80">destination and purpose</em>, not method. Evolution describes <em>how</em>. The Quran describes <em>why</em>.</p>
                           </div>
                         </div>
 
@@ -680,6 +748,8 @@ export default function JourneyPage() {
                           <p className="text-white/80 text-sm leading-relaxed mt-1">She didn't get "just have faith." She got the <strong className="text-white">full picture</strong>: the Prophet ﷺ validating her doubt as a sign of <em className="text-white/80">living faith</em>, the Quran commanding empirical observation, a 12th-century scholarly precedent showing this tension is not new, and a precise linguistic analysis showing the perceived "conflict" may actually be a category error — they're answering different questions entirely.</p>
                         </div>
                       </div>
+
+                      <ScenarioPagination activeTab={activeTab} setActiveTab={setActiveTab} />
                     </div>
                   </TabsContent>
 
@@ -711,7 +781,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Cross-Quranic Word Map</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph traces "Sirat" across <strong className="text-white">45 occurrences</strong> in the Quran — revealing it's always <em className="text-white/80">singular</em> (THE path, never "paths"), always paired with "Mustaqeem." Then it contrasts with <strong className="text-white">Surah Al-An'am 6:153</strong>: <em className="text-white/80">"This is My path, straight, so follow it; and do not follow other <strong>subul</strong> (side roads)."</em> Two different Arabic words — Sirat (the highway) vs. Subul (branching paths). The Quran embeds theology in its vocabulary.</p>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Following every occurrence of this word across the Quran, the graph traces "Sirat" across <strong className="text-white">45 occurrences</strong> — revealing it's always <em className="text-white/80">singular</em> (THE path, never "paths"), always paired with "Mustaqeem." Then it contrasts with <strong className="text-white">Surah Al-An'am 6:153</strong>: <em className="text-white/80">"This is My path, straight, so follow it; and do not follow other <strong>subul</strong> (side roads)."</em> Two different Arabic words — Sirat (the highway) vs. Subul (branching paths). The Quran embeds theology in its vocabulary.</p>
                           </div>
                         </div>
 
@@ -719,7 +789,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Structural Analysis</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph surfaces what scholars call the <strong className="text-white">"Fatiha Framework."</strong> Verses 1–4 are about Allah (praise, attributes, sovereignty). Verses 5–7 are about <em className="text-white/80">us</em> (request, guidance, community). And <em className="text-white/80">this</em> verse — اهدنا — is the exact hinge point. The prayer's architecture moves from knowing God → to asking God → to walking with God.</p>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Connected to the surah's structural analysis, the graph surfaces what scholars call the <strong className="text-white">"Fatiha Framework."</strong> Verses 1–4 are about Allah (praise, attributes, sovereignty). Verses 5–7 are about <em className="text-white/80">us</em> (request, guidance, community). And <em className="text-white/80">this</em> verse — اهدنا — is the exact hinge point. The prayer's architecture moves from knowing God → to asking God → to walking with God.</p>
                           </div>
                         </div>
 
@@ -727,7 +797,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
                           <div>
                             <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Obligatory Du'a ✦</span>
-                            <p className="text-white/80 text-sm leading-relaxed mt-0.5">Ibn Kathir calls this <strong className="text-white">the most important du'a in the entire Quran</strong>. Why? It's the <em className="text-white/80">only</em> supplication Allah made obligatory — not once, not occasionally, but in <strong className="text-white">every single rak'ah of every prayer</strong>. Allah wanted <em className="text-white/80">this specific request</em> on your lips 17 times a day — over <strong className="text-white">6,200 times a year</strong>. No other du'a in the Quran was given this status.</p>
+                            <p className="text-white/80 text-sm leading-relaxed mt-0.5">Linked to this verse's scholarly commentary, the graph finds Ibn Kathir's classification: <strong className="text-white">the most important du'a in the entire Quran</strong>. Why? It's the <em className="text-white/80">only</em> supplication Allah made obligatory — not once, not occasionally, but in <strong className="text-white">every single rak'ah of every prayer</strong>. Allah wanted <em className="text-white/80">this specific request</em> on your lips 17 times a day — over <strong className="text-white">6,200 times a year</strong>. No other du'a in the Quran was given this status.</p>
                           </div>
                         </div>
 
@@ -736,6 +806,8 @@ export default function JourneyPage() {
                           <p className="text-white/80 text-sm leading-relaxed mt-1">No input. No question. You were just reading the most familiar words you've ever spoken — maybe <strong className="text-white">300,000+ times</strong> in your life — and the graph just revealed linguistic, structural, and theological layers you never knew existed in a phrase you thought you already understood.</p>
                         </div>
                       </div>
+
+                      <ScenarioPagination activeTab={activeTab} setActiveTab={setActiveTab} />
                     </div>
                   </TabsContent>
 
@@ -767,7 +839,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Quranic Metaphor — Deconstructed</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5"><strong className="text-white">Surah Al-Hujurat 49:12</strong> — <em className="text-white/80">"Would one of you like to eat the flesh of his dead brother?"</em> The graph pulls classical commentary showing this isn't random hyperbole: <strong className="text-white">"dead"</strong> because the person can't defend themselves. <strong className="text-white">"Brother"</strong> because it violates the bond of ummah. <strong className="text-white">"Flesh"</strong> because you are consuming their honor. Every word is precise.</p>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Because Gheebah is directly referenced in the Quran, the graph pulls the primary verse: <strong className="text-white">Surah Al-Hujurat 49:12</strong> — <em className="text-white/80">"Would one of you like to eat the flesh of his dead brother?"</em> The graph pulls classical commentary showing this isn't random hyperbole: <strong className="text-white">"dead"</strong> because the person can't defend themselves. <strong className="text-white">"Brother"</strong> because it violates the bond of ummah. <strong className="text-white">"Flesh"</strong> because you are consuming their honor. Every word is precise.</p>
                           </div>
                         </div>
 
@@ -775,7 +847,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Prophetic Definition</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">The Prophet ﷺ gave the exact definition (Abu Dawud): <em className="text-white/80">"Gheebah is mentioning your brother with what he dislikes."</em> A companion asked: <em className="text-white/80">"What if what I say is true?"</em> The Prophet ﷺ said: <strong className="text-white">"If it is true, that IS gheebah. If it is false, that is buhtan (slander)."</strong> Truth doesn't make it permissible. Truth is what <em className="text-white/80">makes</em> it gheebah.</p>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Connected to this verse's hadith commentary, the graph surfaces the Prophet ﷺ's definition (Abu Dawud): <em className="text-white/80">"Gheebah is mentioning your brother with what he dislikes."</em> A companion asked: <em className="text-white/80">"What if what I say is true?"</em> The Prophet ﷺ said: <strong className="text-white">"If it is true, that IS gheebah. If it is false, that is buhtan (slander)."</strong> Truth doesn't make it permissible. Truth is what <em className="text-white/80">makes</em> it gheebah.</p>
                           </div>
                         </div>
 
@@ -783,7 +855,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
                           <div>
                             <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Broader Context ✦</span>
-                            <p className="text-white/80 text-sm leading-relaxed mt-0.5">The graph doesn't stop at showing the problem. It surfaces the broader context — including the Prophet ﷺ's own words (Ahmad): <strong className="text-white">"Whoever defends the honor of his brother in his absence, Allah will shield his face from the Fire on the Day of Judgment."</strong> The full picture emerges: the tradition doesn't just describe what's wrong — it maps a complete path from the concept, to its weight, to how others before you have navigated it.</p>
+                            <p className="text-white/80 text-sm leading-relaxed mt-0.5">From the Gheebah node, the graph follows the 'remedy' edge. It doesn't stop at showing the problem, but surfaces the broader context — including the Prophet ﷺ's own words (Ahmad): <strong className="text-white">"Whoever defends the honor of his brother in his absence, Allah will shield his face from the Fire on the Day of Judgment."</strong> The full picture emerges: the tradition doesn't just describe what's wrong — it maps a complete path from the concept, to its weight, to how others before you have navigated it.</p>
                           </div>
                         </div>
 
@@ -792,6 +864,8 @@ export default function JourneyPage() {
                           <p className="text-white/80 text-sm leading-relaxed mt-1">She didn't get a one-word ruling. She got the <strong className="text-white">complete picture</strong>: a precise taxonomy of three different concepts, the most psychologically powerful metaphor in the Quran deconstructed word by word, a Prophetic definition that reframes the "but it's true" assumption, and the broader tradition's full response — giving her the context to truly understand, not just comply.</p>
                         </div>
                       </div>
+
+                      <ScenarioPagination activeTab={activeTab} setActiveTab={setActiveTab} />
                     </div>
                   </TabsContent>
 
@@ -823,7 +897,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Morphological Expansion</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">From this root, two divine names: <strong className="text-white">الرَحْمَن</strong> (Ar-Raḥmān) — the <em className="text-white/80">fa'āl</em> form, meaning overwhelming, explosive mercy that encompasses everything. <strong className="text-white">الرَحِيم</strong> (Ar-Raḥīm) — the <em className="text-white/80">fa'īl</em> form, meaning continuous, sustained, personal mercy. The graph shows these aren't synonyms — they are two <em className="text-white/80">structurally different</em> Arabic patterns describing two <em className="text-white/80">different dimensions</em> of the same love.</p>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Following the morphological derivation edge, two divine names emerge from this root: <strong className="text-white">الرَحْمَن</strong> (Ar-Raḥmān) — the <em className="text-white/80">fa'āl</em> form, meaning overwhelming, explosive mercy that encompasses everything. <strong className="text-white">الرَحِيم</strong> (Ar-Raḥīm) — the <em className="text-white/80">fa'īl</em> form, meaning continuous, sustained, personal mercy. The graph shows these aren't synonyms — they are two <em className="text-white/80">structurally different</em> Arabic patterns describing two <em className="text-white/80">different dimensions</em> of the same love.</p>
                           </div>
                         </div>
 
@@ -831,7 +905,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Cross-Quranic Frequency</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph maps this root across the Quran: <strong className="text-white">326 occurrences</strong>. It appears in the Bismillah before every surah except one (At-Tawbah). It's the single most repeated <em className="text-white/80">attribute</em> of Allah in the entire Quran — more than His power, His knowledge, or His wrath. The Quran's statistical emphasis is overwhelmingly on mercy.</p>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Mapping every occurrence of this root across the Quran, the graph finds <strong className="text-white">326 occurrences</strong>. It appears in the Bismillah before every surah except one (At-Tawbah). It's the single most repeated <em className="text-white/80">attribute</em> of Allah in the entire Quran — more than His power, His knowledge, or His wrath. The Quran's statistical emphasis is overwhelmingly on mercy.</p>
                           </div>
                         </div>
 
@@ -839,7 +913,7 @@ export default function JourneyPage() {
                           <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
                           <div>
                             <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Prophetic Connection ✦</span>
-                            <p className="text-white/80 text-sm leading-relaxed mt-0.5">The graph surfaces the Hadith that seals it (Bukhari): The Prophet ﷺ said: <strong className="text-white">"Allah derived Ar-Raḥmān from Ar-Raḥim (the womb). So whoever maintains the ties of the womb, Allah maintains connection with them."</strong> Allah <em className="text-white/80">Himself</em> tells us His mercy is modeled on a mother's womb. The Arabic language doesn't just describe God — it encodes a theological truth in its very root system: divine mercy and a mother's love share the same origin.</p>
+                            <p className="text-white/80 text-sm leading-relaxed mt-0.5">Through the 'Raḥim' (womb) node, the graph surfaces the hadith that explicitly links them (Bukhari): The Prophet ﷺ said: <strong className="text-white">"Allah derived Ar-Raḥmān from Ar-Raḥim (the womb). So whoever maintains the ties of the womb, Allah maintains connection with them."</strong> Allah <em className="text-white/80">Himself</em> tells us His mercy is modeled on a mother's womb. The Arabic language doesn't just describe God — it encodes a theological truth in its very root system: divine mercy and a mother's love share the same origin.</p>
                           </div>
                         </div>
 
@@ -848,6 +922,8 @@ export default function JourneyPage() {
                           <p className="text-white/80 text-sm leading-relaxed mt-1">You tapped on three letters — ر ح م — and the graph revealed that the phrase you say before every meal, every prayer, every action contains a <strong className="text-white">linguistic equation</strong>: God's mercy = the womb's love. <strong className="text-white">326 verses</strong>, one Prophetic hadith, and the entire Arabic morphological system unified in a single root.</p>
                         </div>
                       </div>
+
+                      <ScenarioPagination activeTab={activeTab} setActiveTab={setActiveTab} />
                     </div>
                   </TabsContent>
 
@@ -906,21 +982,31 @@ export default function JourneyPage() {
         </section >
       </main >
 
-      {/* Footer */}
-      < footer className="border-t border-white/10 py-10 px-4 sm:px-6 mt-20" >
+      <footer className="border-t border-white/10 py-10 px-4 sm:px-6 mt-20">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3">
-            <Logo size="sm" className="w-6 h-6" />
-            <span className="text-sm font-medium tracking-wide text-white/80">
-              QuranLabs
-            </span>
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+            <div className="flex items-center gap-3">
+              <Logo size="sm" className="w-6 h-6" />
+              <span className="text-sm font-medium tracking-wide text-white/80">
+                SuperQuran Graph
+              </span>
+            </div>
+            <a
+              href="https://github.com/muhajirdev/quran-labs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/40 hover:text-white transition-colors text-sm flex items-center gap-1.5"
+            >
+              GitHub (Open Source)
+              <ExternalLink className="w-3 h-3" />
+            </a>
           </div>
-          <div className="text-sm text-white/60 font-light">
+          <div className="text-sm text-white/60 font-light text-center sm:text-right">
             An experimental research project exploring the future of Quranic
             knowledge
           </div>
         </div>
-      </footer >
+      </footer>
     </div >
   );
 }

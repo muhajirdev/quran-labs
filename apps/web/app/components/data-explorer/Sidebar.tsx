@@ -4,7 +4,7 @@ import type { GraphData, GraphNode, SchemaData } from './types';
 import { getNodeRelationships } from './nodeRelationshipUtils';
 import { MergedRelationshipPanel } from './MergedRelationshipPanel';
 import { Button } from '~/components/ui/button';
-import { X as XIcon, ExternalLink } from 'lucide-react';
+import { X as XIcon, ExternalLink, BookOpen } from 'lucide-react';
 
 interface DataExplorerSidebarProps {
   selectedNode: GraphNode | null;
@@ -104,7 +104,13 @@ export function DataExplorerSidebar({
 
           {/* Detail Page Links */}
           {(selectedNode.label === 'Verse' && selectedNode.properties && selectedNode.properties.verse_key) && (
-            <div className="mb-4">
+            <div className="mb-4 flex flex-col gap-2">
+              <Button variant="default" size="sm" className="w-full bg-accent hover:bg-accent/90 text-white border-0" asChild>
+                <Link to={`/read?verse=${selectedNode.properties.verse_key}`}>
+                  <BookOpen className="h-3.5 w-3.5 mr-1.5" />
+                  <span className="text-xs">Read Quran</span>
+                </Link>
+              </Button>
               <Button variant="outline" size="sm" className="w-full" asChild>
                 <Link to={`/verse/${selectedNode.properties.verse_key}`}>
                   <ExternalLink className="h-3.5 w-3.5 mr-1.5" />

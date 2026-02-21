@@ -1,4 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router';
+import { Button } from '~/components/ui/button';
+import { BookOpen, X, ExternalLink, Maximize2 } from 'lucide-react';
 import { convertToGraphData } from '~/components/data-explorer/simpleGraphUtils';
 import { expandNode as expandNodeUtil } from '~/components/data-explorer/expandNodeUtils';
 import type { GraphData, GraphNode, SchemaData, NodeTable, RelationshipTable } from '~/components/data-explorer/types';
@@ -12,6 +15,7 @@ interface MinimalGraphViewerProps {
 }
 
 export const MinimalGraphViewer: React.FC<MinimalGraphViewerProps> = ({ query, onNodeClick }) => {
+    const navigate = useNavigate();
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -22,6 +26,7 @@ export const MinimalGraphViewer: React.FC<MinimalGraphViewerProps> = ({ query, o
     const containerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 800, height: 400 });
     const graphRef = useRef<any>(null);
+    const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
 
     // Update dimensions
     const updateDimensions = () => {
@@ -175,36 +180,40 @@ export const MinimalGraphViewer: React.FC<MinimalGraphViewerProps> = ({ query, o
     // Handle double click for expansion
     const [clickTimeout, setClickTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
 
+    // Extracted expansion logic
+    const handleExpandNode = (node: any) => {
+        if (!schema) return;
+
+        const fullNode = graphData.nodes.find(n => n.id === node.id);
+        if (fullNode) {
+            setLoading(true);
+            expandNodeUtil({
+                nodeId: node.id,
+                node: fullNode,
+                graphData,
+                schema,
+                expandedRelationships,
+                setExpandedRelationships,
+                setGraphData: (newData) => {
+                    setGraphData(newData);
+                },
+                setLoading
+            }).catch(console.error);
+        }
+    };
+
     const handleNodeClick = (node: any) => {
         if (onNodeClick) {
             onNodeClick(node as GraphNode);
         }
 
+        setSelectedNode(node as GraphNode);
+
         if (clickTimeout) {
             // Double click detected
             clearTimeout(clickTimeout);
             setClickTimeout(null);
-
-            // Perform expansion
-            if (schema) {
-                // Find full node object in graphData
-                const fullNode = graphData.nodes.find(n => n.id === node.id);
-                if (fullNode) {
-                    setLoading(true); // Show loading state during expansion
-                    expandNodeUtil({
-                        nodeId: node.id,
-                        node: fullNode,
-                        graphData,
-                        schema,
-                        expandedRelationships,
-                        setExpandedRelationships,
-                        setGraphData: (newData) => {
-                            setGraphData(newData);
-                        },
-                        setLoading
-                    }).catch(console.error);
-                }
-            }
+            handleExpandNode(node);
         } else {
             // Single click detected, set timeout to wait for double click
             const timeout = setTimeout(() => {
@@ -311,7 +320,7 @@ export const MinimalGraphViewer: React.FC<MinimalGraphViewerProps> = ({ query, o
             {/* Overlay to indicate interactivity gently */}
             <div className="absolute bottom-4 right-4 pointer-events-none z-10">
                 <div className="bg-black/50 backdrop-blur px-3 py-1.5 rounded-full text-xs text-white/50 border border-white/5">
-                    Double-click nodes to expand • Drag to rearrange
+                    Double-click nodes to expand • Drag to rearrange • Scroll to zoom
                 </div>
             </div>
 
@@ -324,6 +333,75 @@ export const MinimalGraphViewer: React.FC<MinimalGraphViewerProps> = ({ query, o
                             {item.label}
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Selected Node Details Overlay */}
+            {selectedNode && (
+                <div className="absolute top-4 right-4 z-20 w-64 bg-black/80 backdrop-blur-md border border-white/10 rounded-xl p-4 shadow-xl animate-in fade-in zoom-in duration-200">
+                    <div className="flex justify-between items-start mb-2">
+                        <div>
+                            <span className="text-xs font-medium text-white/50 bg-white/10 px-2 py-0.5 rounded-full">
+                                {selectedNode.label || 'Node'}
+                            </span>
+                        </div>
+                        <div className="flex bg-white/5 border border-white/10 rounded-lg overflow-hidden backdrop-blur-md">
+                            <button
+                                onClick={() => handleExpandNode(selectedNode)}
+                                className="text-white/40 hover:text-accent hover:bg-white/5 transition-colors p-1.5 border-r border-white/10 flex items-center justify-center group"
+                                title="Expand Connections"
+                            >
+                                <Maximize2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                            </button>
+                            <button
+                                onClick={() => setSelectedNode(null)}
+                                className="text-white/40 hover:text-destructive hover:bg-white/5 transition-colors p-1.5 flex items-center justify-center group"
+                                title="Close"
+                            >
+                                <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <h4 className="text-white font-medium text-lg mb-4 truncate">
+                        {selectedNode.properties?.name || selectedNode.properties?.verse_key || selectedNode.id}
+                    </h4>
+
+                    {selectedNode.label === 'Verse' && selectedNode.properties?.verse_key && (
+                        <div className="flex flex-col gap-2">
+                            <Button
+                                className="w-full bg-accent hover:bg-accent/90 text-white shadow-lg border-0"
+                                size="sm"
+                                onClick={() => navigate(`/read?verse=${selectedNode.properties!.verse_key}`)}
+                            >
+                                <BookOpen className="w-4 h-4 mr-2" />
+                                Read Quran
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="w-full border-white/10 text-white/70 hover:bg-white/5 hover:text-white"
+                                size="sm"
+                                onClick={() => navigate(`/verse/${selectedNode.properties!.verse_key}`)}
+                            >
+                                <ExternalLink className="w-3.5 h-3.5 mr-2" />
+                                View Verse Detail
+                            </Button>
+                        </div>
+                    )}
+
+                    {selectedNode.label === 'Topic' && selectedNode.properties?.topic_id && (
+                        <div className="flex flex-col gap-2">
+                            <Button
+                                variant="outline"
+                                className="w-full border-white/10 text-white/70 hover:bg-white/5 hover:text-white mt-2"
+                                size="sm"
+                                onClick={() => navigate(`/topic/${selectedNode.properties!.topic_id}`)}
+                            >
+                                <ExternalLink className="w-3.5 h-3.5 mr-2" />
+                                View Topic Detail
+                            </Button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

@@ -17,21 +17,21 @@ const GRAPH_SUGGESTIONS = [
         icon: Network
     },
     {
-        title: "Topic: Patience",
-        query: 'MATCH (t:Topic {name: "Sabar"})<-[r:HAS_TOPIC]-(v:Verse) RETURN t, r, v LIMIT 15',
-        description: "Verses discussing patience",
-        icon: SparklesIcon
+        title: "Ayatul Kursi",
+        query: 'MATCH (v:Verse {verse_key: "2:255"})-[r]-(n) RETURN v, r, n LIMIT 20',
+        description: "Explore connections of the Throne Verse",
+        icon: Network
     },
     {
         title: "Story of Prophet Musa",
         query: 'MATCH (t:Topic {name: "Musa"})<-[r:HAS_TOPIC]-(v:Verse) RETURN t, r, v LIMIT 15',
-        description: "Network of mentions for the story of Musa",
+        description: "Network of verses about Musa",
         icon: Network
     },
     {
-        title: "Heaven & Hell",
-        query: 'MATCH (t1:Topic {name: "Surga"})<-[:HAS_TOPIC]-(v:Verse)-[:HAS_TOPIC]->(t2:Topic {name: "Neraka"}) RETURN t1, t2, v LIMIT 20',
-        description: "Dual concepts in the same verse",
+        title: "Surah Al-Ikhlas",
+        query: 'MATCH (v:Verse {verse_key: "112:1"})-[r]-(n) RETURN v, r, n LIMIT 20',
+        description: "Connections in the chapter of Sincerity",
         icon: SparklesIcon
     }
 ];
@@ -77,15 +77,18 @@ export const GraphLandingExperience = () => {
 
                     {/* Brand title */}
                     <div className="relative mb-6 text-center">
-                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white relative z-10">
-                            SuperQuran Graph
+                        <div className="text-accent/80 text-sm font-bold tracking-[0.2em] uppercase mb-4 font-mono">
+                            The Data Layer for Quran AI
+                        </div>
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white relative z-10">
+                            Knowledge Graph
                         </h1>
                     </div>
 
                     {/* Tagline */}
                     <div className="text-center mb-8 max-w-2xl">
                         <p className="text-white/70 text-base sm:text-lg text-center leading-relaxed px-6">
-                            Explore the connections and meanings of the Quran through an interactive Knowledge Graph visualization
+                            Not a scholar in a box. A lens for seeing deeper. Explore the full tradition of the Quran — accessible, transparent, and always traceable.
                         </p>
                     </div>
                 </div>
@@ -162,6 +165,57 @@ export const GraphLandingExperience = () => {
                         <SparklesIcon className="ml-2 w-4 h-4" />
                     </Button>
                 </div>
+
+                {/* Footer */}
+                <footer className="w-full mt-20 pt-16 pb-8 border-t border-white/5 relative z-20 bg-black/20">
+                    <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between gap-12 md:gap-8">
+
+                        {/* Brand Column */}
+                        <div className="flex flex-col gap-4 max-w-sm">
+                            <div className="flex items-center gap-3">
+                                <Logo size="sm" className="w-8 h-8 opacity-80" />
+                                <span className="text-white font-bold tracking-tight">SuperQuran Graph</span>
+                            </div>
+                            <p className="text-white/40 text-sm leading-relaxed">
+                                The semantic data layer for Quran AI. Building the infrastructure to explore the profound connections within the Quranic tradition.
+                            </p>
+                        </div>
+
+                        {/* Links Columns */}
+                        <div className="flex gap-16">
+                            {/* Explore */}
+                            <div className="flex flex-col gap-4">
+                                <h4 className="text-white font-medium text-sm">Explore</h4>
+                                <div className="flex flex-col gap-3 text-sm text-white/50">
+                                    <button onClick={() => navigate('/journey')} className="text-left hover:text-white transition-colors">The Journey</button>
+                                    <button onClick={() => navigate('/data-explorer')} className="text-left hover:text-white transition-colors">Data Explorer</button>
+                                    <button onClick={() => navigate('/read')} className="text-left hover:text-white transition-colors">Read Quran</button>
+                                </div>
+                            </div>
+
+                            {/* Contact & Legal */}
+                            <div className="flex flex-col gap-4">
+                                <h4 className="text-white font-medium text-sm">Connect</h4>
+                                <div className="flex flex-col gap-3 text-sm text-white/50">
+                                    <a
+                                        href="https://github.com/muhajirdev/quran-labs"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        GitHub (Open Source)
+                                    </a>
+                                    <a href="mailto:muhammad@muhajir.dev" className="hover:text-white transition-colors">Email</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="max-w-5xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/30">
+                        <p>© {new Date().getFullYear()} SuperQuran Graph. All rights reserved.</p>
+                        <p>Built for the Ummah</p>
+                    </div>
+                </footer>
 
             </main>
         </div>
