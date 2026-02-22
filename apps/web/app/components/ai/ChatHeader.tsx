@@ -140,7 +140,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             variant="ghost"
             size="sm"
             className="text-white/50 hover:text-white text-xs h-7 px-3 relative overflow-hidden group border-0 hover:bg-white/5"
-            onClick={() => (window.location.href = "/journey")} // TODO: Replace with client-side navigation
+            onClick={() => (window.location.href = "/vision")} // TODO: Replace with client-side navigation
           >
             <MapIcon className="h-3 w-3 mr-1.5 text-accent/80" />
             <span className="relative z-10 group-hover:tracking-wide transition-all duration-300">
@@ -196,11 +196,10 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
       {/* Mobile Menu - Collapsible */}
       <div
-        className={`sm:hidden overflow-hidden transition-all duration-300 ${
-          mobileMenuOpen
-            ? "max-h-64 opacity-100 border-b border-white/5"
-            : "max-h-0 opacity-0"
-        }`}
+        className={`sm:hidden overflow-hidden transition-all duration-300 ${mobileMenuOpen
+          ? "max-h-64 opacity-100 border-b border-white/5"
+          : "max-h-0 opacity-0"
+          }`}
       >
         <div className="px-3 py-2 flex flex-col gap-2">
           {/* Agent Marketplace button - always visible with accent styling */}
@@ -253,7 +252,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             size="sm"
             className="text-white/50 hover:text-white text-xs h-8 px-3 justify-start relative overflow-hidden group border-0 hover:bg-white/5 w-full"
             onClick={() => {
-              window.location.href = "/journey"; // TODO: Replace with client-side navigation
+              window.location.href = "/vision"; // TODO: Replace with client-side navigation
               setMobileMenuOpen(false);
             }}
           >

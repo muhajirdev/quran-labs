@@ -5,9 +5,10 @@ import { useState } from "react";
 import { GeometricDecoration } from "~/components/ui/geometric-background";
 import { Button } from "~/components/ui/button";
 import { Logo } from "~/components/ui/logo";
-import { SparklesIcon, Network, ExternalLink } from "lucide-react";
+import { SparklesIcon, Network, ExternalLink, ArrowRight } from "lucide-react";
 import { MinimalGraphViewer } from "./MinimalGraphViewer";
 import { useNavigate } from "react-router";
+import { Footer } from "../layout/Footer";
 
 const GRAPH_SUGGESTIONS = [
     {
@@ -102,9 +103,9 @@ export const GraphLandingExperience = () => {
                             <button
                                 key={index}
                                 onClick={() => handleSuggestionClick(suggestion)}
-                                className={`flex flex-col items-start p-4 rounded-xl border transition-all duration-300 text-left ${activeQuery === suggestion.query
-                                    ? "bg-accent/10 border-accent relative shadow-[0_0_15px_rgba(255,255,255,0.05)]"
-                                    : "bg-white/[0.02] border-white/5 hover:border-accent/30 hover:bg-white/[0.04]"
+                                className={`group flex flex-col items-start p-4 rounded-xl border transition-all duration-300 text-left ${activeQuery === suggestion.query
+                                    ? "bg-accent/10 border-accent relative shadow-[0_0_20px_rgba(255,255,255,0.1)] ring-1 ring-accent/50 scale-[1.02]"
+                                    : "bg-white/[0.02] border-white/5 hover:border-accent/40 hover:bg-white/[0.06] hover:-translate-y-1 hover:shadow-lg"
                                     }`}
                             >
                                 <div className="flex items-center gap-2 mb-2 text-white/90 font-medium">
@@ -149,73 +150,35 @@ export const GraphLandingExperience = () => {
                 </div>
 
                 {/* Global CTA */}
-                <div className="flex justify-center items-center gap-4 mt-12 mb-8">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-12 mb-12 px-4">
                     <Button
                         variant="outline"
-                        className="bg-transparent text-white border-white/20 hover:bg-white/5 hover:border-white/40 px-6 py-6 rounded-full text-base font-medium transition-all"
-                        onClick={() => navigate('/journey')}
+                        className="group relative overflow-hidden bg-transparent text-white/90 border-white/20 hover:border-white/50 hover:text-white px-8 py-6 rounded-full text-base font-medium transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:-translate-y-0.5 w-full sm:w-auto"
+                        onClick={() => navigate('vision')}
                     >
-                        Read the Journey
+                        <span className="relative z-10 flex items-center justify-center gap-0 group-hover:gap-2 transition-all duration-300">
+                            Read the Journey
+                            <ArrowRight className="w-0 h-4 opacity-0 group-hover:w-4 group-hover:opacity-100 transition-all duration-300 overflow-hidden" />
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
                     </Button>
-                    <Button
-                        className="bg-white text-black hover:bg-white/90 px-8 py-6 rounded-full text-base font-medium shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] transition-all"
-                        onClick={() => navigate('/data-explorer')}
-                    >
-                        Start Full Data Exploration
-                        <SparklesIcon className="ml-2 w-4 h-4" />
-                    </Button>
+                    <div className="relative group w-full sm:w-auto">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-white/20 to-white/10 rounded-full blur-md opacity-50 group-hover:opacity-100 transition duration-500" />
+                        <Button
+                            className="relative w-full overflow-hidden bg-white text-black hover:bg-white px-8 py-6 rounded-full text-base font-semibold shadow-lg transition-all duration-500 hover:-translate-y-1"
+                            onClick={() => navigate('/data-explorer')}
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-2 group-hover:gap-3 transition-all duration-300">
+                                Start Full Data Exploration
+                                <SparklesIcon className="w-5 h-5 text-black group-hover:rotate-12 transition-transform duration-300" />
+                            </span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/[0.05] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Footer */}
-                <footer className="w-full mt-20 pt-16 pb-8 border-t border-white/5 relative z-20 bg-black/20">
-                    <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between gap-12 md:gap-8">
-
-                        {/* Brand Column */}
-                        <div className="flex flex-col gap-4 max-w-sm">
-                            <div className="flex items-center gap-3">
-                                <Logo size="sm" className="w-8 h-8 opacity-80" />
-                                <span className="text-white font-bold tracking-tight">SuperQuran Graph</span>
-                            </div>
-                            <p className="text-white/40 text-sm leading-relaxed">
-                                The semantic data layer for Quran AI. Building the infrastructure to explore the profound connections within the Quranic tradition.
-                            </p>
-                        </div>
-
-                        {/* Links Columns */}
-                        <div className="flex gap-16">
-                            {/* Explore */}
-                            <div className="flex flex-col gap-4">
-                                <h4 className="text-white font-medium text-sm">Explore</h4>
-                                <div className="flex flex-col gap-3 text-sm text-white/50">
-                                    <button onClick={() => navigate('/journey')} className="text-left hover:text-white transition-colors">The Journey</button>
-                                    <button onClick={() => navigate('/data-explorer')} className="text-left hover:text-white transition-colors">Data Explorer</button>
-                                    <button onClick={() => navigate('/read')} className="text-left hover:text-white transition-colors">Read Quran</button>
-                                </div>
-                            </div>
-
-                            {/* Contact & Legal */}
-                            <div className="flex flex-col gap-4">
-                                <h4 className="text-white font-medium text-sm">Connect</h4>
-                                <div className="flex flex-col gap-3 text-sm text-white/50">
-                                    <a
-                                        href="https://github.com/muhajirdev/quran-labs"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="hover:text-white transition-colors"
-                                    >
-                                        GitHub (Open Source)
-                                    </a>
-                                    <a href="mailto:muhammad@muhajir.dev" className="hover:text-white transition-colors">Email</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="max-w-5xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/30">
-                        <p>© {new Date().getFullYear()} SuperQuran Graph. All rights reserved.</p>
-                        <p>Built for the Ummah</p>
-                    </div>
-                </footer>
+                <Footer />
 
             </main>
         </div>
