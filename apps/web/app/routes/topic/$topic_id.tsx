@@ -2,14 +2,14 @@ import { useParams, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
-import { ArrowLeft, BookOpen, Tag, Network } from "lucide-react";
-
-// Import our new components
-import { TopicOverview } from "~/components/topic/TopicOverview";
-import { TopicHierarchy } from "~/components/topic/TopicHierarchy";
-import { TopicRelated } from "~/components/topic/TopicRelated";
-import { TopicVerseList } from "~/components/topic/TopicVerseList";
-import { TopicExplorer } from "~/components/topic/TopicExplorer";
+import { Badge } from "~/components/ui/badge";
+import { ArrowLeft, BookOpen, Tag, Network, ChevronRight } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 
 interface TopicData {
   topic_id: number;
@@ -41,13 +41,12 @@ interface TopicData {
   }[];
 }
 
-
-
 export default function TopicDetailPage() {
   const { topic_id } = useParams();
   const [topicData, setTopicData] = useState<TopicData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAllVerses, setShowAllVerses] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -55,21 +54,15 @@ export default function TopicDetailPage() {
       setError(null);
 
       try {
-        // Construct a Cypher query to get topic details and related data
         const query = `
           MATCH (t:Topic {topic_id: ${topic_id}})
           OPTIONAL MATCH (v:Verse)-[:HAS_TOPIC]->(t)
           OPTIONAL MATCH (t)-[:PARENT_TOPIC]->(parent:Topic)
           OPTIONAL MATCH (child:Topic)-[:PARENT_TOPIC]->(t)
-
-          // Find all topics directly connected to this topic
           OPTIONAL MATCH (t)--(other:Topic)
           WHERE t.topic_id <> other.topic_id
-
-          // Find sibling topics
           OPTIONAL MATCH (sibling:Topic)-[:PARENT_TOPIC]->(parent)
           WHERE sibling.topic_id <> t.topic_id
-
           RETURN t,
                  collect(distinct v) as verses,
                  collect(distinct parent) as parents,
@@ -91,7 +84,6 @@ export default function TopicDetailPage() {
         }
 
         const data = await response.json() as any;
-        console.log("API response:", data);
 
         if (data.data && data.data.length > 0) {
           const topicNode = data.data[0].t;
@@ -101,7 +93,6 @@ export default function TopicDetailPage() {
           const relatedTopicNodes = (data.data[0].related_topics || []).filter((r: any) => r !== null);
           const siblingNodes = (data.data[0].siblings || []).filter((s: any) => s !== null);
 
-          // Process the topic data
           const processedData: TopicData = {
             topic_id: topicNode.topic_id,
             name: topicNode.name,
@@ -120,14 +111,12 @@ export default function TopicDetailPage() {
               topic_id: c.topic_id,
               name: c.name
             })),
-            related_topics: relatedTopicNodes.map((r: any) => ({
+            related_topics: relatedTopicNodes.slice(0, 6).map((r: any) => ({
               topic_id: r.topic_id,
               name: r.name,
               description: r.description,
-              // WARNING: DUMMY DATA - Replace with actual relevance scores in production
-              relevance: Math.random() // Mock relevance score
             })),
-            siblings: siblingNodes.map((s: any) => ({
+            siblings: siblingNodes.slice(0, 5).map((s: any) => ({
               topic_id: s.topic_id,
               name: s.name
             }))
@@ -150,147 +139,270 @@ export default function TopicDetailPage() {
     }
   }, [topic_id]);
 
+  const displayedVerses = showAllVerses 
+    ? topicData?.verses 
+    : topicData?.verses?.slice(0, 3);
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-card backdrop-blur-xl border-b border-border shadow-lg py-6">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild>
+      {/* Simple Header */}
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" asChild className="shrink-0">
               <Link to="/data-explorer">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Topic: {loading ? "Loading..." : topicData?.name}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-semibold truncate">
+                {loading ? "Loading..." : topicData?.name}
               </h1>
-              <p className="text-primary mt-1">Quran Knowledge Graph</p>
+              {topicData?.arabic_name && (
+                <p className="text-sm text-muted-foreground font-arabic" dir="rtl">
+                  {topicData.arabic_name}
+                </p>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         {loading ? (
           <TopicSkeleton />
         ) : error ? (
-          <div className="p-4 bg-destructive/20 border border-destructive text-destructive rounded-xl">
+          <div className="p-6 bg-destructive/10 border border-destructive/30 text-destructive rounded-lg">
             <h2 className="text-lg font-semibold mb-2">Error</h2>
             <p>{error}</p>
           </div>
         ) : topicData ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column (2/3 width on large screens) */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Topic Overview */}
-              <TopicOverview
-                topic={{
-                  ...topicData,
-                  verses_count: topicData.verses?.length,
-                  related_topics_count: topicData.related_topics?.length
-                }}
-              />
-
-              {/* Verses List */}
-              {topicData.verses && topicData.verses.length > 0 && (
-                <TopicVerseList
-                  verses={topicData.verses.map(v => ({
-                    verse_key: v.verse_key,
-                    text: v.text,
-                    // WARNING: DUMMY DATA - Replace with actual relevance scores in production
-                    relevance: Math.random() // Mock relevance score
-                  }))}
-                  topicId={topicData.topic_id}
-                  topicName={topicData.name}
-                />
+          <div className="max-w-3xl mx-auto space-y-8">
+            {/* Topic Identity - Hero Section */}
+            <section>
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h2 className="text-3xl font-bold mb-2">{topicData.name}</h2>
+                  {topicData.arabic_name && (
+                    <p className="text-2xl text-muted-foreground font-arabic" dir="rtl">
+                      {topicData.arabic_name}
+                    </p>
+                  )}
+                </div>
+                <Badge variant="outline" className="shrink-0">
+                  {topicData.verses?.length || 0} verses
+                </Badge>
+              </div>
+              
+              {topicData.description ? (
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  {topicData.description}
+                </p>
+              ) : (
+                <p className="text-muted-foreground italic">No description available.</p>
               )}
-            </div>
 
-            {/* Right Column (1/3 width on large screens) */}
-            <div className="space-y-6">
-              {/* Topic Explorer */}
-              <TopicExplorer
-                topicId={topicData.topic_id}
-                topicName={topicData.name}
-              />
+              {/* Breadcrumb */}
+              {(topicData.parent || topicData.children?.length) && (
+                <div className="flex flex-wrap items-center gap-2 mt-6 text-sm">
+                  {topicData.parent && (
+                    <>
+                      <Link 
+                        to={`/topic/${topicData.parent.topic_id}`}
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {topicData.parent.name}
+                      </Link>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </>
+                  )}
+                  <span className="font-medium">{topicData.name}</span>
+                  {topicData.children && topicData.children.length > 0 && (
+                    <>
+                      <span className="text-muted-foreground">·</span>
+                      <span className="text-muted-foreground">
+                        {topicData.children.length} subtopics
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+            </section>
 
-              {/* Topic Hierarchy */}
-              <TopicHierarchy
-                parent={topicData.parent}
-                children={topicData.children}
-                siblings={topicData.siblings}
-                currentTopic={{
-                  topic_id: topicData.topic_id,
-                  name: topicData.name
-                }}
-              />
+            {/* Key Verses - Primary Content */}
+            {topicData.verses && topicData.verses.length > 0 && (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    Key Verses
+                  </h3>
+                </div>
 
+                <div className="space-y-3">
+                  {displayedVerses?.map((verse) => (
+                    <Link
+                      key={verse.verse_key}
+                      to={`/verse/${verse.verse_key}`}
+                      className="block p-4 rounded-lg border border-border/50 hover:border-primary/30 hover:bg-muted/30 transition-all"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs">
+                          {verse.verse_key}
+                        </Badge>
+                      </div>
+                      <p className="text-sm leading-relaxed text-foreground">
+                        {verse.text}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+
+                {topicData.verses.length > 3 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAllVerses(!showAllVerses)}
+                    className="w-full"
+                  >
+                    {showAllVerses 
+                      ? "Show fewer verses" 
+                      : `Show all ${topicData.verses.length} verses`
+                    }
+                  </Button>
+                )}
+              </section>
+            )}
+
+            {/* Secondary Content - Collapsible */}
+            <Accordion type="multiple" className="space-y-2">
               {/* Related Topics */}
               {topicData.related_topics && topicData.related_topics.length > 0 && (
-                <TopicRelated
-                  topics={topicData.related_topics.map(t => ({
-                    ...t,
-                    // WARNING: DUMMY DATA - Replace with actual verse counts in production
-                    verses_count: Math.floor(Math.random() * 50) + 1 // Mock verse count
-                  }))}
-                  currentTopicName={topicData.name}
-                />
+                <AccordionItem value="related" className="border rounded-lg px-4">
+                  <AccordionTrigger className="hover:no-underline py-3">
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-4 w-4 text-primary" />
+                      <span>Related Topics</span>
+                      <Badge variant="outline" className="ml-2 text-xs">
+                        {topicData.related_topics.length}
+                      </Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {topicData.related_topics.map((topic) => (
+                        <Link
+                          key={topic.topic_id}
+                          to={`/topic/${topic.topic_id}`}
+                          className="inline-flex items-center px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-sm transition-colors"
+                        >
+                          {topic.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
               )}
 
-              {/* Actions */}
-              <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden p-4">
-                <h3 className="text-base font-medium mb-3">Actions</h3>
-                <div className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start" asChild>
-                    <Link to={`/data-explorer?query=MATCH (t:Topic {topic_id: ${topic_id}})-[r]-(n) RETURN t, r, n LIMIT 20`}>
-                      <Network className="h-4 w-4 mr-2" />
-                      Explore in Graph
-                    </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start" asChild>
-                    <Link to={`/data-explorer?query=MATCH (v:Verse)-[:HAS_TOPIC]->(t:Topic {topic_id: ${topic_id}}) RETURN v, t LIMIT 50`}>
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      View All Verses
-                    </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start" asChild>
-                    <Link to={`/data-explorer?query=MATCH (t:Topic {topic_id: ${topic_id}})--(related:Topic) WHERE t.topic_id <> related.topic_id RETURN t, related LIMIT 50`}>
-                      <Tag className="h-4 w-4 mr-2" />
-                      View Related Topics
-                    </Link>
-                  </Button>
-                </div>
+              {/* Subtopics */}
+              {topicData.children && topicData.children.length > 0 && (
+                <AccordionItem value="children" className="border rounded-lg px-4">
+                  <AccordionTrigger className="hover:no-underline py-3">
+                    <div className="flex items-center gap-2">
+                      <Network className="h-4 w-4 text-primary" />
+                      <span>Subtopics</span>
+                      <Badge variant="outline" className="ml-2 text-xs">
+                        {topicData.children.length}
+                      </Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4">
+                    <div className="space-y-2">
+                      {topicData.children.map((child) => (
+                        <Link
+                          key={child.topic_id}
+                          to={`/topic/${child.topic_id}`}
+                          className="block p-3 rounded-lg border border-border/30 hover:border-primary/30 hover:bg-muted/30 transition-all"
+                        >
+                          {child.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+
+              {/* Sibling Topics */}
+              {topicData.siblings && topicData.siblings.length > 0 && (
+                <AccordionItem value="siblings" className="border rounded-lg px-4">
+                  <AccordionTrigger className="hover:no-underline py-3">
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-4 w-4 text-primary" />
+                      <span>Related Topics</span>
+                      <Badge variant="outline" className="ml-2 text-xs">
+                        {topicData.siblings.length}
+                      </Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {topicData.siblings.map((sibling) => (
+                        <Link
+                          key={sibling.topic_id}
+                          to={`/topic/${sibling.topic_id}`}
+                          className="inline-flex items-center px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-sm transition-colors"
+                        >
+                          {sibling.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            </Accordion>
+
+            {/* Actions */}
+            <section className="pt-4 border-t border-border">
+              <div className="flex flex-wrap gap-3">
+                <Button variant="outline" asChild>
+                  <Link to={`/data-explorer?query=MATCH (t:Topic {topic_id: ${topic_id}})-[r]-(n) RETURN t, r, n LIMIT 20`}>
+                    <Network className="h-4 w-4 mr-2" />
+                    View in Graph
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link to={`/data-explorer?query=MATCH (v:Verse)-[:HAS_TOPIC]->(t:Topic {topic_id: ${topic_id}}) RETURN v, t LIMIT 50`}>
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    All Verses
+                  </Link>
+                </Button>
               </div>
-            </div>
+            </section>
           </div>
         ) : null}
-      </div>
+      </main>
     </div>
   );
 }
 
-// Skeleton component for loading state
 function TopicSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Skeleton className="h-64 w-full bg-muted rounded-xl" />
-          <Skeleton className="h-96 w-full bg-muted rounded-xl" />
-        </div>
-        <div className="space-y-6">
-          <Skeleton className="h-64 w-full bg-muted rounded-xl" />
-          <Skeleton className="h-48 w-full bg-muted rounded-xl" />
-          <Skeleton className="h-48 w-full bg-muted rounded-xl" />
-        </div>
+    <div className="max-w-3xl mx-auto space-y-8">
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-3/4" />
+        <Skeleton className="h-6 w-1/2" />
+        <Skeleton className="h-20 w-full" />
+      </div>
+      <div className="space-y-3">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
       </div>
     </div>
   );
 }
 
-// Meta function for page metadata
 export function meta() {
   return [
     { title: "Topic Detail | Quran Knowledge Graph" },
@@ -298,24 +410,20 @@ export function meta() {
   ];
 }
 
-// HydrateFallback for React Router v7
 export function HydrateFallback() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-card backdrop-blur-xl border-b border-border shadow-lg py-6">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold text-foreground">Topic Detail</h1>
-          <p className="text-primary mt-1">Quran Knowledge Graph</p>
-        </div>
-      </div>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-muted-foreground mx-auto mb-4"></div>
-            <p className="text-foreground font-medium">Loading topic data...</p>
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 bg-muted rounded-lg animate-pulse" />
+            <div className="h-8 w-48 bg-muted rounded-lg animate-pulse" />
           </div>
         </div>
-      </div>
+      </header>
+      <main className="container mx-auto px-4 py-8">
+        <TopicSkeleton />
+      </main>
     </div>
   );
 }

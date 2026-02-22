@@ -22,14 +22,22 @@ export const Footer = () => {
 
                 {/* Links Columns */}
                 <div className="flex gap-16">
-                    {/* Explore */}
+                    {/* Product */}
                     <div className="flex flex-col gap-4">
-                        <h4 className="text-white font-medium text-sm">Explore</h4>
+                        <h4 className="text-white font-medium text-sm">Product</h4>
                         <div className="flex flex-col gap-3 text-sm text-white/50">
-                            <button onClick={() => navigate('/vision')} className="text-left hover:text-white transition-colors">The Journey</button>
                             <button onClick={() => navigate('/data-explorer')} className="text-left hover:text-white transition-colors">Data Explorer</button>
                             <button onClick={() => navigate('/read')} className="text-left hover:text-white transition-colors">Read Quran</button>
                             <a href="https://quran-web.qalam.workers.dev/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Older Iteration</a>
+                        </div>
+                    </div>
+
+                    {/* Writing */}
+                    <div className="flex flex-col gap-4">
+                        <h4 className="text-white font-medium text-sm">Writing</h4>
+                        <div className="flex flex-col gap-3 text-sm text-white/50">
+                            <button onClick={() => navigate('/vision')} className="text-left hover:text-white transition-colors">The Journey</button>
+                            <button onClick={() => navigate('/why-knowledge-graph')} className="text-left hover:text-white transition-colors">Why a Knowledge Graph</button>
                         </div>
                     </div>
 

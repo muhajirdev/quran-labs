@@ -33,6 +33,9 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { Footer } from "~/components/layout/Footer";
+import { AnimatedNetworkIcon } from "~/components/ui/animated-network-icon";
+import { HeroAnimatedGraph } from "~/components/ui/hero-animated-graph";
+import { HopTrace } from "~/components/ui/hop-trace";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -75,14 +78,14 @@ function useReadingProgress() {
 }
 
 const TAB_ORDER = [
+  { id: "root", name: "Root Word" },
   { id: "temporal", name: "Temporal Loop" },
   { id: "ethical", name: "Ethical Framework" },
   { id: "grief", name: "Impossible Question" },
   { id: "leadership", name: "Hidden Parallel" },
   { id: "science", name: "Scientific Bridge" },
   { id: "verse", name: "Verse Exploration" },
-  { id: "daily", name: "Daily Life" },
-  { id: "root", name: "Root Word" }
+  { id: "daily", name: "Daily Life" }
 ];
 
 function ScenarioPagination({
@@ -134,7 +137,7 @@ function ScenarioPagination({
 }
 
 export default function JourneyPage() {
-  const [activeTab, setActiveTab] = useState<string>("temporal");
+  const [activeTab, setActiveTab] = useState<string>("root");
   const [activeSection, setActiveSection] = useState<string>("past");
   const pastRef = useRef<HTMLDivElement>(null);
   const presentRef = useRef<HTMLDivElement>(null);
@@ -302,17 +305,25 @@ export default function JourneyPage() {
       <main className="pt-24 pb-20 relative z-10">
 
         {/* === HERO SECTION === */}
-        <section className="px-4 sm:px-6 max-w-4xl mx-auto mb-32 mt-12 text-center md:text-left">
-          <h1 className="text-5xl sm:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
-            Every Verse is <br className="hidden md:block" />
-            <span className="text-white">a Doorway</span>
-          </h1>
-          <p className="text-xl sm:text-2xl text-white/70 max-w-2xl font-light leading-relaxed mb-6">
-            Behind every word lies a web of meaning we've never been able to see — until now.
-          </p>
-          <p className="text-base sm:text-lg text-white/40 max-w-xl font-light italic leading-relaxed">
-            What if the deepest answers to your modern struggles were already written 1,400 years ago — and you just couldn't see the connections?
-          </p>
+        <section className="px-4 sm:px-6 max-w-4xl mx-auto mb-32 mt-12 text-center md:text-left relative flex flex-col md:flex-row items-center md:items-start gap-12">
+
+          {/* Animated Hero Graph Visual */}
+          <div className="md:order-last w-full max-w-[300px] md:max-w-[450px] shrink-0 mx-auto md:ml-auto">
+            <HeroAnimatedGraph className="w-full aspect-square text-accent opacity-80" />
+          </div>
+
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-5xl sm:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
+              Every Verse is <br className="hidden lg:block" />
+              <span className="text-white">a Doorway</span>
+            </h1>
+            <p className="text-xl sm:text-2xl text-white/70 max-w-2xl font-light leading-relaxed mb-6">
+              Behind every word lies a web of meaning we've never been able to see — until now.
+            </p>
+            <p className="text-base sm:text-lg text-white/40 max-w-xl font-light italic leading-relaxed">
+              What if the deepest answers to your modern struggles were already written 1,400 years ago — and you just couldn't see the connections?
+            </p>
+          </div>
         </section>
 
         {/* === PART 1: THE PAST === */}
@@ -408,6 +419,13 @@ export default function JourneyPage() {
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="bg-white/[0.03] border border-white/10 rounded-xl p-1 w-full gap-1 flex overflow-x-auto overflow-y-hidden flex-nowrap justify-start hide-scrollbar snap-x snap-mandatory">
                   <TabsTrigger
+                    value="root"
+                    className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
+                  >
+                    <BrainCircuit className="w-4 h-4" />
+                    <span className="inline">Root Word</span>
+                  </TabsTrigger>
+                  <TabsTrigger
                     value="temporal"
                     className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
                   >
@@ -456,16 +474,75 @@ export default function JourneyPage() {
                     <Compass className="w-4 h-4" />
                     <span className="inline">Daily Life</span>
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="root"
-                    className="shrink-0 snap-start data-[state=active]:bg-accent/15 data-[state=active]:text-accent data-[state=active]:border-accent/30 border border-transparent rounded-lg px-4 py-2.5 text-white/50 hover:text-white/80 text-sm transition-all gap-2"
-                  >
-                    <BrainCircuit className="w-4 h-4" />
-                    <span className="inline">Root Word</span>
-                  </TabsTrigger>
                 </TabsList>
 
                 <div className="mt-6 bg-white/[0.02] border border-white/5 rounded-2xl p-6 sm:p-8 min-h-[320px]">
+
+                  {/* === SCENARIO 8: Root Word Exploration === */}
+                  <TabsContent value="root">
+                    <div className="border-l-2 border-accent/40 pl-6">
+                      <h4 className="text-xl font-medium text-white/90 mb-2">Root Word Exploration</h4>
+                      <p className="text-white/40 text-sm mb-5">One Arabic Root → Physical Body → Divine Attribute → Prophetic Revelation</p>
+                      <div className="space-y-4">
+                        <div>
+                          <span className="text-white/40 text-xs font-bold uppercase tracking-wider">The Trigger</span>
+                          <p className="text-white/60 text-base leading-relaxed mt-1">You tap on the root <strong className="text-white font-mono text-lg">ر-ح-م</strong> (R-Ḥ-M) while reading <strong className="text-white/80">بسم الله الرحمن الرحيم</strong> — the phrase you say before everything.</p>
+                        </div>
+                      </div>
+
+                      {/* Hop-by-Hop Traversal */}
+                      <div className="mt-6 pt-5 border-t border-white/5 space-y-4">
+                        <span className="text-white/30 text-xs font-bold uppercase tracking-wider">The Graph Traversal</span>
+
+                        <div className="flex gap-3 items-start">
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={1} />
+                          </div>
+                          <div>
+                            <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Root Decomposition</span>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph decomposes <strong className="text-white">ر-ح-م</strong> and maps every word derived from it. The first result isn't a divine attribute — it's <strong className="text-white">رَحِم</strong> (Raḥim) — the <em className="text-white/80">womb</em>. The physical organ where life is nurtured in total darkness, without the child asking. Before this root became a name of God, it was a description of <em className="text-white/80">the most intimate, unconditional, all-encompassing human love.</em></p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-3 items-start">
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={2} />
+                          </div>
+                          <div>
+                            <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Morphological Expansion</span>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Following the morphological derivation edge, two divine names emerge from this root: <strong className="text-white">الرَحْمَن</strong> (Ar-Raḥmān) — the <em className="text-white/80">fa'āl</em> form, meaning overwhelming, explosive mercy that encompasses everything. <strong className="text-white">الرَحِيم</strong> (Ar-Raḥīm) — the <em className="text-white/80">fa'īl</em> form, meaning continuous, sustained, personal mercy. The graph shows these aren't synonyms — they are two <em className="text-white/80">structurally different</em> Arabic patterns describing two <em className="text-white/80">different dimensions</em> of the same love.</p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-3 items-start">
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={3} />
+                          </div>
+                          <div>
+                            <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Cross-Quranic Frequency</span>
+                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Mapping every occurrence of this root across the Quran, the graph finds <strong className="text-white">326 occurrences</strong>. It appears in the Bismillah before every surah except one (At-Tawbah). It's the single most repeated <em className="text-white/80">attribute</em> of Allah in the entire Quran — more than His power, His knowledge, or His wrath. The Quran's statistical emphasis is overwhelmingly on mercy.</p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-3 items-start">
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5 ring-1 ring-amber-400/40 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+                            <HopTrace step={4} />
+                          </div>
+                          <div>
+                            <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Prophetic Connection ✦</span>
+                            <p className="text-white/80 text-sm leading-relaxed mt-0.5">Through the 'Raḥim' (womb) node, the graph surfaces the hadith that explicitly links them (Bukhari): The Prophet ﷺ said: <strong className="text-white">"Allah derived Ar-Raḥmān from Ar-Raḥim (the womb). So whoever maintains the ties of the womb, Allah maintains connection with them."</strong> Allah <em className="text-white/80">Himself</em> tells us His mercy is modeled on a mother's womb. The Arabic language doesn't just describe God — it encodes a theological truth in its very root system: divine mercy and a mother's love share the same origin.</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 bg-accent/5 border border-accent/10 rounded-xl p-4">
+                          <span className="text-accent/60 text-xs font-bold uppercase tracking-wider">The Result</span>
+                          <p className="text-white/80 text-sm leading-relaxed mt-1">You tapped on three letters — ر ح م — and the graph revealed that the phrase you say before every meal, every prayer, every action contains a <strong className="text-white">linguistic equation</strong>: God's mercy = the womb's love. <strong className="text-white">326 verses</strong>, one Prophetic hadith, and the entire Arabic morphological system unified in a single root.</p>
+                        </div>
+                      </div>
+
+                      <ScenarioPagination activeTab={activeTab} setActiveTab={setActiveTab} />
+                    </div>
+                  </TabsContent>
 
                   {/* === SCENARIO 1: The Temporal Loop === */}
                   <TabsContent value="temporal">
@@ -508,9 +585,11 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5 ring-1 ring-amber-400/40 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+                            <HopTrace step={4} />
+                          </div>
                           <div>
-                            <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">Revelation Timing ✦</span>
+                            <span className="text-amber-400 text-xs font-bold uppercase tracking-wider">Revelation Timing ✦</span>
                             <p className="text-white/80 text-sm leading-relaxed mt-0.5">Connected to the surah's revelation metadata, the graph reveals what no search engine can: <strong className="text-white">when</strong> was Surah Yusuf revealed? During the <strong className="text-white">Year of Sorrow (عام الحزن)</strong> — the darkest year of the Prophet ﷺ's life. Khadijah (RA) dies. Abu Talib dies. Ta'if stones him until he bleeds. And <em className="text-white/80">this</em> is the moment Allah chooses to reveal a story about a man betrayed by his own family — who ends up saying: <em className="text-white/80">"No blame on you today"</em> (12:92).</p>
                           </div>
                         </div>
@@ -566,9 +645,11 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5 ring-1 ring-amber-400/40 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+                            <HopTrace step={4} />
+                          </div>
                           <div>
-                            <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Legal Context ✦</span>
+                            <span className="text-amber-400 text-xs font-bold uppercase tracking-wider">The Legal Context ✦</span>
                             <p className="text-white/80 text-sm leading-relaxed mt-0.5">Because Lahw's root is tagged under the Maqasid category of <strong className="text-white">حفظ العقل</strong>, the graph leaps from linguistics to <strong className="text-white">Islamic legal philosophy</strong>. It surfaces Al-Shatibi's Maqasid al-Shariah — five inviolable objectives that all of Islamic law exists to protect. The third: <strong className="text-white">حفظ العقل — Protection of the Intellect</strong>. Now the user can see the full picture: their discomfort has a name, a linguistic history, and sits within a centuries-old ethical framework they didn't know existed.</p>
                           </div>
                         </div>
@@ -600,7 +681,9 @@ export default function JourneyPage() {
                         <span className="text-white/30 text-xs font-bold uppercase tracking-wider">The Graph Traversal</span>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">1</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={1} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Emotional Triage</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph does NOT immediately search "death of a child." It first identifies the <em className="text-white/80">emotional state</em>: grief combined with <strong className="text-white">anger at God</strong> — the most spiritually dangerous combination. This triggers a traversal path that prioritizes <em className="text-white/80">empathy and validation</em> before theology.</p>
@@ -608,7 +691,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={2} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Prophetic Mirror</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">Through the 'child loss' node, the graph finds the Prophet ﷺ's own parallel: <strong className="text-white">he himself lost his infant son Ibrahim</strong>. The specific Hadith (Bukhari): he held Ibrahim as he was dying, <em className="text-white/80">wept openly</em>, and said: <em className="text-white/80">"The eyes shed tears, the heart grieves, and we say only what pleases our Lord. Indeed, O Ibrahim, we are saddened by your departure."</em> The Prophet ﷺ modeled that crying is not weakness. Grief is not ingratitude.</p>
@@ -616,7 +701,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={3} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Theological Framework</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">Linked to the grief node, the graph traverses to the Quran's direct address on loss — <strong className="text-white">Surah Al-Baqarah 2:155–157</strong>: <em className="text-white/80">"We will surely test you with something of fear and hunger and a loss of lives..."</em> — then connects to the commentary that <em className="text-white/80">"those"</em> who are patient receive <strong className="text-white">salawat from their Lord, and mercy</strong> — Allah's direct, personal attention.</p>
@@ -624,7 +711,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5 ring-1 ring-amber-400/40 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+                            <HopTrace step={4} />
+                          </div>
                           <div>
                             <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Hidden Hadith ✦</span>
                             <p className="text-white/80 text-sm leading-relaxed mt-0.5">The patience described in 2:155 connects to a lesser-known hadith about its reward. The graph surfaces what most people have never heard (Sahih Muslim): when a child dies, Allah asks the angels: <em className="text-white/80">"Did you take the soul of My servant's child?"</em> They say yes. <em className="text-white/80">"What did My servant say?"</em> They reply: <em className="text-white/80">"He praised You and said Inna lillahi wa inna ilayhi raji'un."</em> Then Allah says: <strong className="text-white">"Build for My servant a house in Paradise, and name it Bayt al-Hamd (The House of Praise)."</strong></p>
@@ -658,7 +747,9 @@ export default function JourneyPage() {
                         <span className="text-white/30 text-xs font-bold uppercase tracking-wider">The Graph Traversal</span>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">1</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={1} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Concept Extraction</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph extracts the core tension: a leader who holds <em className="text-white/80">Amanah</em> (trust/stewardship) over others and feels they've failed that trust. It maps this to <strong className="text-white">Surah Al-Ahzab 33:72</strong> — the trust that even the <em className="text-white/80">heavens and mountains</em> refused to carry.</p>
@@ -666,7 +757,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={2} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Prophetic Warning</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">Because Amanah is connected to prophetic counsel on leadership, the graph surfaces what the Prophet ﷺ told Abu Dharr (Muslim): <em className="text-white/80">"O Abu Dharr, I see that you are weak. Do not take command over even two people."</em> This isn't criticism — it's the Prophet ﷺ acknowledging that <strong className="text-white">leadership is burden, not privilege</strong>. The guilt this leader feels? It means the Amanah is alive in his heart.</p>
@@ -674,7 +767,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={3} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Cross-Surah Pattern</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph follows the 'leadership struggle' theme across multiple prophetic narratives, revealing a pattern invisible when reading linearly: prophets <em className="text-white/80">struggle</em> with leadership. <strong className="text-white">Musa (AS)</strong> asks Allah to send someone else (28:34). <strong className="text-white">Yunus (AS)</strong> walks away entirely (21:87). <strong className="text-white">Nuh (AS)</strong> preaches for 950 years with almost no results (29:14). The Quran doesn't glorify leadership — it sanctifies the <em className="text-white/80">weight</em> of it.</p>
@@ -682,7 +777,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5 ring-1 ring-amber-400/40 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+                            <HopTrace step={4} />
+                          </div>
                           <div>
                             <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Structural Mirror ✦</span>
                             <p className="text-white/80 text-sm leading-relaxed mt-0.5">Following the 'righteous leader' archetype, the graph finds its deepest model: <strong className="text-white">Dhul-Qarnayn</strong> in Surah Al-Kahf (18:83–98). A leader given power <em className="text-white/80">"over all things"</em> who builds infrastructure for vulnerable people — and when it's done, says: <em className="text-white/80">"This is a mercy from my Lord."</em> He attributes success to Allah, not himself. The Quranic model: build with excellence, accept that all structures are temporary — your job was to carry the Amanah faithfully, not to guarantee permanence.</p>
@@ -716,7 +813,9 @@ export default function JourneyPage() {
                         <span className="text-white/30 text-xs font-bold uppercase tracking-wider">The Graph Traversal</span>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">1</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={1} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Doubt Classification</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph doesn't flag this as heresy. It classifies the state as <strong className="text-white">Shubha (شبهة)</strong> — genuine intellectual doubt, which Islamic tradition distinguishes from <em className="text-white/80">Shakk</em> (willful rejection). When Companions came to the Prophet ﷺ disturbed by intrusive doubts, he said: <strong className="text-white">"That is pure faith"</strong> (Muslim) — because only a living faith can feel threatened.</p>
@@ -724,7 +823,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={2} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Quranic Invitation</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">Because the Shubha node is linked to Quranic verses on empirical observation, the graph surfaces something remarkable: the Quran <em className="text-white/80">invites</em> empirical observation. <strong className="text-white">Surah Al-Ghashiyah 88:17–20</strong> — <em className="text-white/80">"Do they not look at the camels, how they are created? And at the sky, how it is raised?"</em> — uses the exact verb <strong className="text-white">أَفَلَا يَنظُرُونَ</strong> ("do they not <em>investigate</em>"). The Quran doesn't say "just believe." It says "look harder."</p>
@@ -732,7 +833,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={3} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Scholarly Tradition</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">Through the 'faith and reason' concept node, the graph surfaces the scholarly tradition: <strong className="text-white">Ibn Rushd</strong> (Averroes), the 12th-century polymath, wrote in his <em className="text-white/80">Fasl al-Maqal</em>: <em className="text-white/80">"If philosophy leads to conclusions that agree with Scripture, revelation confirms reason. If they appear to conflict, Scripture must be interpreted."</em> The graph surfaces this — not as a ruling, but as historical context: <strong className="text-white">one of Islam's greatest minds already navigated this exact tension 800 years ago.</strong></p>
@@ -740,7 +843,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5 ring-1 ring-amber-400/40 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+                            <HopTrace step={4} />
+                          </div>
                           <div>
                             <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Structural Insight ✦</span>
                             <p className="text-white/80 text-sm leading-relaxed mt-0.5">From the creation narrative, the graph examines the specific Arabic used: the Quran rarely gives <em className="text-white/80">mechanisms</em> of creation — it gives <em className="text-white/80">meanings</em>. <strong className="text-white">Surah At-Tin 95:4</strong> — <em className="text-white/80">"We created the human being in the best of forms"</em> — uses the word <strong className="text-white">تقويم</strong> (Taqwim), which classically means "to bring to its most complete, balanced state" — a word about <em className="text-white/80">destination and purpose</em>, not method. Evolution describes <em>how</em>. The Quran describes <em>why</em>.</p>
@@ -774,7 +879,9 @@ export default function JourneyPage() {
                         <span className="text-white/30 text-xs font-bold uppercase tracking-wider">The Graph Traversal</span>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">1</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={1} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Linguistic Origin</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph isolates <strong className="text-white">الصِّرَاط</strong> (As-Sirat). It reveals something most people never learn: this word is borrowed from Latin <em className="text-white/80">"strata"</em> (paved road) — one of the Quran's rare loanwords, showing Allah chose language His audience already understood. You've said this word hundreds of thousands of times without knowing its linguistic ancestry.</p>
@@ -782,7 +889,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={2} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Cross-Quranic Word Map</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">Following every occurrence of this word across the Quran, the graph traces "Sirat" across <strong className="text-white">45 occurrences</strong> — revealing it's always <em className="text-white/80">singular</em> (THE path, never "paths"), always paired with "Mustaqeem." Then it contrasts with <strong className="text-white">Surah Al-An'am 6:153</strong>: <em className="text-white/80">"This is My path, straight, so follow it; and do not follow other <strong>subul</strong> (side roads)."</em> Two different Arabic words — Sirat (the highway) vs. Subul (branching paths). The Quran embeds theology in its vocabulary.</p>
@@ -790,7 +899,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={3} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Structural Analysis</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">Connected to the surah's structural analysis, the graph surfaces what scholars call the <strong className="text-white">"Fatiha Framework."</strong> Verses 1–4 are about Allah (praise, attributes, sovereignty). Verses 5–7 are about <em className="text-white/80">us</em> (request, guidance, community). And <em className="text-white/80">this</em> verse — اهدنا — is the exact hinge point. The prayer's architecture moves from knowing God → to asking God → to walking with God.</p>
@@ -798,7 +909,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5 ring-1 ring-amber-400/40 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+                            <HopTrace step={4} />
+                          </div>
                           <div>
                             <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Obligatory Du'a ✦</span>
                             <p className="text-white/80 text-sm leading-relaxed mt-0.5">Linked to this verse's scholarly commentary, the graph finds Ibn Kathir's classification: <strong className="text-white">the most important du'a in the entire Quran</strong>. Why? It's the <em className="text-white/80">only</em> supplication Allah made obligatory — not once, not occasionally, but in <strong className="text-white">every single rak'ah of every prayer</strong>. Allah wanted <em className="text-white/80">this specific request</em> on your lips 17 times a day — over <strong className="text-white">6,200 times a year</strong>. No other du'a in the Quran was given this status.</p>
@@ -832,7 +945,9 @@ export default function JourneyPage() {
                         <span className="text-white/30 text-xs font-bold uppercase tracking-wider">The Graph Traversal</span>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">1</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={1} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Precise Classification</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph doesn't just label it "haram" and stop. It distinguishes between three different Arabic terms: <strong className="text-white">Gheebah</strong> (غيبة — backbiting), <strong className="text-white">Nameemah</strong> (نميمة — tale-carrying), and <strong className="text-white">Buhtan</strong> (بهتان — slander). Three different concepts, three different severities. Most people conflate them all as "gossip" — the graph shows you the full taxonomy.</p>
@@ -840,7 +955,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={2} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Quranic Metaphor — Deconstructed</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">Because Gheebah is directly referenced in the Quran, the graph pulls the primary verse: <strong className="text-white">Surah Al-Hujurat 49:12</strong> — <em className="text-white/80">"Would one of you like to eat the flesh of his dead brother?"</em> The graph pulls classical commentary showing this isn't random hyperbole: <strong className="text-white">"dead"</strong> because the person can't defend themselves. <strong className="text-white">"Brother"</strong> because it violates the bond of ummah. <strong className="text-white">"Flesh"</strong> because you are consuming their honor. Every word is precise.</p>
@@ -848,7 +965,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5">
+                            <HopTrace step={3} />
+                          </div>
                           <div>
                             <span className="text-white/50 text-xs font-bold uppercase tracking-wider">The Prophetic Definition</span>
                             <p className="text-white/70 text-sm leading-relaxed mt-0.5">Connected to this verse's hadith commentary, the graph surfaces the Prophet ﷺ's definition (Abu Dawud): <em className="text-white/80">"Gheebah is mentioning your brother with what he dislikes."</em> A companion asked: <em className="text-white/80">"What if what I say is true?"</em> The Prophet ﷺ said: <strong className="text-white">"If it is true, that IS gheebah. If it is false, that is buhtan (slander)."</strong> Truth doesn't make it permissible. Truth is what <em className="text-white/80">makes</em> it gheebah.</p>
@@ -856,7 +975,9 @@ export default function JourneyPage() {
                         </div>
 
                         <div className="flex gap-3 items-start">
-                          <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
+                          <div className="w-8 h-8 shrink-0 relative mt-0.5 ring-1 ring-amber-400/40 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+                            <HopTrace step={4} />
+                          </div>
                           <div>
                             <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Broader Context ✦</span>
                             <p className="text-white/80 text-sm leading-relaxed mt-0.5">From the Gheebah node, the graph follows the 'remedy' edge. It doesn't stop at showing the problem, but surfaces the broader context — including the Prophet ﷺ's own words (Ahmad): <strong className="text-white">"Whoever defends the honor of his brother in his absence, Allah will shield his face from the Fire on the Day of Judgment."</strong> The full picture emerges: the tradition doesn't just describe what's wrong — it maps a complete path from the concept, to its weight, to how others before you have navigated it.</p>
@@ -866,64 +987,6 @@ export default function JourneyPage() {
                         <div className="mt-4 bg-accent/5 border border-accent/10 rounded-xl p-4">
                           <span className="text-accent/60 text-xs font-bold uppercase tracking-wider">The Result</span>
                           <p className="text-white/80 text-sm leading-relaxed mt-1">She didn't get a one-word ruling. She got the <strong className="text-white">complete picture</strong>: a precise taxonomy of three different concepts, the most psychologically powerful metaphor in the Quran deconstructed word by word, a Prophetic definition that reframes the "but it's true" assumption, and the broader tradition's full response — giving her the context to truly understand, not just comply.</p>
-                        </div>
-                      </div>
-
-                      <ScenarioPagination activeTab={activeTab} setActiveTab={setActiveTab} />
-                    </div>
-                  </TabsContent>
-
-                  {/* === SCENARIO 8: Root Word Exploration === */}
-                  <TabsContent value="root">
-                    <div className="border-l-2 border-accent/40 pl-6">
-                      <h4 className="text-xl font-medium text-white/90 mb-2">Root Word Exploration</h4>
-                      <p className="text-white/40 text-sm mb-5">One Arabic Root → Physical Body → Divine Attribute → Prophetic Revelation</p>
-                      <div className="space-y-4">
-                        <div>
-                          <span className="text-white/40 text-xs font-bold uppercase tracking-wider">The Trigger</span>
-                          <p className="text-white/60 text-base leading-relaxed mt-1">You tap on the root <strong className="text-white font-mono text-lg">ر-ح-م</strong> (R-Ḥ-M) while reading <strong className="text-white/80">بسم الله الرحمن الرحيم</strong> — the phrase you say before everything.</p>
-                        </div>
-                      </div>
-
-                      {/* Hop-by-Hop Traversal */}
-                      <div className="mt-6 pt-5 border-t border-white/5 space-y-4">
-                        <span className="text-white/30 text-xs font-bold uppercase tracking-wider">The Graph Traversal</span>
-
-                        <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">1</span>
-                          <div>
-                            <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Root Decomposition</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">The graph decomposes <strong className="text-white">ر-ح-م</strong> and maps every word derived from it. The first result isn't a divine attribute — it's <strong className="text-white">رَحِم</strong> (Raḥim) — the <em className="text-white/80">womb</em>. The physical organ where life is nurtured in total darkness, without the child asking. Before this root became a name of God, it was a description of <em className="text-white/80">the most intimate, unconditional, all-encompassing human love.</em></p>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
-                          <div>
-                            <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Morphological Expansion</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Following the morphological derivation edge, two divine names emerge from this root: <strong className="text-white">الرَحْمَن</strong> (Ar-Raḥmān) — the <em className="text-white/80">fa'āl</em> form, meaning overwhelming, explosive mercy that encompasses everything. <strong className="text-white">الرَحِيم</strong> (Ar-Raḥīm) — the <em className="text-white/80">fa'īl</em> form, meaning continuous, sustained, personal mercy. The graph shows these aren't synonyms — they are two <em className="text-white/80">structurally different</em> Arabic patterns describing two <em className="text-white/80">different dimensions</em> of the same love.</p>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-3 items-start">
-                          <span className="bg-accent/20 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
-                          <div>
-                            <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Cross-Quranic Frequency</span>
-                            <p className="text-white/70 text-sm leading-relaxed mt-0.5">Mapping every occurrence of this root across the Quran, the graph finds <strong className="text-white">326 occurrences</strong>. It appears in the Bismillah before every surah except one (At-Tawbah). It's the single most repeated <em className="text-white/80">attribute</em> of Allah in the entire Quran — more than His power, His knowledge, or His wrath. The Quran's statistical emphasis is overwhelmingly on mercy.</p>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-3 items-start">
-                          <span className="bg-accent/30 text-accent text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ring-1 ring-accent/40">4</span>
-                          <div>
-                            <span className="text-accent/70 text-xs font-bold uppercase tracking-wider">The Prophetic Connection ✦</span>
-                            <p className="text-white/80 text-sm leading-relaxed mt-0.5">Through the 'Raḥim' (womb) node, the graph surfaces the hadith that explicitly links them (Bukhari): The Prophet ﷺ said: <strong className="text-white">"Allah derived Ar-Raḥmān from Ar-Raḥim (the womb). So whoever maintains the ties of the womb, Allah maintains connection with them."</strong> Allah <em className="text-white/80">Himself</em> tells us His mercy is modeled on a mother's womb. The Arabic language doesn't just describe God — it encodes a theological truth in its very root system: divine mercy and a mother's love share the same origin.</p>
-                          </div>
-                        </div>
-
-                        <div className="mt-4 bg-accent/5 border border-accent/10 rounded-xl p-4">
-                          <span className="text-accent/60 text-xs font-bold uppercase tracking-wider">The Result</span>
-                          <p className="text-white/80 text-sm leading-relaxed mt-1">You tapped on three letters — ر ح م — and the graph revealed that the phrase you say before every meal, every prayer, every action contains a <strong className="text-white">linguistic equation</strong>: God's mercy = the womb's love. <strong className="text-white">326 verses</strong>, one Prophetic hadith, and the entire Arabic morphological system unified in a single root.</p>
                         </div>
                       </div>
 
@@ -952,7 +1015,7 @@ export default function JourneyPage() {
 
             {/* Why a Knowledge Graph */}
             <div className="mt-8 mb-16 max-w-2xl mx-auto text-center">
-              <Network className="w-8 h-8 text-accent mx-auto mb-4" />
+              <AnimatedNetworkIcon className="w-16 h-16 text-accent mx-auto mb-6" />
               <h3 className="text-3xl font-bold mb-4">Why a Knowledge Graph?</h3>
               <p className="text-white/60 text-base leading-relaxed mb-8">
                 A Knowledge Graph organizes information so you can see how things connect, trace where answers come from, and spot patterns you'd never find in scattered books.
@@ -1037,7 +1100,7 @@ export default function JourneyPage() {
                       <h5 className="text-sm font-semibold text-white">Current Development State</h5>
                       <span className="px-2 py-0.5 rounded-full bg-accent/20 text-accent text-[10px] font-medium border border-accent/30">Live</span>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                       <div>
                         <p className="text-[10px] uppercase tracking-wider text-white/40 font-semibold mb-2">Available Now</p>
@@ -1056,7 +1119,7 @@ export default function JourneyPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div>
                         <p className="text-[10px] uppercase tracking-wider text-white/40 font-semibold mb-2">In Progress</p>
                         <div className="space-y-2">
@@ -1079,7 +1142,7 @@ export default function JourneyPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="pt-4 border-t border-white/5">
                       <p className="text-[10px] uppercase tracking-wider text-white/40 font-semibold mb-2">Try it now</p>
                       <div className="flex flex-wrap gap-2">

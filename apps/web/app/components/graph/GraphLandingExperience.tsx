@@ -9,6 +9,7 @@ import { SparklesIcon, Network, ExternalLink, ArrowRight } from "lucide-react";
 import { MinimalGraphViewer } from "./MinimalGraphViewer";
 import { useNavigate } from "react-router";
 import { Footer } from "../layout/Footer";
+import { AnimatedNetworkIcon } from "~/components/ui/animated-network-icon";
 
 const GRAPH_SUGGESTIONS = [
     {
@@ -79,17 +80,17 @@ export const GraphLandingExperience = () => {
                     {/* Brand title */}
                     <div className="relative mb-6 text-center">
                         <div className="text-accent/80 text-sm font-bold tracking-[0.2em] uppercase mb-4 font-mono">
-                            The Data Layer for Quran AI
+                            The Data Layer for Quranic Intelligence
                         </div>
                         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white relative z-10">
-                            Knowledge Graph
+                            SuperQuran Knowledge Graph
                         </h1>
                     </div>
 
                     {/* Tagline */}
                     <div className="text-center mb-8 max-w-2xl">
                         <p className="text-white/70 text-base sm:text-lg text-center leading-relaxed px-6">
-                            Not a scholar in a box. A lens for seeing deeper. Explore the full tradition of the Quran — accessible, transparent, and always traceable.
+                            Explore how the Quran connects. A visual network of verses, concepts, and classical commentary.
                         </p>
                     </div>
                 </div>
@@ -139,7 +140,7 @@ export const GraphLandingExperience = () => {
                             </div>
                         ) : (
                             <div className="w-full h-[400px] flex flex-col items-center justify-center border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
-                                <Network className="w-12 h-12 text-white/20 mb-4" />
+                                <AnimatedNetworkIcon className="w-20 h-20 text-white/20 mb-6" />
                                 <p className="text-white/40 text-center max-w-sm">
                                     Select one of the demos above to see a live visualization of the Quran graph.
                                 </p>

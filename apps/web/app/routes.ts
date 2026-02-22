@@ -12,5 +12,6 @@ export default [
   route("logo-usage", "routes/logo-usage.tsx"),
   route("read", "routes/read.tsx"),
   route("vision", "routes/vision.tsx"),
+  route("why-knowledge-graph", "routes/why-knowledge-graph.tsx"),
   route("test-tools", "routes/test-tools.tsx"),
 ] satisfies RouteConfig;
