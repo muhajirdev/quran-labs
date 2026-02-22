@@ -931,7 +931,7 @@ export default function JourneyPage() {
               </Tabs>
             </div>
 
-            {/* Prominent Callout Block for Ummatic AI Foundation */}
+            {/* Prominent Callout Block for Quranic AI Foundation */}
             <div className="my-16 bg-gradient-to-br from-accent/20 via-accent/5 to-transparent border border-accent/20 p-8 sm:p-10 rounded-3xl relative overflow-hidden">
               <div className="absolute -top-12 -right-12 w-40 h-40 bg-accent/30 blur-3xl rounded-full mix-blend-screen pointer-events-none"></div>
               <Database className="w-10 h-10 text-accent mb-4 relative z-10" />
@@ -939,7 +939,7 @@ export default function JourneyPage() {
                 But to build this, we don't just need data—we need <em>connected</em> data.
               </h3>
               <p className="text-white/80 text-base leading-relaxed relative z-10 mb-4">
-                Verses linked to their historical context. Concepts threaded across Tafsir, Fiqh, and Seerah. Arabic roots mapped to every usage. <strong>This is the Ummatic AI Foundation</strong>—a deeply interconnected knowledge graph that becomes the bedrock for every interaction above.
+                Verses linked to their historical context. Concepts threaded across Tafsir, Fiqh, and Seerah. Arabic roots mapped to every usage. <strong>This is the Quranic AI Foundation</strong>—a deeply interconnected knowledge graph that becomes the bedrock for every interaction above.
               </p>
               <p className="text-white/60 text-sm leading-relaxed relative z-10">
                 Crucially, this system does not interpret or give fatwas. It makes connections <em>visible</em> — surfacing the full scholarly context so that you, your teacher, or your community can see the complete picture and draw informed understanding. Transparency is the foundation.

@@ -17,7 +17,9 @@ import {
   HeartHandshake,
   Shield,
   Microscope,
-  Network
+  Network,
+  ArrowUpRight,
+  Tag
 } from "lucide-react";
 import {
   Tabs,
@@ -933,7 +935,7 @@ export default function JourneyPage() {
               </Tabs>
             </div>
 
-            {/* Prominent Callout Block for Ummatic AI Foundation */}
+            {/* Prominent Callout Block for Quranic AI Foundation */}
             <div className="my-16 bg-gradient-to-br from-accent/20 via-accent/5 to-transparent border border-accent/20 p-8 sm:p-10 rounded-3xl relative overflow-hidden">
               <div className="absolute -top-12 -right-12 w-40 h-40 bg-accent/30 blur-3xl rounded-full mix-blend-screen pointer-events-none"></div>
               <Database className="w-10 h-10 text-accent mb-4 relative z-10" />
@@ -941,7 +943,7 @@ export default function JourneyPage() {
                 But to build this, we don't just need data—we need <em>connected</em> data.
               </h3>
               <p className="text-white/80 text-base leading-relaxed relative z-10 mb-4">
-                Verses linked to their historical context. Concepts threaded across Tafsir, Fiqh, and Seerah. Arabic roots mapped to every usage. <strong>This is the Ummatic AI Foundation</strong>—a deeply interconnected knowledge graph that becomes the bedrock for every interaction above.
+                Verses linked to their historical context. Concepts threaded across Tafsir, Fiqh, and Seerah. Arabic roots mapped to every usage. <strong>This is the Quranic AI Foundation</strong>—a deeply interconnected knowledge graph that becomes the bedrock for every interaction above.
               </p>
               <p className="text-white/60 text-sm leading-relaxed relative z-10">
                 Crucially, this system does not interpret or give fatwas. It makes connections <em>visible</em> — surfacing the full scholarly context so that you, your teacher, or your community can see the complete picture and draw informed understanding. Transparency is the foundation.
@@ -953,7 +955,10 @@ export default function JourneyPage() {
               <Network className="w-8 h-8 text-accent mx-auto mb-4" />
               <h3 className="text-3xl font-bold mb-4">Why a Knowledge Graph?</h3>
               <p className="text-white/60 text-base leading-relaxed mb-8">
-                A Knowledge Graph organizes information so you can see how things connect, trace where answers come from, and spot patterns you'd never find in scattered books. It also becomes a reasoning engine for the AI.
+                A Knowledge Graph organizes information so you can see how things connect, trace where answers come from, and spot patterns you'd never find in scattered books.
+              </p>
+              <p className="text-xl text-white font-medium mb-8 leading-relaxed">
+                This becomes the foundation for Quranic AI — its reasoning engine.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-white/70">
                 <div className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_rgba(var(--accent-rgb),0.8)]" /> Organized</div>
@@ -974,7 +979,7 @@ export default function JourneyPage() {
               <div className="h-px w-12 bg-white/20"></div>
             </div>
             <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">The Roadmap</h2>
-            <p className="text-white/50 text-xl font-light mt-1">Our path to completing the Ummatic AI Foundation.</p>
+            <p className="text-white/50 text-xl font-light mt-1">Our path to completing the Quranic AI Foundation.</p>
           </div>
 
           <div className="space-y-0 relative mb-20">
@@ -1000,9 +1005,9 @@ export default function JourneyPage() {
                   </div>
                   <h4 className="text-xl sm:text-2xl font-bold text-white mb-2">Phase 1: Foundation</h4>
                   <p className="text-white/70 text-sm leading-relaxed mb-5 max-w-lg">
-                    Connecting the words. We map every Arabic root and link it directly to classical Tafsir — so you can tap any word and see how it weaves through the entire Quran.
+                    Connecting the words. We map every Arabic root and link it directly to classical Tafsir — then build a Quran Wiki where every verse, word, and concept has its own explorable page.
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
                     <div className="flex items-start gap-2.5 text-sm text-white/60">
                       <div className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0 shadow-[0_0_6px_rgba(var(--accent-rgb),0.6)]" />
                       <span>Tap any word and see every form it takes across the Quran</span>
@@ -1015,17 +1020,103 @@ export default function JourneyPage() {
                       <div className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0 shadow-[0_0_6px_rgba(var(--accent-rgb),0.6)]" />
                       <span>Navigate the Quran as an interconnected web</span>
                     </div>
+                    <div className="flex items-start gap-2.5 text-sm text-white/60">
+                      <div className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0 shadow-[0_0_6px_rgba(var(--accent-rgb),0.6)]" />
+                      <span><strong>Quran Wiki</strong> — every node has a shareable page with visual graph exploration</span>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     <span className="px-2 py-1 rounded-md text-[10px] font-medium bg-accent/10 text-accent/80 border border-accent/20">3-Letter Roots</span>
                     <span className="px-2 py-1 rounded-md text-[10px] font-medium bg-accent/10 text-accent/80 border border-accent/20">Morphological Patterns</span>
                     <span className="px-2 py-1 rounded-md text-[10px] font-medium bg-accent/10 text-accent/80 border border-accent/20">Verses</span>
                     <span className="px-2 py-1 rounded-md text-[10px] font-medium bg-accent/10 text-accent/80 border border-accent/20">Surahs</span>
+                    <span className="px-2 py-1 rounded-md text-[10px] font-medium bg-accent/10 text-accent/80 border border-accent/20">Quran Wiki</span>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-accent/10 flex items-center gap-2">
+                  <div className="mt-6 bg-white/[0.03] border border-white/10 rounded-xl p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <h5 className="text-sm font-semibold text-white">Current Development State</h5>
+                      <span className="px-2 py-0.5 rounded-full bg-accent/20 text-accent text-[10px] font-medium border border-accent/30">Live</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-white/40 font-semibold mb-2">Available Now</p>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-white/80">
+                            <BookOpen className="w-4 h-4 text-accent" />
+                            <span>Verse wiki pages</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-white/80">
+                            <Tag className="w-4 h-4 text-accent" />
+                            <span>Topic exploration</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-white/80">
+                            <Search className="w-4 h-4 text-accent" />
+                            <span>Graph data explorer</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-white/40 font-semibold mb-2">In Progress</p>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-white/50">
+                            <Database className="w-4 h-4 text-white/30" />
+                            <span>Root word pages</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-white/50">
+                            <HeartHandshake className="w-4 h-4 text-white/30" />
+                            <span>Prophet biographies</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-white/50">
+                            <BrainCircuit className="w-4 h-4 text-white/30" />
+                            <span>AI assistant integration</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-white/50">
+                            <Network className="w-4 h-4 text-white/30" />
+                            <span>MCP server for external AI tools</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-4 border-t border-white/5">
+                      <p className="text-[10px] uppercase tracking-wider text-white/40 font-semibold mb-2">Try it now</p>
+                      <div className="flex flex-wrap gap-2">
+                        <a href="/verse/2:255" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 transition-all shadow-md">
+                          Verse 2:255 — Ayat al-Kursi
+                          <ArrowUpRight className="w-3 h-3 text-black" />
+                        </a>
+                        <a href="/verse/1:1" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 transition-all shadow-md">
+                          Verse 1:1 — Al-Fatiha
+                          <ArrowUpRight className="w-3 h-3 text-black" />
+                        </a>
+                        <a href="/topic/1" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 transition-all shadow-md">
+                          Topic — Tawhid
+                          <ArrowUpRight className="w-3 h-3 text-black" />
+                        </a>
+                        <a href="/topic/2" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/70 text-black/70 text-xs font-medium hover:bg-white/90 transition-all shadow-md">
+                          Topic — Mercy
+                          <ArrowUpRight className="w-3 h-3 text-black/70" />
+                        </a>
+                        <a href="/graph" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/20 text-accent border border-accent/30 text-xs font-medium hover:bg-accent/30 transition-all shadow-md">
+                          <Network className="w-3 h-3" />
+                          Graph Explorer
+                          <ArrowUpRight className="w-3 h-3" />
+                        </a>
+                        <a href="/read" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/20 text-accent border border-accent/30 text-xs font-medium hover:bg-accent/30 transition-all shadow-md">
+                          <BookOpen className="w-3 h-3" />
+                          Read Quran
+                          <ArrowUpRight className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-accent/10 flex items-center gap-2 flex-wrap">
                     <span className="text-[10px] uppercase tracking-wider text-accent/40 font-semibold">Unlocks:</span>
                     <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-accent/10 text-accent/70 border border-accent/15">Root Word</span>
                     <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-accent/10 text-accent/70 border border-accent/15">Verse Exploration</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-accent/10 text-accent/70 border border-accent/15">Wiki Browsing</span>
                   </div>
                 </div>
               </div>
