@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { GraphSettingsPopover } from './GraphSettingsPopover';
+import { SummarizeButton } from './SummarizeButton';
 import type { GraphData, SchemaData } from './types';
 import { renderCellValue } from './simpleGraphUtils';
 
@@ -56,18 +57,21 @@ export function TabbedResultsView({
       <div className="bg-secondary/20 px-6 py-4 border-b border-border">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-foreground">Results</h2>
-          <div className="flex space-x-4 text-sm text-primary">
-            <div className="flex items-center">
-              <svg className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="font-medium">{results.execution_time_ms.toFixed(2)}ms</span>
-            </div>
-            <div className="flex items-center">
-              <svg className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
-              </svg>
-              <span className="font-medium">{results.data.length} rows</span>
+          <div className="flex items-center space-x-4">
+            <SummarizeButton results={results} />
+            <div className="flex space-x-4 text-sm text-primary">
+              <div className="flex items-center">
+                <svg className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="font-medium">{results.execution_time_ms.toFixed(2)}ms</span>
+              </div>
+              <div className="flex items-center">
+                <svg className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                </svg>
+                <span className="font-medium">{results.data.length} rows</span>
+              </div>
             </div>
           </div>
         </div>

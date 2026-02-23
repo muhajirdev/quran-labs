@@ -79,6 +79,23 @@ RETURN v, h, t`}</pre>
 WHERE t.topic_id IN [394, 1287, 1428]
 RETURN v, h, t LIMIT 30`}</pre>
             </div>
+            <div
+              className="p-3 cursor-pointer hover:bg-secondary/10 transition-colors"
+              onClick={() => setQuery('MATCH (t:Topic {name: "Privacy"})<-[h1:HAS_TOPIC]-(v:Verse)-[h2:HAS_TOPIC]->(related:Topic) WHERE related <> t RETURN t, related, h2, h1, v')}
+            >
+              <h3 className="font-medium mb-1 text-foreground">Related Topics</h3>
+              <pre className="text-xs bg-background/50 p-2 rounded border border-border text-foreground">{`MATCH (t:Topic {name: "Privacy"})<-[h1:HAS_TOPIC]-(v:Verse)-[h2:HAS_TOPIC]->(related:Topic)
+WHERE related <> t
+RETURN t, related, h2, h1, v`}</pre>
+            </div>
+            <div
+              className="p-3 cursor-pointer hover:bg-secondary/10 transition-colors"
+              onClick={() => setQuery('MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic {name: "Privacy"}) RETURN v, h, t')}
+            >
+              <h3 className="font-medium mb-1 text-foreground">Verses About Privacy</h3>
+              <pre className="text-xs bg-background/50 p-2 rounded border border-border text-foreground">{`MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic {name: "Privacy"})
+RETURN v, h, t`}</pre>
+            </div>
           </div>
         </div>
       </div>

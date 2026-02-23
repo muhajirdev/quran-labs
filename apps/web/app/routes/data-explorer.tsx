@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, lazy } from 'react';
+import { Footer } from '~/components/layout/Footer';
 import { DataExplorerSidebar } from '~/components/data-explorer/Sidebar';
 import { ExampleQueries } from '~/components/data-explorer/ExampleQueries';
 import { SchemaViewer } from '~/components/data-explorer/SchemaViewer';
@@ -400,6 +401,7 @@ export function HydrateFallback() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

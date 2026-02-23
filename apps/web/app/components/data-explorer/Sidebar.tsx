@@ -106,13 +106,13 @@ export function DataExplorerSidebar({
           {(selectedNode.label === 'Verse' && selectedNode.properties && selectedNode.properties.verse_key) && (
             <div className="mb-4 flex flex-col gap-2">
               <Button variant="default" size="sm" className="w-full bg-accent hover:bg-accent/90 text-white border-0" asChild>
-                <Link to={`/read?verse=${selectedNode.properties.verse_key}`}>
+                <Link to={`/read?verse=${selectedNode.properties.verse_key}`} target="_blank" rel="noopener noreferrer">
                   <BookOpen className="h-3.5 w-3.5 mr-1.5" />
                   <span className="text-xs">Read Quran</span>
                 </Link>
               </Button>
               <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link to={`/verse/${selectedNode.properties.verse_key}`}>
+                <Link to={`/verse/${selectedNode.properties.verse_key}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
                   <span className="text-xs">View Verse Detail Page</span>
                 </Link>
@@ -122,7 +122,7 @@ export function DataExplorerSidebar({
           {(selectedNode.label === 'Topic' && selectedNode.properties && selectedNode.properties.topic_id) && (
             <div className="mb-4">
               <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link to={`/topic/${selectedNode.properties.topic_id}`}>
+                <Link to={`/topic/${selectedNode.properties.topic_id}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
                   <span className="text-xs">View Topic Detail Page</span>
                 </Link>

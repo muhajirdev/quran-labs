@@ -35,6 +35,18 @@ const GRAPH_SUGGESTIONS = [
         query: 'MATCH (v:Verse {verse_key: "112:1"})-[r]-(n) RETURN v, r, n LIMIT 20',
         description: "Connections in the chapter of Sincerity",
         icon: SparklesIcon
+    },
+    {
+        title: "Privacy Topic Network",
+        query: 'MATCH (t:Topic {name: "Privacy"})<-[h1:HAS_TOPIC]-(v:Verse)-[h2:HAS_TOPIC]->(related:Topic) WHERE related <> t RETURN t, related, h2, h1, v',
+        description: "Discover topics connected to Privacy",
+        icon: Network
+    },
+    {
+        title: "Verses About Privacy",
+        query: 'MATCH (v:Verse)-[h:HAS_TOPIC]->(t:Topic {name: "Privacy"}) RETURN v, h, t',
+        description: "Quranic verses discussing Privacy",
+        icon: Network
     }
 ];
 
@@ -99,7 +111,7 @@ export const GraphLandingExperience = () => {
                 <div className="w-full max-w-5xl mx-auto flex flex-col gap-6">
 
                     {/* Graph Suggestions */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {GRAPH_SUGGESTIONS.map((suggestion, index) => (
                             <button
                                 key={index}

@@ -11,6 +11,7 @@ import { FloatingChatInterface } from "~/components/ai/FloatingChatInterface";
 import { BookIcon, BookMarkedIcon, BrainCircuitIcon, LayersIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { chatMessagesAtom, chatMinimizedAtom } from "~/store/chat";
 import { useAtom } from "jotai";
+import { Footer } from "~/components/layout/Footer";
 
 import {
   Select,
@@ -693,6 +694,7 @@ export default function QuranReader() {
           </p>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
