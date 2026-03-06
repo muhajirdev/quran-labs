@@ -105,7 +105,7 @@ export function TranslationCard({ translations, verseKey, onCompare }: Translati
 
       {/* Collapsible translations with Accordion */}
       <div className="p-2">
-        <Accordion type="multiple" defaultValue={["translation-0"]} className="w-full">
+        <Accordion type="multiple" className="w-full">
           {displayTranslations.map((translation, index) => (
             <TranslationAccordionItem
               key={index}

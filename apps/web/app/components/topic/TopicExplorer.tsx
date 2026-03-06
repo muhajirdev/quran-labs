@@ -13,12 +13,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "~/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "~/components/ui/accordion";
 import { Link } from "react-router";
 import { Tag, Network, BookOpen, Lightbulb, Compass } from "lucide-react";
 
@@ -29,143 +23,133 @@ interface TopicExplorerProps {
 
 export function TopicExplorer({ topicId, topicName }: TopicExplorerProps) {
   const [activeTab, setActiveTab] = useState("related");
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden">
-      <Accordion
-        type="single"
-        collapsible
-        value={isOpen ? "topic" : ""}
-        onValueChange={(value) => setIsOpen(value === "topic")}
-      >
-        <AccordionItem value="topic" className="border-0">
-          <AccordionTrigger className="px-4 py-3 hover:no-underline data-[state=open]:border-b data-[state=open]:border-border/30 bg-muted/10">
-            <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <Network className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <h3 className="font-medium">Topic Explorer</h3>
-              <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 text-[10px]">
-                DEMO DATA
-              </Badge>
+    <div className="bg-white/[0.02] rounded-xl border border-white/5 overflow-hidden mt-6">
+      <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-full bg-accent/10 flex items-center justify-center">
+            <Network className="h-3.5 w-3.5 text-accent" />
+          </div>
+          <h3 className="font-medium text-white flex items-center gap-2">
+            Topic Explorer
+          </h3>
+          <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 text-[10px]">
+            DEMO DATA
+          </Badge>
+        </div>
+        <Badge variant="outline" className="bg-accent/5 text-accent border-accent/20 text-xs font-normal">
+          {topicName}
+        </Badge>
+      </div>
+      <div className="p-4 pt-5 pb-5">
+        <Tabs defaultValue="related" className="w-full" onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-3 mb-4 bg-white/5 border border-white/10 text-white/50 p-1">
+            <TabsTrigger value="related" className="data-[state=active]:bg-[#1c1c1c] data-[state=active]:text-accent data-[state=active]:shadow-sm">Related</TabsTrigger>
+            <TabsTrigger value="concepts" className="data-[state=active]:bg-[#1c1c1c] data-[state=active]:text-accent data-[state=active]:shadow-sm">Concepts</TabsTrigger>
+            <TabsTrigger value="scholars" className="data-[state=active]:bg-[#1c1c1c] data-[state=active]:text-accent data-[state=active]:shadow-sm">Scholars</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="related" className="space-y-4">
+            <div className="text-sm text-white/50 mb-3">
+              Explore topics related to {topicName} in the Quran.
             </div>
-            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-xs font-normal ml-auto mr-4">
-              {topicName}
-            </Badge>
-          </AccordionTrigger>
-          <AccordionContent className="p-4 pt-5 pb-5">
-            <Tabs defaultValue="related" className="w-full" onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-3 mb-4">
-                <TabsTrigger value="related">Related</TabsTrigger>
-                <TabsTrigger value="concepts">Concepts</TabsTrigger>
-                <TabsTrigger value="scholars">Scholars</TabsTrigger>
-              </TabsList>
 
-              <TabsContent value="related" className="space-y-4">
-                <div className="text-sm text-muted-foreground mb-3">
-                  Explore topics related to {topicName} in the Quran.
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {getRelatedTopics().map((category, i) => (
-                    <div key={i} className="bg-muted/10 rounded-md border border-border/30 overflow-hidden hover:border-primary/30 transition-colors group">
-                      <div className="px-3 py-2 bg-muted/20 border-b border-border/30 flex items-center justify-between">
-                        <h4 className="text-sm font-medium">{category.category}</h4>
-                        <Badge variant="outline" className="text-[10px] h-4 px-1 bg-primary/5 text-primary border-primary/20">
-                          {category.topics.length}
-                        </Badge>
-                      </div>
-                      <div className="p-3">
-                        <div className="flex flex-wrap gap-1.5">
-                          {category.topics.map((topic, j) => (
-                            <Link key={j} to={`/topic/${topic.id}`}>
-                              <Badge
-                                variant="outline"
-                                className="bg-background hover:bg-primary/5 cursor-pointer transition-colors"
-                              >
-                                {topic.name}
-                              </Badge>
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
+            <div className="grid grid-cols-2 gap-3">
+              {getRelatedTopics().map((category, i) => (
+                <div key={i} className="bg-white/[0.02] rounded-md border border-white/5 overflow-hidden hover:border-accent/30 transition-colors group">
+                  <div className="px-3 py-2 bg-white/[0.04] border-b border-white/5 flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-white group-hover:text-accent transition-colors">{category.category}</h4>
+                    <Badge variant="outline" className="text-[10px] h-4 px-1 bg-accent/10 text-accent border-accent/20">
+                      {category.topics.length}
+                    </Badge>
+                  </div>
+                  <div className="p-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      {category.topics.map((topic, j) => (
+                        <Link key={j} to={`/topic/${topic.id}`}>
+                          <Badge
+                            variant="outline"
+                            className="bg-transparent text-white/70 border-white/10 hover:bg-white/10 hover:text-white cursor-pointer transition-colors"
+                          >
+                            {topic.name}
+                          </Badge>
+                        </Link>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </TabsContent>
-
-              <TabsContent value="concepts" className="space-y-4">
-                <div className="text-sm text-muted-foreground mb-3">
-                  Discover key concepts related to {topicName} in Islamic thought.
-                </div>
-
-                <Accordion type="multiple" className="w-full">
-                  {getRelatedConcepts().map((concept, i) => (
-                    <AccordionItem key={i} value={`concept-${i}`} className="border-b border-border/30">
-                      <AccordionTrigger className="hover:no-underline py-2 px-3 hover:bg-muted/10 rounded-md data-[state=open]:bg-muted/5">
-                        <div className="flex items-center gap-2">
-                          <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Lightbulb className="h-3 w-3 text-primary" />
-                          </div>
-                          <span className="text-sm font-medium">{concept.name}</span>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-3 pb-3">
-                        <p className="text-sm text-muted-foreground mb-2">{concept.description}</p>
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          {concept.related_verses.map((verse, j) => (
-                            <Link key={j} to={`/verse/${verse}`}>
-                              <Badge variant="outline" className="bg-muted/10 hover:bg-primary/5 cursor-pointer transition-colors">
-                                {verse}
-                              </Badge>
-                            </Link>
-                          ))}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </TabsContent>
-
-              <TabsContent value="scholars" className="space-y-4">
-                <div className="text-sm text-muted-foreground mb-3">
-                  Explore scholarly perspectives on {topicName}.
-                </div>
-
-                <div className="grid grid-cols-1 gap-3">
-                  {getScholarlyPerspectives().map((scholar, i) => (
-                    <div key={i} className="bg-muted/10 rounded-md border border-border/30 p-3 hover:border-primary/30 transition-colors">
-                      <div className="flex items-start gap-3">
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-sm font-medium text-primary">{scholar.name.charAt(0)}</span>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium mb-1">{scholar.name}</h4>
-                          <p className="text-xs text-muted-foreground mb-2">{scholar.period}</p>
-                          <p className="text-sm">{scholar.perspective}</p>
-                          {scholar.source && (
-                            <p className="text-xs text-muted-foreground mt-2 italic">Source: {scholar.source}</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
-
-            <div className="flex justify-center mt-6">
-              <Button className="gap-1.5">
-                <Compass className="h-4 w-4" />
-                {activeTab === "related" && "Explore Topic Network"}
-                {activeTab === "concepts" && "Explore All Concepts"}
-                {activeTab === "scholars" && "Explore All Perspectives"}
-              </Button>
+              ))}
             </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+          </TabsContent>
+
+          <TabsContent value="concepts" className="space-y-4">
+            <div className="text-sm text-white/50 mb-3">
+              Discover key concepts related to {topicName} in Islamic thought.
+            </div>
+
+            <div className="space-y-4">
+              {getRelatedConcepts().map((concept, i) => (
+                <div key={i} className="bg-white/[0.02] rounded-md border border-white/5 p-3 hover:border-accent/30 transition-colors group">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="h-7 w-7 rounded-full bg-accent/10 flex items-center justify-center">
+                      <Lightbulb className="h-3.5 w-3.5 text-accent" />
+                    </div>
+                    <span className="text-sm font-medium text-white">{concept.name}</span>
+                  </div>
+                  <div className="pl-9">
+                    <p className="text-sm text-white/70 mb-2">{concept.description}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {concept.related_verses.map((verse, j) => (
+                        <Link key={j} to={`/verse/${verse}`}>
+                          <Badge variant="outline" className="bg-white/5 text-white/80 border-white/10 hover:bg-white/10 hover:text-white cursor-pointer transition-colors">
+                            {verse}
+                          </Badge>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="scholars" className="space-y-4">
+            <div className="text-sm text-white/50 mb-3">
+              Explore scholarly perspectives on {topicName}.
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+              {getScholarlyPerspectives().map((scholar, i) => (
+                <div key={i} className="bg-white/[0.02] rounded-md border border-white/5 p-3 hover:border-accent/30 transition-colors group">
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-sm font-medium text-accent">{scholar.name.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium mb-1 text-white group-hover:text-accent transition-colors">{scholar.name}</h4>
+                      <p className="text-xs text-white/40 mb-2">{scholar.period}</p>
+                      <p className="text-sm text-white/80">{scholar.perspective}</p>
+                      {scholar.source && (
+                        <p className="text-xs text-white/40 mt-2 italic">Source: {scholar.source}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex justify-center mt-6">
+          <Button variant="outline" className="gap-1.5 bg-white/[0.02] border-white/5 text-white hover:bg-white/[0.06] hover:text-white hover:border-accent/40 shadow-sm transition-all group">
+            <Compass className="h-4 w-4 text-accent group-hover:scale-110 transition-transform" />
+            {activeTab === "related" && "Explore Topic Network"}
+            {activeTab === "concepts" && "Explore All Concepts"}
+            {activeTab === "scholars" && "Explore All Perspectives"}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

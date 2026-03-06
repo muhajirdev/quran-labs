@@ -62,9 +62,9 @@ export function TopicVerseList({ verses, topicId, topicName }: TopicVerseListPro
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-medium">Verses Addressing {topicName}</h2>
-          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+          <BookOpen className="h-5 w-5 text-accent" />
+          <h2 className="text-lg font-medium text-white">Verses Addressing {topicName}</h2>
+          <Badge variant="outline" className="bg-accent/5 text-accent border-accent/20">
             {verses.length}
           </Badge>
           <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 text-[10px]">
@@ -74,28 +74,28 @@ export function TopicVerseList({ verses, topicId, topicName }: TopicVerseListPro
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+            <SlidersHorizontal className="h-4 w-4 text-white/40" />
             <Select value={sortBy} onValueChange={(value) => setSortBy(value as "relevance" | "order")}>
-              <SelectTrigger className="h-8 w-[160px]">
+              <SelectTrigger className="h-8 w-[160px] bg-[#1c1c1c] border-white/10 text-white">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="order">Quranic Order</SelectItem>
-                <SelectItem value="relevance">Relevance</SelectItem>
+              <SelectContent className="bg-[#1c1c1c] border-white/10 text-white">
+                <SelectItem value="order" className="focus:bg-white/10 focus:text-white">Quranic Order</SelectItem>
+                <SelectItem value="relevance" className="focus:bg-white/10 focus:text-white">Relevance</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Filter className="h-4 w-4 text-white/40" />
             <Select value={filterBy} onValueChange={setFilterBy as any}>
-              <SelectTrigger className="h-8 w-[160px]">
+              <SelectTrigger className="h-8 w-[160px] bg-[#1c1c1c] border-white/10 text-white">
                 <SelectValue placeholder="Filter by" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Verses</SelectItem>
-                <SelectItem value="meccan">Meccan Verses</SelectItem>
-                <SelectItem value="medinan">Medinan Verses</SelectItem>
+              <SelectContent className="bg-[#1c1c1c] border-white/10 text-white">
+                <SelectItem value="all" className="focus:bg-white/10 focus:text-white">All Verses</SelectItem>
+                <SelectItem value="meccan" className="focus:bg-white/10 focus:text-white">Meccan Verses</SelectItem>
+                <SelectItem value="medinan" className="focus:bg-white/10 focus:text-white">Medinan Verses</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -113,7 +113,7 @@ export function TopicVerseList({ verses, topicId, topicName }: TopicVerseListPro
           <Button
             variant="outline"
             onClick={() => setExpanded(!expanded)}
-            className="gap-2"
+            className="gap-2 bg-white/[0.02] border-white/5 text-white hover:bg-white/[0.05] hover:text-white hover:border-accent/40 transition-all shadow-sm"
           >
             {expanded ? "Show Less" : `Show All ${verses.length} Verses`}
             <ChevronRight className={`h-4 w-4 transition-transform ${expanded ? 'rotate-90' : ''}`} />
@@ -130,42 +130,42 @@ interface VerseCardProps {
 
 function VerseCard({ verse }: VerseCardProps) {
   return (
-    <div className="bg-background rounded-xl border border-border/50 shadow-sm overflow-hidden hover:border-primary/30 transition-colors">
-      <div className="bg-muted/10 p-3">
+    <div className="bg-white/[0.02] rounded-xl border border-white/5 overflow-hidden hover:border-accent/30 transition-colors">
+      <div className="bg-white/[0.02] p-3 border-b border-white/5">
         <div className="flex justify-between items-center">
-          <Link to={`/verse/${verse.verse_key}`} className="hover:text-primary transition-colors">
-            <div className="text-base flex items-center gap-1.5 font-medium">
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+          <Link to={`/verse/${verse.verse_key}`} className="hover:text-accent transition-colors group/link">
+            <div className="text-base flex items-center gap-1.5 font-medium text-white">
+              <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 group-hover/link:bg-accent/20 transition-colors">
                 {verse.verse_key}
               </Badge>
-              {verse.surah_name && <span className="text-sm font-normal text-muted-foreground">Surah {verse.surah_name}</span>}
+              {verse.surah_name && <span className="text-sm font-normal text-white/50 group-hover/link:text-white/70 transition-colors">Surah {verse.surah_name}</span>}
             </div>
           </Link>
 
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-7 w-7 rounded-full" asChild>
+                <Button variant="ghost" size="sm" className="h-7 w-7 rounded-full text-white/50 hover:text-white hover:bg-white/10" asChild>
                   <Link to={`/verse/${verse.verse_key}`}>
                     <ChevronRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="left">
+              <TooltipContent side="left" className="bg-[#1c1c1c] border-white/10 text-white">
                 <p>View verse details</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
       </div>
-      <div className="p-3">
-        <p className="text-sm leading-relaxed">{verse.text}</p>
+      <div className="p-4">
+        <p className="text-sm leading-relaxed text-white/80">{verse.text}</p>
       </div>
       {verse.relevance !== undefined && (
-        <div className="py-2 px-3 bg-muted/5 border-t border-border/30 flex justify-between">
-          <div className="text-xs text-muted-foreground">
+        <div className="py-2.5 px-4 bg-white/[0.01] border-t border-white/5 flex justify-between">
+          <div className="text-xs text-white/50">
             Relevance:
-            <span className="ml-1 text-primary font-medium">
+            <span className="ml-1.5 text-accent font-medium bg-accent/10 px-1.5 py-0.5 rounded-sm">
               {Math.round(verse.relevance * 100)}%
             </span>
           </div>
@@ -173,17 +173,17 @@ function VerseCard({ verse }: VerseCardProps) {
           {(verse.juz || verse.hizb || verse.ruku) && (
             <div className="flex items-center gap-2">
               {verse.juz && (
-                <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                <Badge variant="outline" className="text-[10px] h-5 px-1.5 bg-white/5 text-white/70 border-white/10">
                   Juz {verse.juz}
                 </Badge>
               )}
               {verse.hizb && (
-                <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                <Badge variant="outline" className="text-[10px] h-5 px-1.5 bg-white/5 text-white/70 border-white/10">
                   Hizb {verse.hizb}
                 </Badge>
               )}
               {verse.ruku && (
-                <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                <Badge variant="outline" className="text-[10px] h-5 px-1.5 bg-white/5 text-white/70 border-white/10">
                   Ruku {verse.ruku}
                 </Badge>
               )}

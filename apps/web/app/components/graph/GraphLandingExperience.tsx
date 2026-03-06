@@ -10,6 +10,8 @@ import { MinimalGraphViewer } from "./MinimalGraphViewer";
 import { useNavigate } from "react-router";
 import { Footer } from "../layout/Footer";
 import { AnimatedNetworkIcon } from "~/components/ui/animated-network-icon";
+import { Dialog, DialogTrigger, DialogContent } from "~/components/ui/dialog";
+import { Play } from "lucide-react";
 
 const GRAPH_SUGGESTIONS = [
     {
@@ -104,6 +106,26 @@ export const GraphLandingExperience = () => {
                         <p className="text-white/70 text-base sm:text-lg text-center leading-relaxed px-6">
                             Explore how the Quran connects. A visual network of verses, concepts, and classical commentary.
                         </p>
+                    </div>
+
+                    {/* How It Works Button */}
+                    <div className="flex justify-center mb-12 relative z-20">
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button className="gap-2 bg-accent/10 text-white border border-accent/30 hover:bg-accent/20 hover:border-accent/50 rounded-full px-6 py-5 shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all duration-300">
+                                    <Play className="w-4 h-4 fill-current" />
+                                    See How it works
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-4xl p-0 bg-black/90 border-white/10 overflow-hidden outline-none shadow-2xl">
+                                <video
+                                    src="https://assets.superquran.com/static/superquran-final.mp4"
+                                    controls
+                                    autoPlay
+                                    className="w-full h-auto"
+                                />
+                            </DialogContent>
+                        </Dialog>
                     </div>
                 </div>
 

@@ -69,7 +69,7 @@ export function TafsirCard({ tafsirs }: TafsirCardProps) {
 
       {/* Collapsible commentaries with Accordion */}
       <div className="p-2">
-        <Accordion type="multiple" defaultValue={["tafsir-0"]} className="w-full">
+        <Accordion type="multiple" className="w-full">
           {tafsirs.map((tafsir, index) => (
             <TafsirAccordionItem key={index} tafsir={tafsir} index={index} />
           ))}
