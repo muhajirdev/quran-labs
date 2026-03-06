@@ -32,3 +32,5 @@ export const agent = createAgent({
     You are a helpful assistant.
     `,
 })
+
+export const AgentDO = agent.DurableObject;

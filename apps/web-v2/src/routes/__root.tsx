@@ -2,6 +2,9 @@ import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
+
+import { getServerTheme } from '../theme.server'
+
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
@@ -15,7 +18,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'SuperQuran Graph',
       },
     ],
     links: [
@@ -38,12 +41,28 @@ export const Route = createRootRoute({
       },
     ],
   }),
+  loader: async () => {
+    let themeCookie: 'light' | 'dark' | 'system' = 'system'
+    try {
+      themeCookie = await getServerTheme()
+    } catch (e) {
+      // Ignore on client during hydration
+    }
+    return { themeCookie }
+  },
   shellComponent: RootDocument,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { themeCookie } = Route.useLoaderData()
+
+  // Conditionally apply the dark class if the cookie says 'dark'
+  // (If 'system', we omit the class and rely on prefers-color-scheme in CSS if we had native Tailwind)
+  // However, because we use @variant dark, we explicitly inject `dark` if the cookie is `dark`
+  const htmlClass = themeCookie === 'dark' ? 'dark' : ''
+
   return (
-    <html lang="en">
+    <html lang="en" className={htmlClass}>
       <head>
         <HeadContent />
       </head>
