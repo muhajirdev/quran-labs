@@ -5,8 +5,6 @@ import {
   BookOpen,
   ArrowRight
 } from 'lucide-react'
-import { ThemeToggle } from '../components/ThemeToggle'
-import { Route as RootRoute } from './__root'
 
 export const Route = createFileRoute('/')({ component: LandingPage })
 
@@ -44,8 +42,6 @@ const BackgroundGraph = () => (
 )
 
 function LandingPage() {
-  const { themeCookie } = RootRoute.useLoaderData()
-
   return (
     <div className="min-h-screen bg-bg-base dark:bg-slate-950 font-sans selection:bg-brand-orange/20 transition-colors duration-500 overflow-hidden relative">
       <BackgroundGraph />
@@ -56,7 +52,6 @@ function LandingPage() {
           SuperQuran.com
         </div>
         <div className="flex items-center gap-4">
-          <ThemeToggle currentTheme={themeCookie} />
           <a
             href="https://quran-web.qalam.workers.dev/"
             target="_blank"

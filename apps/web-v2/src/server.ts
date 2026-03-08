@@ -1,6 +1,5 @@
 // src/server.ts
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
-
 import { createAgent } from 'honidev'
 
 
@@ -24,6 +23,7 @@ export default createServerEntry({
         })
     },
 })
+
 
 export const agent = createAgent({
     name: 'my-agent',
